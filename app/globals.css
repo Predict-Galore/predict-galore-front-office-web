@@ -1,0 +1,203 @@
+/**
+ * GLOBAL STYLES - Tailwind CSS v4
+ * 
+ * Using Tailwind CSS v4 with new syntax
+ */
+
+/* ============================================
+ * TAILWINDCSS v4 IMPORTS
+ * ============================================ */
+
+@import 'tailwindcss';
+
+/* ============================================
+ * CSS CUSTOM PROPERTIES (CSS Variables)
+ * ============================================ */
+
+:root {
+  /* Light mode variables */
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #42a605;
+  --secondary: #e72838;
+}
+
+/* ============================================
+ * TAILWIND THEME CONFIGURATION (v4 syntax)
+ * ============================================ */
+
+@theme {
+  /* Color mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+
+  /* Font families */
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Border radius */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+}
+
+/* ============================================
+ * DARK MODE SUPPORT
+ * ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode variables */
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #5ccc80;
+    --secondary: #f5777e;
+  }
+}
+
+/* ============================================
+ * GLOBAL BODY STYLES
+ * ============================================ */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar for all elements */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* ============================================
+ * CUSTOM UTILITIES
+ * ============================================ */
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Glass effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Smooth transitions */
+* {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* ============================================
+ * ACCESSIBILITY
+ * ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: rgba(66, 166, 5, 0.3);
+}
+
+/* ============================================
+ * SCROLL BEHAVIOR
+ * ============================================ */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+/* ============================================
+ * RESET & BASE STYLES
+ * ============================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margins */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+/* Remove list styles */
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+/* Remove default button styles */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
