@@ -34,7 +34,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 }) => {
   if (variant === 'skeleton') {
     return (
-      <Stack spacing={3} sx={{ ...className }}>
+      <Stack spacing={3} className={className}>
         <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
           <Stack spacing={2}>
             <Skeleton variant="text" width="33%" height={32} />
@@ -65,12 +65,12 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 
   return (
     <Box
+      className={className}
       sx={{
         minHeight: 400,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        ...className
+        justifyContent: 'center'
       }}
     >
       <Box sx={{ textAlign: 'center' }}>

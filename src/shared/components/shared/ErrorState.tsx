@@ -26,7 +26,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   className,
 }) => {
   return (
-    <Box sx={{ minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', ...className }}>
+    <Box className={className} sx={{ minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Box sx={{ textAlign: 'center', maxWidth: 400 }}>
         <ErrorOutline sx={{ color: 'error.main', fontSize: '4rem', mb: 2, mx: 'auto' }} />
         <Typography variant="h6" sx={{ color: 'text.primary', mb: 1 }}>

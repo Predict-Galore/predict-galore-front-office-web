@@ -40,12 +40,12 @@ function VirtualizedList<T>({
 
   return (
     <Box
+      className={className}
       sx={{
         height: `${height}px`,
         overflowY: 'auto',
         overflowX: 'hidden',
         scrollBehavior: 'smooth',
-        ...className,
       }}
     >
       {items.map((item, index) => (
