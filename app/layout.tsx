@@ -7,7 +7,7 @@
  */
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import Providers from '@/src/providers';
+import Providers from '@/providers';
 // import { AuthProvider } from '../providers/AuthProvider';
 
 import './globals.css';
