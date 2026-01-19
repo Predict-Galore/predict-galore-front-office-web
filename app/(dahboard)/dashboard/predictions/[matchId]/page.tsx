@@ -17,7 +17,6 @@ import {
 import { useDetailedMatch, useMatchOdds, useLeagueTable } from '@/features/predictions';
 import { useNews, useFeaturedNews } from '@/features/news';
 import { LoadingState, ErrorState } from '@/shared/components/shared';
-import { getFallbackDetailedMatch } from '@/features/predictions/lib/mock-data';
 
 type TabType = 'overview' | 'predictions' | 'table';
 
@@ -70,7 +69,7 @@ const MatchDetailPage: React.FC = () => {
     );
   }
 
-  const effectiveMatch = matchData || (matchId ? getFallbackDetailedMatch(matchId) : null);
+  const effectiveMatch = matchData;
 
   if (matchError && !effectiveMatch) {
     return (

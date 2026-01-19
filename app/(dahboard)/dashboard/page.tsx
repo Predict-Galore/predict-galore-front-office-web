@@ -17,9 +17,6 @@ import {
 } from '@/features/dashboard/components';
 import { DashboardNewsSidebar } from '@/shared/components/shared';
 import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
-import { mockPredictions } from '@/features/predictions/lib/mock-data';
-import { mockLiveScoresResponse } from '@/features/live-matches/lib/mock-data';
-import { USE_MOCK_DATA } from '@/shared/constants/data-source';
 import { getFriendlyErrorMessage } from '@/shared/lib/errors';
 import { EmptyState, ErrorState } from '@/shared/components/shared';
 import type { Sport } from '@/features/predictions/model/types';
@@ -177,11 +174,8 @@ const DashboardPage: React.FC = () => {
   );
 
   const predictionsSource = useMemo<Prediction[]>(() => {
-    const shouldUseMock =
-      USE_MOCK_DATA || isPredictionsError || !predictionsData?.predictions?.length;
-
-    return shouldUseMock ? mockPredictions : predictionsData?.predictions || [];
-  }, [isPredictionsError, predictionsData]);
+    return predictionsData?.predictions || [];
+  }, [predictionsData]);
 
   // Group predictions by league
   const predictionsByLeague = useMemo(() => {
@@ -203,11 +197,7 @@ const DashboardPage: React.FC = () => {
 
   // Group live scores by competition
   const liveScoresByCompetition = useMemo(() => {
-    const source = liveScoresData?.sections?.length
-      ? liveScoresData
-      : USE_MOCK_DATA || isLiveScoresError
-        ? mockLiveScoresResponse
-        : liveScoresData;
+    const source = liveScoresData;
 
     if (!source?.sections) return {};
 

@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Container, Stack, Paper, Box, Typography, Button } from '@mui/material';
 import SafeImage from '@/shared/components/shared/SafeImage';
@@ -13,7 +13,6 @@ import { ArrowBack, Share, ThumbUp, ThumbDown } from '@mui/icons-material';
 import { useNewsItem } from '@/features/news';
 import { LoadingState, ErrorState } from '@/shared/components/shared';
 import dayjs from 'dayjs';
-import { mockNewsItems } from '@/features/news/lib/mock-data';
 
 const NewsArticlePage: React.FC = () => {
   const params = useParams();
@@ -30,10 +29,7 @@ const NewsArticlePage: React.FC = () => {
     error,
   } = useNewsItem(articleId ?? undefined, { enabled: !!articleId });
 
-  const fallbackArticle = useMemo(() => {
-    if (!articleId) return null;
-    return mockNewsItems.find((item) => item.id === articleId) || mockNewsItems[0];
-  }, [articleId]);
+  const fallbackArticle = null;
 
   const handleBack = () => {
     router.push('/dashboard/news');

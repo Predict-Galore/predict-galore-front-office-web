@@ -5,18 +5,8 @@
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
-import { USE_MOCK_DATA, USE_MOCK_ON_ERROR } from '@/shared/constants/data-source';
 import { PredictionTransformer } from '../lib/transformers';
 import { validatePredictionFilters, validateDateRange } from '../lib/validators';
-import {
-  getMockPredictionsResponse,
-  mockBettingMarkets,
-  mockDetailedPrediction,
-  mockLeagueTable,
-  mockLeagues,
-  mockPredictions,
-  mockSports,
-} from '../lib/mock-data';
 import type {
   Sport,
   League,
@@ -46,11 +36,6 @@ export class PredictionService {
   static async getSports(): Promise<Sport[]> {
     logger.info('Fetching sports');
 
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock sports (mock mode enabled)');
-      return mockSports;
-    }
-
     try {
       const response = await api.get<SportsResponse | Sport[]>(API_ENDPOINTS.PREDICTIONS.SPORTS);
 
@@ -60,10 +45,6 @@ export class PredictionService {
       return sports;
     } catch (error) {
       logger.error('Failed to fetch sports', { error });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock sports after error');
-        return mockSports;
-      }
       throw error;
     }
   }
@@ -77,11 +58,6 @@ export class PredictionService {
     }
 
     logger.info('Fetching leagues', { sportId });
-
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock leagues (mock mode enabled)');
-      return mockLeagues.filter((league) => league.sportId === sportId);
-    }
 
     try {
       const response = await api.get<LeaguesResponse | League[]>(
@@ -135,11 +111,6 @@ export class PredictionService {
 
     logger.info('Fetching predictions', { filters, queryParams });
 
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock predictions (mock mode enabled)');
-      return getMockPredictionsResponse(filters);
-    }
-
     try {
       const response = await api.get<PredictionsResponse>(
         API_ENDPOINTS.PREDICTIONS.MATCHES(filters.sportId, filters.leagueId),
@@ -155,10 +126,6 @@ export class PredictionService {
       return result;
     } catch (error) {
       logger.error('Failed to fetch predictions', { error, filters });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock predictions after error');
-        return getMockPredictionsResponse(filters);
-      }
       throw error;
     }
   }
@@ -187,14 +154,6 @@ export class PredictionService {
 
     logger.info('Fetching detailed match', { matchId });
 
-    if (USE_MOCK_DATA) {
-      const fallback = mockPredictions.find((p) => p.id === matchId) || mockPredictions[0];
-      return {
-        prediction: fallback,
-        detailed: { ...mockDetailedPrediction, matchId },
-      };
-    }
-
     try {
       const response = await api.get<{
         prediction: Prediction;
@@ -218,11 +177,6 @@ export class PredictionService {
     }
 
     logger.info('Fetching match odds', { matchId });
-
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock odds (mock mode enabled)');
-      return mockBettingMarkets;
-    }
 
     try {
       const response = await api.get<{ data: BettingMarket[] }>(
@@ -249,11 +203,6 @@ export class PredictionService {
     }
 
     logger.info('Fetching league table', { leagueId });
-
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock league table (mock mode enabled)');
-      return mockLeagueTable;
-    }
 
     try {
       const response = await api.get<{ data: LeagueTableEntry[] }>(

@@ -34,14 +34,38 @@ class Logger {
     return `${prefix} ${message} | ${timestamp}`;
   }
 
+  private serializeData(data: LogData): LogData {
+    const result: LogData = {};
+
+    for (const [key, value] of Object.entries(data)) {
+      if (value instanceof Error) {
+        // Extract Error properties that JSON.stringify normally misses
+        result[key] = {
+          name: value.name,
+          message: value.message,
+          stack: value.stack,
+          // Include ApiError specific properties
+          ...(value instanceof Error && 'status' in value && { status: (value as any).status }),
+          ...(value instanceof Error && 'statusText' in value && { statusText: (value as any).statusText }),
+          ...(value instanceof Error && 'data' in value && { data: (value as any).data }),
+        };
+      } else {
+        result[key] = value;
+      }
+    }
+
+    return result;
+  }
+
   private log(level: LogLevel, message: string, data?: LogData): void {
-    const formattedMessage = this.formatMessage(level, message, data);
+    const serializedData = data ? this.serializeData(data) : undefined;
+    const formattedMessage = this.formatMessage(level, message, serializedData);
 
     switch (level) {
       case 'error':
         // Only log errors in development, or if explicitly enabled
         if (this.isDevelopment) {
-          console.error(formattedMessage, data || '');
+          console.error(formattedMessage, serializedData || '');
         } else {
           // In production, silently log or send to error tracking service
           // You can integrate with services like Sentry, LogRocket, etc. here
@@ -49,18 +73,18 @@ class Logger {
         break;
       case 'warn':
         if (this.isDevelopment) {
-          console.warn(formattedMessage, data || '');
+          console.warn(formattedMessage, serializedData || '');
         }
         break;
       case 'debug':
         if (this.isDevelopment) {
-          console.debug(formattedMessage, data || '');
+          console.debug(formattedMessage, serializedData || '');
         }
         break;
       case 'info':
       default:
         if (this.isDevelopment) {
-          console.log(formattedMessage, data || '');
+          console.log(formattedMessage, serializedData || '');
         }
         break;
     }

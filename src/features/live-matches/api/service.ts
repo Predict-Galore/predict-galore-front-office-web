@@ -5,14 +5,8 @@
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
-import { USE_MOCK_DATA, USE_MOCK_ON_ERROR } from '@/shared/constants/data-source';
 import { LiveMatchesTransformer } from '../lib/transformers';
 import { validateLiveMatchesFilter, validateMatchId, validateFixtureId } from '../lib/validators';
-import {
-  getMockDetailedLiveMatch,
-  getMockLiveScores,
-  mockLiveScoresResponse,
-} from '../lib/mock-data';
 import type { Match, DetailedLiveMatch } from '../model/types';
 import type { GetLiveScoresRequest, BackendLiveScoresResponse, LiveScoresResponse } from './types';
 
@@ -36,11 +30,6 @@ export class LiveMatchesService {
     }
 
     logger.info('Fetching live scores', { filters });
-
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock live scores (mock mode enabled)');
-      return getMockLiveScores(filters);
-    }
 
     try {
       const backendData = await api.get<BackendLiveScoresResponse>(API_ENDPOINTS.LIVE.SCORES);
@@ -67,10 +56,6 @@ export class LiveMatchesService {
       return response;
     } catch (error) {
       logger.error('Failed to fetch live scores', { error });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock live scores after error');
-        return getMockLiveScores(filters);
-      }
       throw error;
     }
   }
@@ -86,13 +71,6 @@ export class LiveMatchesService {
     }
 
     logger.info('Fetching fixture scores', { fixtureId });
-
-    if (USE_MOCK_DATA) {
-      const match = mockLiveScoresResponse.sections
-        .flatMap((s) => s.matches)
-        .find((m) => m.id === String(fixtureId));
-      return match || null;
-    }
 
     try {
       const backendData = await api.get<BackendLiveScoresResponse>(API_ENDPOINTS.LIVE.SCORES);
@@ -119,13 +97,6 @@ export class LiveMatchesService {
    */
   static async getLeagueScores(leagueId: number): Promise<Match[]> {
     logger.info('Fetching league scores', { leagueId });
-
-    if (USE_MOCK_DATA) {
-      const matches = mockLiveScoresResponse.sections.flatMap((section) =>
-        section.matches.filter((match) => match.competition?.includes('League'))
-      );
-      return matches;
-    }
 
     try {
       const backendData = await api.get<BackendLiveScoresResponse>(API_ENDPOINTS.LIVE.SCORES);
@@ -157,116 +128,16 @@ export class LiveMatchesService {
 
     logger.info('Fetching detailed match', { matchId });
 
-    if (USE_MOCK_DATA) {
-      return getMockDetailedLiveMatch(matchId);
-    }
-
     try {
-      // This would need a specific endpoint for detailed match
-      // For now, we'll create mock data
-      // In production, this would call API_ENDPOINTS.LIVE.DETAILED_MATCH(matchId)
-
-      const detailedMatch: DetailedLiveMatch = {
-        id: `detailed-${matchId}`,
-        matchId: matchId,
-        currentMinute: 45,
-        addedTime: 3,
-        half: 'first',
-        events: [],
-        commentary: [],
-        stats: {
-          homeTeam: {
-            form: ['W', 'W', 'D', 'L'],
-            recentForm: ['L', 'D', 'W', 'L', 'W'],
-            headToHeadWins: ['W', 'W', 'D', 'L'],
-            goalsPerGame: 2.1,
-            goalsConcededPerGame: 1.2,
-            winPercentage: 75,
-            possessionPercentage: 58,
-            cleanSheets: 12,
-            shotsOnTarget: 6,
-            totalShots: 14,
-            corners: 5,
-            fouls: 12,
-            offsides: 2,
-            yellowCards: 2,
-            redCards: 0,
-          },
-          awayTeam: {
-            form: ['W', 'W', 'D', 'L'],
-            recentForm: ['L', 'D', 'W', 'L', 'W'],
-            headToHeadWins: ['W', 'W', 'D', 'L'],
-            goalsPerGame: 2.1,
-            goalsConcededPerGame: 1.2,
-            winPercentage: 75,
-            possessionPercentage: 58,
-            cleanSheets: 12,
-            shotsOnTarget: 6,
-            totalShots: 14,
-            corners: 5,
-            fouls: 12,
-            offsides: 2,
-            yellowCards: 2,
-            redCards: 0,
-          },
-          homePossession: 58,
-          awayPossession: 42,
-          homeShotsOnTarget: 6,
-          awayShotsOnTarget: 3,
-          homeTotalShots: 14,
-          awayTotalShots: 8,
-          homeCorners: 5,
-          awayCorners: 2,
-          homeFouls: 12,
-          awayFouls: 15,
-          homeYellowCards: 2,
-          awayYellowCards: 3,
-          homeRedCards: 0,
-          awayRedCards: 0,
-          homeOffsides: 2,
-          awayOffsides: 1,
-          homeTopScorer: {
-            id: '1',
-            name: 'Top Scorer',
-            position: 'Forward',
-            rating: 9.0,
-            age: 23,
-            height: '178cm',
-            weight: '72kg',
-            matches: 16,
-            goals: 5,
-            assists: 3,
-            yellowCards: 3,
-            teamId: 'home',
-          },
-          awayTopScorer: {
-            id: '2',
-            name: 'Top Scorer',
-            position: 'Forward',
-            rating: 8.2,
-            age: 29,
-            height: '172cm',
-            weight: '69kg',
-            matches: 18,
-            goals: 4,
-            assists: 2,
-            yellowCards: 5,
-            teamId: 'away',
-          },
-        },
-        lastUpdated: new Date().toISOString(),
-        nextEventEstimate: '50th minute',
-      };
+      // TODO: Implement proper backend endpoint for detailed match
+      // For now, this will throw an error until the backend endpoint is available
+      throw new Error('Detailed match endpoint not yet implemented');
 
       logger.info('Detailed match fetched successfully', { matchId });
 
-      return detailedMatch;
+      return null;
     } catch (error) {
       logger.error('Failed to fetch detailed match', { error, matchId });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock detailed match after error');
-        return getMockDetailedLiveMatch(matchId);
-      }
       throw error;
     }
   }

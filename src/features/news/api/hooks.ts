@@ -54,8 +54,7 @@ export function useNewsItem(id: number | undefined, options?: { enabled?: boolea
 export function useFeaturedNews(limit: number = 5) {
   const filters: GetNewsRequest = {
     page: 1,
-    pageSize: limit,
-    isFeatured: true,
+    pageSize: limit * 2, // Fetch more to ensure we get enough featured items
   };
 
   const { data, ...query } = useNews(filters);

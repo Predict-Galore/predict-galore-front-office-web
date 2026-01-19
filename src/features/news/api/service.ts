@@ -5,10 +5,8 @@
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
-import { USE_MOCK_DATA, USE_MOCK_ON_ERROR } from '@/shared/constants/data-source';
 import { NewsTransformer } from '../lib/transformers';
 import { validateNewsFilters, validateNewsId } from '../lib/validators';
-import { getMockNews, mockNewsItems } from '../lib/mock-data';
 import type { NewsItem, NewsPagination } from '../model/types';
 import type { GetNewsRequest, NewsListResponse, NewsDetailResponse } from './types';
 
@@ -36,11 +34,6 @@ export class NewsService {
 
     logger.info('Fetching news', { filters, queryParams });
 
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock news (mock mode enabled)');
-      return getMockNews(filters);
-    }
-
     try {
       const response = await api.get<NewsListResponse>(API_ENDPOINTS.NEWS.LIST, queryParams);
 
@@ -59,10 +52,6 @@ export class NewsService {
       return result;
     } catch (error) {
       logger.error('Failed to fetch news', { error, filters });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock news after error');
-        return getMockNews(filters);
-      }
       throw error;
     }
   }
@@ -78,14 +67,6 @@ export class NewsService {
     }
 
     logger.info('Fetching news item', { id });
-
-    if (USE_MOCK_DATA) {
-      const item = mockNewsItems.find((n) => n.id === id);
-      if (!item) {
-        throw new Error(`News ${id} not found`);
-      }
-      return item;
-    }
 
     try {
       const response = await api.get<NewsDetailResponse>(API_ENDPOINTS.NEWS.DETAIL(id));
@@ -111,10 +92,6 @@ export class NewsService {
    */
   static async getBreakingNews(limit: number = 3): Promise<NewsItem[]> {
     logger.info('Fetching breaking news', { limit });
-
-    if (USE_MOCK_DATA) {
-      return mockNewsItems.filter((item) => item.isBreaking).slice(0, limit);
-    }
 
     try {
       const response = await api.get<NewsListResponse>(API_ENDPOINTS.NEWS.BREAKING);

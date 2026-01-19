@@ -4,17 +4,7 @@
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
-import { USE_MOCK_DATA, USE_MOCK_ON_ERROR } from '@/shared/constants/data-source';
 import { ProfileTransformer } from '../lib/transformers';
-import {
-  mockFollowings,
-  mockNotificationSettings,
-  mockPlans,
-  mockProfileUser,
-  mockSubscription,
-  mockTransactions,
-  updateMockProfile,
-} from '../lib/mock-data';
 import type {
   ProfileUser,
   Subscription,
@@ -39,20 +29,11 @@ export class ProfileService {
   static async getProfile(): Promise<ProfileUser> {
     logger.info('Get profile request');
 
-    if (USE_MOCK_DATA) {
-      logger.debug('Returning mock profile (mock mode enabled)');
-      return mockProfileUser;
-    }
-
     try {
       const response = await api.get<ProfileUser>(API_ENDPOINTS.PROFILE.DETAILS);
       return ProfileTransformer.transformProfileUser(response);
     } catch (error) {
       logger.error('Failed to fetch profile', { error });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Falling back to mock profile after error');
-        return mockProfileUser;
-      }
       throw error;
     }
   }
@@ -63,20 +44,12 @@ export class ProfileService {
   static async updateProfile(data: UpdateProfileRequest): Promise<ProfileUser> {
     logger.info('Update profile request');
 
-    if (USE_MOCK_DATA) {
-      return updateMockProfile(data);
-    }
-
     try {
       const response = await api.put<ProfileUser>(API_ENDPOINTS.PROFILE.UPDATE, data);
 
       return ProfileTransformer.transformProfileUser(response);
     } catch (error) {
       logger.error('Failed to update profile', { error });
-      if (USE_MOCK_ON_ERROR) {
-        logger.warn('Returning mock profile after update error');
-        return updateMockProfile(data);
-      }
       throw error;
     }
   }
@@ -87,19 +60,12 @@ export class ProfileService {
   static async getCurrentSubscription(): Promise<Subscription> {
     logger.info('Get current subscription request');
 
-    if (USE_MOCK_DATA) {
-      return mockSubscription;
-    }
-
     try {
       const response = await api.get<Subscription>(API_ENDPOINTS.PROFILE.SUBSCRIPTIONS);
 
       return ProfileTransformer.transformSubscription(response);
     } catch (error) {
       logger.error('Failed to fetch subscription', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockSubscription;
-      }
       throw error;
     }
   }
@@ -119,10 +85,6 @@ export class ProfileService {
   > {
     logger.info('Get subscription plans request', { onlyActive });
 
-    if (USE_MOCK_DATA) {
-      return mockPlans.filter((plan) => (onlyActive ? plan.isActive : true));
-    }
-
     try {
       const url = `${API_ENDPOINTS.PROFILE.SUBSCRIPTION_PLANS}?onlyActive=${onlyActive}`;
       const response = await api.get<
@@ -139,9 +101,6 @@ export class ProfileService {
       return response;
     } catch (error) {
       logger.error('Failed to fetch plans', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockPlans.filter((plan) => (onlyActive ? plan.isActive : true));
-      }
       throw error;
     }
   }
@@ -152,19 +111,12 @@ export class ProfileService {
   static async getTransactionHistory(): Promise<Transaction[]> {
     logger.info('Get transaction history request');
 
-    if (USE_MOCK_DATA) {
-      return mockTransactions;
-    }
-
     try {
       const response = await api.get<Transaction[]>(API_ENDPOINTS.PROFILE.TRANSACTIONS);
 
       return Array.isArray(response) ? response.map(ProfileTransformer.transformTransaction) : [];
     } catch (error) {
       logger.error('Failed to fetch transactions', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockTransactions;
-      }
       throw error;
     }
   }
@@ -175,10 +127,6 @@ export class ProfileService {
   static async cancelSubscription(): Promise<void> {
     logger.info('Cancel subscription request');
 
-    if (USE_MOCK_DATA) {
-      return;
-    }
-
     await api.post(API_ENDPOINTS.PROFILE.CANCEL_SUBSCRIPTION, {});
   }
 
@@ -188,19 +136,12 @@ export class ProfileService {
   static async getFollowings(): Promise<Following[]> {
     logger.info('Get followings request');
 
-    if (USE_MOCK_DATA) {
-      return mockFollowings;
-    }
-
     try {
       const response = await api.get<Following[]>(API_ENDPOINTS.PROFILE.FOLLOWINGS);
 
       return Array.isArray(response) ? response.map(ProfileTransformer.transformFollowing) : [];
     } catch (error) {
       logger.error('Failed to fetch followings', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockFollowings;
-      }
       throw error;
     }
   }
@@ -211,19 +152,12 @@ export class ProfileService {
   static async getAllTeams(): Promise<Following[]> {
     logger.info('Get all teams request');
 
-    if (USE_MOCK_DATA) {
-      return mockFollowings.map((f) => ({ ...f, isFollowing: false }));
-    }
-
     try {
       const response = await api.get<Following[]>(API_ENDPOINTS.PROFILE.TEAMS_ALL);
 
       return Array.isArray(response) ? response.map(ProfileTransformer.transformFollowing) : [];
     } catch (error) {
       logger.error('Failed to fetch all teams', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockFollowings.map((f) => ({ ...f, isFollowing: false }));
-      }
       throw error;
     }
   }
@@ -233,10 +167,6 @@ export class ProfileService {
    */
   static async followTeam(data: FollowTeamRequest): Promise<void> {
     logger.info('Follow team request', { teamId: data.teamId });
-
-    if (USE_MOCK_DATA) {
-      return;
-    }
 
     await api.post(API_ENDPOINTS.PROFILE.FOLLOW_TEAM, {
       teamId: data.teamId,
@@ -250,10 +180,6 @@ export class ProfileService {
   static async unfollowTeam(teamId: number): Promise<void> {
     logger.info('Unfollow team request', { teamId });
 
-    if (USE_MOCK_DATA) {
-      return;
-    }
-
     await api.post(API_ENDPOINTS.PROFILE.UNFOLLOW_TEAM(teamId), {});
   }
 
@@ -262,10 +188,6 @@ export class ProfileService {
    */
   static async updateTeamNotifications(teamId: number, enabled: boolean): Promise<void> {
     logger.info('Update team notifications request', { teamId, enabled });
-
-    if (USE_MOCK_DATA) {
-      return;
-    }
 
     await api.put(API_ENDPOINTS.PROFILE.UPDATE_NOTIFICATIONS(teamId), enabled);
   }
@@ -276,10 +198,6 @@ export class ProfileService {
   static async changePassword(data: ChangePasswordRequest): Promise<void> {
     logger.info('Change password request');
 
-    if (USE_MOCK_DATA) {
-      return;
-    }
-
     await api.post(API_ENDPOINTS.PROFILE.CHANGE_PASSWORD, data);
   }
 
@@ -288,10 +206,6 @@ export class ProfileService {
    */
   static async toggleTwoFactorAuth(enable: boolean): Promise<void> {
     logger.info('Toggle two-factor auth request', { enable });
-
-    if (USE_MOCK_DATA) {
-      return;
-    }
 
     await api.post(API_ENDPOINTS.PROFILE.TOGGLE_2FA, { enable });
   }
@@ -302,10 +216,6 @@ export class ProfileService {
   static async getNotificationSettings(): Promise<NotificationSettings> {
     logger.info('Get notification settings request');
 
-    if (USE_MOCK_DATA) {
-      return mockNotificationSettings;
-    }
-
     try {
       const response = await api.get<NotificationSettings>(
         API_ENDPOINTS.PROFILE.NOTIFICATION_SETTINGS
@@ -314,9 +224,6 @@ export class ProfileService {
       return ProfileTransformer.transformNotificationSettings(response);
     } catch (error) {
       logger.error('Failed to fetch notification settings', { error });
-      if (USE_MOCK_ON_ERROR) {
-        return mockNotificationSettings;
-      }
       throw error;
     }
   }
@@ -328,10 +235,6 @@ export class ProfileService {
     settings: Partial<NotificationSettings>
   ): Promise<NotificationSettings> {
     logger.info('Update notification settings request');
-
-    if (USE_MOCK_DATA) {
-      return { ...mockNotificationSettings, ...settings };
-    }
 
     const response = await api.put<NotificationSettings>(
       API_ENDPOINTS.PROFILE.NOTIFICATION_SETTINGS,
@@ -346,10 +249,6 @@ export class ProfileService {
    */
   static async deleteAccount(): Promise<void> {
     logger.info('Delete account request');
-
-    if (USE_MOCK_DATA) {
-      return;
-    }
 
     await api.delete(API_ENDPOINTS.PROFILE.DELETE_ACCOUNT);
   }

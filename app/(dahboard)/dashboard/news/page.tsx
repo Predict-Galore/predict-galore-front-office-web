@@ -20,7 +20,6 @@ import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
 import type { Sport } from '@/features/predictions/model/types';
 import withAuth from '@/app/hoc/withAuth';
 import { getFriendlyErrorMessage } from '@/shared/lib/errors';
-import { mockNewsItems } from '@/features/news/lib/mock-data';
 import SafeImage from '@/shared/components/shared/SafeImage';
 
 const NewsPage: React.FC = () => {
@@ -86,11 +85,9 @@ const NewsPage: React.FC = () => {
     router.push('/dashboard/news?page=2');
   };
 
-  const featuredArticle = featuredNews?.[0] || mockNewsItems[0];
-  const recentNews = recentNewsData?.items?.length
-    ? recentNewsData.items
-    : mockNewsItems.slice(0, 4);
-  const articles = articlesData?.items?.length ? articlesData.items : mockNewsItems.slice(0, 6);
+  const featuredArticle = featuredNews?.[0];
+  const recentNews = recentNewsData?.items || [];
+  const articles = articlesData?.items || [];
 
   const isLoading = isFeaturedLoading || isRecentLoading || isArticlesLoading;
   const isError = isFeaturedError || isRecentError || isArticlesError;
