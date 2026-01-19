@@ -7,9 +7,7 @@
  */
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import QueryProvider from '@/src/providers/query-provider';
-import ToastProvider from '@/src/providers/toast-provider';
-import ThemeProvider from '@/src/providers/theme-provider';
+import Providers from '@/src/providers';
 // import { AuthProvider } from '../providers/AuthProvider';
 
 import './globals.css';
@@ -53,15 +51,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <QueryProvider>
-          <ToastProvider>
-            <ThemeProvider>
-              {/* <AuthProvider> */}
-              <main className="min-h-screen bg-gray-50">{children}</main>
-              {/* </AuthProvider> */}
-            </ThemeProvider>
-          </ToastProvider>
-        </QueryProvider>
+        <Providers>
+          <main className="min-h-screen bg-gray-50">{children}</main>
+        </Providers>
       </body>
     </html>
   );
