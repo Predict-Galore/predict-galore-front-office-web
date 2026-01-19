@@ -37,6 +37,14 @@ export class NewsService {
     try {
       const response = await api.get<NewsListResponse>(API_ENDPOINTS.NEWS.LIST, queryParams);
 
+      logger.debug('News API response received', {
+        success: response.success,
+        hasData: !!response.data,
+        hasItems: !!(response.data?.items),
+        itemsCount: response.data?.items?.length,
+        message: response.message
+      });
+
       if (!response.success || !response.data) {
         logger.error('Invalid news response', { response });
         throw new Error(response.message || 'Failed to fetch news');

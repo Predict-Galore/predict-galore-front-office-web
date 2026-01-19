@@ -39,25 +39,28 @@ export class NewsTransformer {
     items: NewsItem[];
     pagination: NewsPagination;
   } {
-    if (!response.success || !response.data) {
+    if (!response.success || !response.data || !response.data.items) {
       return {
         items: [],
         pagination: {
-          page: 1,
-          pageSize: 10,
-          total: 0,
-          totalPages: 0,
+          page: response.data?.page || 1,
+          pageSize: response.data?.pageSize || 10,
+          total: response.data?.total || 0,
+          totalPages: response.data?.totalPages || 0,
         },
       };
     }
 
+    // Ensure items is an array
+    const items = Array.isArray(response.data.items) ? response.data.items : [];
+
     return {
-      items: response.data.items.map(this.transformNewsResponse),
+      items: items.map(this.transformNewsResponse),
       pagination: {
-        page: response.data.page,
-        pageSize: response.data.pageSize,
-        total: response.data.total,
-        totalPages: response.data.totalPages,
+        page: response.data.page || 1,
+        pageSize: response.data.pageSize || 10,
+        total: response.data.total || 0,
+        totalPages: response.data.totalPages || 0,
       },
     };
   }
