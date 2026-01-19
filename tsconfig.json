@@ -25,14 +25,7 @@
     ],
     // Path aliases for cleaner imports
     "paths": {
-      "@/*": ["./*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/features/*": ["./src/features/*"],
-      "@/entities/*": ["./src/entities/*"],
-      "@/widgets/*": ["./src/widgets/*"],
-      "@components/*": ["./components/*"],
-      "@lib/*": ["./lib/*"],
-      "@styles/*": ["./styles/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
