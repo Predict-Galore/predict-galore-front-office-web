@@ -6,10 +6,10 @@
 'use client';
 
 import React from 'react';
-import SafeImage from '@/shared/components/shared/SafeImage';
 import { useRouter } from 'next/navigation';
 import { Box, Typography, Chip } from '@mui/material';
 import { NewsItem } from '../model/types';
+import { getSafeNewsImageUrl } from '@/shared/utils/imageUtils';
 
 interface HeroSectionProps {
   featuredArticle: NewsItem;
@@ -39,13 +39,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredArticle }) => {
     >
       {/* Background Image */}
       {featuredArticle.imageUrl && (
-        <SafeImage
-          src={featuredArticle.imageUrl}
+        <Box
+          component="img"
+          src={getSafeNewsImageUrl(featuredArticle.imageUrl)}
           alt={featuredArticle.title}
-          fill
-          className="object-cover transition-transform duration-500"
-          sizes="100vw"
-          priority
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transition: 'transform 0.5s',
+          }}
         />
       )}
 

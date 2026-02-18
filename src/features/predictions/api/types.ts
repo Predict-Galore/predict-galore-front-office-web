@@ -18,9 +18,6 @@ export interface GetPredictionsRequest extends PredictionFilter {
   leagueId?: number;
   page?: number;
   pageSize?: number;
-  fromUtc?: string;
-  toUtc?: string;
-  status?: string;
 }
 
 // ==================== API RESPONSE TYPES ====================
@@ -41,6 +38,15 @@ export interface PredictionsResponse {
 }
 
 export interface BackendPredictionResponse {
+  data: {
+    items: Prediction[];
+    total: number;
+    page: number;
+    pageSize: number;
+  };
+}
+
+export interface BackendPredictionResponseFlat {
   data: Prediction[];
   totalItems: number;
   currentPage: number;

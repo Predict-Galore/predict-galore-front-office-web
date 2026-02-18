@@ -10,7 +10,8 @@ const ContactHero = dynamic(
   () => import('@/features/contact').then((mod) => ({ default: mod.ContactHero })),
   {
     ssr: true,
-    loading: () => <div className="h-64 bg-linear-to-b from-[#DC2626] to-[#EA580C]" />,
+    // Use global route loader instead of per-component placeholders
+    loading: () => null,
   }
 );
 
@@ -39,7 +40,7 @@ const ContactPage: React.FC = () => {
   return (
     <>
       {/* Hero Section */}
-      <Suspense fallback={<div className="h-64 bg-linear-to-b from-[#DC2626] to-[#EA580C]" />}>
+      <Suspense fallback={null}>
         <ContactHero />
       </Suspense>
 
@@ -53,19 +54,7 @@ const ContactPage: React.FC = () => {
             backgroundColor: 'white',
           }}
         >
-          <Suspense
-            fallback={
-              <div className="p-4">
-                <div className="h-8 bg-gray-200 rounded mb-4 w-1/3" />
-                <div className="space-y-4">
-                  <div className="h-12 bg-gray-100 rounded" />
-                  <div className="h-12 bg-gray-100 rounded" />
-                  <div className="h-12 bg-gray-100 rounded" />
-                  <div className="h-32 bg-gray-100 rounded" />
-                </div>
-              </div>
-            }
-          >
+          <Suspense fallback={null}>
             <ContactForm />
           </Suspense>
         </Paper>

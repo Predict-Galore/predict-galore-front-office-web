@@ -4,7 +4,18 @@
  * Business logic for data transformation
  */
 
-import type { Match, Team, MatchStatus, LiveSection } from '../model/types';
+import type {
+  Match,
+  Team,
+  MatchStatus,
+  LiveSection,
+  DetailedLiveMatch,
+  MatchEvent,
+  LiveMatchStats,
+  LiveMatchCommentary,
+  TeamStats,
+  PlayerStats,
+} from '../model/types';
 import type { BackendFixture, BackendLiveScoresResponse, LiveScoresResponse } from '../api/types';
 
 /**
@@ -176,5 +187,111 @@ export class LiveMatchesTransformer {
    */
   static transformFixture(fixture: BackendFixture): Match {
     return transformBackendFixture(fixture);
+  }
+
+  /**
+   * Build DetailedLiveMatch from backend fixture (for fixture detail view)
+   */
+  static fixtureToDetailedLiveMatch(fixture: BackendFixture, matchId: string): DetailedLiveMatch {
+    const events: MatchEvent[] = [];
+    const fixtureEvents = fixture.events || {
+      goals: [],
+      homeYellowCards: 0,
+      awayYellowCards: 0,
+      homeRedCards: 0,
+      awayRedCards: 0,
+    };
+
+    fixtureEvents.goals?.forEach((g, i) => {
+      const isHome =
+        g.team &&
+        fixture.homeTeam &&
+        g.team.toLowerCase().trim() === fixture.homeTeam.toLowerCase().trim();
+      events.push({
+        id: `goal-${matchId}-${i}`,
+        type: 'goal',
+        minute: g.minute,
+        playerName: g.player || '',
+        team: isHome ? 'home' : 'away',
+      });
+    });
+
+    const half =
+      fixture.status === 'FT'
+        ? 'finished'
+        : fixture.status === 'ET'
+          ? 'extra'
+          : fixture.status === '2H'
+            ? 'second'
+            : 'first';
+
+    const emptyTeamStats: TeamStats = {
+      form: [],
+      recentForm: [],
+      headToHeadWins: [],
+      goalsPerGame: 0,
+      goalsConcededPerGame: 0,
+      winPercentage: 0,
+      possessionPercentage: 0,
+      cleanSheets: 0,
+      shotsOnTarget: 0,
+      totalShots: 0,
+      corners: 0,
+      fouls: 0,
+      offsides: 0,
+      yellowCards: 0,
+      redCards: 0,
+    };
+
+    const emptyPlayer: PlayerStats = {
+      id: '',
+      name: '-',
+      position: '-',
+      rating: 0,
+      age: 0,
+      height: '-',
+      weight: '-',
+      matches: 0,
+      goals: 0,
+      assists: 0,
+      yellowCards: 0,
+      teamId: '',
+    };
+
+    const stats: LiveMatchStats = {
+      homeTeam: emptyTeamStats,
+      awayTeam: emptyTeamStats,
+      homePossession: 50,
+      awayPossession: 50,
+      homeShotsOnTarget: 0,
+      awayShotsOnTarget: 0,
+      homeTotalShots: 0,
+      awayTotalShots: 0,
+      homeCorners: 0,
+      awayCorners: 0,
+      homeFouls: 0,
+      awayFouls: 0,
+      homeYellowCards: fixtureEvents.homeYellowCards ?? 0,
+      awayYellowCards: fixtureEvents.awayYellowCards ?? 0,
+      homeRedCards: fixtureEvents.homeRedCards ?? 0,
+      awayRedCards: fixtureEvents.awayRedCards ?? 0,
+      homeOffsides: 0,
+      awayOffsides: 0,
+      homeTopScorer: emptyPlayer,
+      awayTopScorer: emptyPlayer,
+    };
+
+    const commentary: LiveMatchCommentary[] = [];
+
+    return {
+      id: matchId,
+      matchId,
+      currentMinute: fixture.elapsed ?? 0,
+      half,
+      events,
+      commentary,
+      stats,
+      lastUpdated: new Date().toISOString(),
+    };
   }
 }

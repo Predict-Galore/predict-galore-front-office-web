@@ -1,111 +1,144 @@
 'use client';
 
 import React from 'react';
-import { Box, Container, Stack, Typography, Button, useTheme, alpha } from '@mui/material';
 import Link from 'next/link';
+import Image from 'next/image';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import { IMAGES } from '@/shared/constants/images';
 
 const CTASection: React.FC = () => {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{
-        background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
-        color: 'white',
-        py: { xs: 8, md: 10 },
         position: 'relative',
         overflow: 'hidden',
+        py: { xs: 6, md: 8 },
+        px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
       }}
     >
-      {/* Subtle texture */}
       <Box
         sx={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.12,
-          backgroundImage: `
-            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 2px, transparent 3px),
-            radial-gradient(circle at 80% 0%, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 3px)
-          `,
-          backgroundSize: '220px 220px',
-          backgroundRepeat: 'repeat',
-          pointerEvents: 'none',
+          // background: 'linear-gradient(135deg, #2d5016 0%, #4a7c59 100%)',
+          background: '#1C4602',
+          color: 'white',
+          mx: 'auto',
+          maxWidth: '1400px',
+          py: { xs: 6, md: 8 },
+          px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
+          borderRadius: { xs: 2, md: 3 },
         }}
-      />
-
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        <Stack
-          spacing={3}
-          alignItems="center"
-          textAlign="center"
-          sx={{ maxWidth: 760, mx: 'auto' }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1.2fr 0.8fr' },
+            gap: { xs: 4, md: 12, lg: 16 },
+            alignItems: 'center',
+          }}
         >
-          <Typography
-            variant="h3"
+          {/* Content Section */}
+          <Box
             sx={{
-              fontWeight: 800,
-              letterSpacing: '-0.01em',
+              textAlign: { xs: 'center', md: 'left' },
             }}
           >
-            Ready to stay ahead of every game?
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: alpha('#fff', 0.9),
-              fontSize: { xs: '1.05rem', md: '1.15rem' },
-              lineHeight: 1.7,
-            }}
-          >
-            Join Predict Galore for expert analyses, live updates, and personalized insights
-            tailored to your teams and leagues.
-          </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
-            <Button
-              component={Link}
-              href="/register"
-              variant="contained"
-              size="large"
+            <Typography
+              variant="h2"
               sx={{
-                bgcolor: 'white',
-                color: theme.palette.neutral[900],
-                px: 4,
-                py: 1.5,
-                fontWeight: 800,
-                '&:hover': {
-                  bgcolor: theme.palette.neutral[50],
-                  transform: 'translateY(-2px)',
-                },
-                transition: 'all 0.25s ease',
-              }}
-            >
-              Get Started
-            </Button>
-            <Button
-              component={Link}
-              href="/contact-us"
-              variant="outlined"
-              size="large"
-              sx={{
-                borderColor: alpha('#fff', 0.7),
-                color: 'white',
-                borderWidth: 2,
-                px: 4,
+                fontSize: { xs: '2rem', md: '2.5rem', lg: '3rem' },
                 fontWeight: 700,
-                '&:hover': {
-                  borderColor: 'white',
-                  bgcolor: alpha('#fff', 0.12),
-                  borderWidth: 2,
-                  transform: 'translateY(-2px)',
-                },
-                transition: 'all 0.25s ease',
+                lineHeight: 1.2,
+                mb: 3,
+                color: 'white',
               }}
             >
-              Talk to Us
-            </Button>
-          </Stack>
-        </Stack>
-      </Container>
+              Ready to unlock smarter predictions?
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: { xs: '1rem', md: '1.125rem' },
+                color: 'rgba(255, 255, 255, 0.9)',
+                lineHeight: 1.6,
+                mb: 4,
+              }}
+            >
+              Sign up on the web or download the mobile app today and start getting expert insights,
+              real-time updates, and data-driven predictions at your fingertips.
+            </Typography>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 2,
+                alignItems: { xs: 'center', md: 'flex-start' },
+              }}
+            >
+              <Button
+                component={Link}
+                href="/register"
+                variant="contained"
+                fullWidth
+                sx={{
+                  bgcolor: 'white',
+                  color: '#1a1a1a',
+                  py: 1.5,
+                  px: 4,
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 1,
+                  '&:hover': {
+                    bgcolor: '#f5f5f5',
+                  },
+                }}
+              >
+                Sign Up for Free
+              </Button>
+
+              <Button
+                component={Link}
+                href="#"
+                variant="outlined"
+                fullWidth
+                sx={{
+                  borderColor: 'white',
+                  color: 'white',
+                  py: 1.5,
+                  px: 4,
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 1,
+                  borderWidth: 2,
+                }}
+              >
+                Download our Mobile App
+              </Button>
+            </Box>
+          </Box>
+
+          {/* Phone Mockup Section */}
+
+          <Box>
+            <Image
+              src={IMAGES.LANDING.DOUBLE_PHONE_MOCKUP}
+              alt="Mobile App Preview"
+              width={500}
+              height={500}
+              style={{
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.4))',
+              }}
+              unoptimized
+            />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -20,7 +20,7 @@ import { Close, Person, Email } from '@mui/icons-material';
 import { useUpdateProfile } from '@/features/profile';
 import { cn } from '@/shared/lib/utils';
 import { text } from '@/shared/constants/styles';
-import { buttonColors } from '@/shared/constants/color-tokens';
+import { buttonColors } from '@/shared/components';
 import type { ProfileUser } from '@/features/profile/model/types';
 
 interface EditPersonalDetailsModalProps {

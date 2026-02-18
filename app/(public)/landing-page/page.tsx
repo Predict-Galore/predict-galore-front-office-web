@@ -3,12 +3,13 @@
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
-// Lazy load hero and below-the-fold content for better performance
+// Lazy load hero and below-the-fold content for better performance.
+
 const HeroSection = dynamic(
   () => import('@/features/landing').then((mod) => ({ default: mod.HeroSection })),
   {
     ssr: true,
-    loading: () => <div className="h-72 bg-linear-to-b from-[#DC2626] to-[#EA580C]" />,
+    loading: () => null,
   }
 );
 
@@ -16,9 +17,7 @@ const FeaturesSection = dynamic(
   () => import('@/features/landing').then((mod) => ({ default: mod.FeaturesSection })),
   {
     ssr: true, // Keep SSR for SEO
-    loading: () => (
-      <div className="min-h-[400px] bg-neutral-50 border border-neutral-200/60 rounded-2xl mx-4 md:mx-8" />
-    ),
+    loading: () => null,
   }
 );
 
@@ -26,9 +25,7 @@ const HowItWorks = dynamic(
   () => import('@/features/landing').then((mod) => ({ default: mod.HowItWorks })),
   {
     ssr: true,
-    loading: () => (
-      <div className="min-h-[400px] bg-linear-to-b from-[#DC2626] to-[#EA580C] opacity-80" />
-    ),
+    loading: () => null,
   }
 );
 
@@ -36,9 +33,7 @@ const FAQSection = dynamic(
   () => import('@/features/landing').then((mod) => ({ default: mod.FAQSection })),
   {
     ssr: true,
-    loading: () => (
-      <div className="min-h-[320px] bg-neutral-50 border border-dashed border-neutral-200/80 rounded-2xl mx-4 md:mx-8" />
-    ),
+    loading: () => null,
   }
 );
 
@@ -48,16 +43,16 @@ const FAQSection = dynamic(
 const LandingPage: React.FC = () => {
   return (
     <>
-      <Suspense fallback={<div className="h-72 bg-linear-to-b from-[#DC2626] to-[#EA580C]" />}>
+      <Suspense fallback={null}>
         <HeroSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={null}>
         <FeaturesSection />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={null}>
         <HowItWorks />
       </Suspense>
-      <Suspense fallback={<div className="min-h-[400px]" />}>
+      <Suspense fallback={null}>
         <FAQSection />
       </Suspense>
     </>

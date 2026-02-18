@@ -96,8 +96,11 @@ export function getFriendlyErrorMessage(
     if (error.status && error.status >= 500) {
       return 'Our servers are having trouble. Please try again shortly.';
     }
-    if (error.status === 401 || error.status === 403) {
-      return 'You do not have access to this resource. Please sign in again.';
+    if (error.status === 401) {
+      return 'Please sign in again to access this resource.';
+    }
+    if (error.status === 403) {
+      return 'You don’t have access to this resource. It may require a subscription or different permissions.';
     }
     if (error.status === 404) {
       return 'The requested content is not available right now.';

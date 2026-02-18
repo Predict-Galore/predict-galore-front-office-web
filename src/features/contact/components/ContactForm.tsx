@@ -9,14 +9,13 @@ import React from 'react';
 import {
   Box,
   TextField,
-  Button,
   Typography,
   Alert,
-  CircularProgress,
   MenuItem,
   Paper,
   Snackbar,
 } from '@mui/material';
+import { Button } from '@/shared/components/ui';
 import { Send, Error as ErrorIcon } from '@mui/icons-material';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -229,15 +228,13 @@ const ContactForm: React.FC = () => {
           <Button
             type="submit"
             fullWidth
-            variant="contained"
+            variant="primary"
+            size="lg"
+            loading={isFormSubmitting}
             disabled={isFormSubmitting}
-            startIcon={isFormSubmitting ? <CircularProgress size={20} /> : <Send />}
+            leftIcon={!isFormSubmitting ? <Send /> : undefined}
             sx={{
               py: 1.5,
-              bgcolor: '#16a34a',
-              '&:hover': {
-                bgcolor: '#15803d',
-              },
             }}
           >
             {isFormSubmitting ? 'Sending...' : 'Send Message'}

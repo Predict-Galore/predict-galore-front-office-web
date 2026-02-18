@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Container, useTheme, Link as MuiLink } from '@mui/material';
+import { Box, Typography, Container, Link as MuiLink } from '@mui/material';
 
 const TermsContent: React.FC = () => {
-  const theme = useTheme();
 
   const termsSections = [
     {
@@ -85,7 +84,7 @@ const TermsContent: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: theme.palette.background.default, py: { xs: 8, md: 12 } }}>
+    <Box sx={{ bgcolor: '#ffffff', py: { xs: 8, md: 12 } }}>
       <Container maxWidth="md">
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {termsSections.map((section) => (
@@ -95,7 +94,7 @@ const TermsContent: React.FC = () => {
                 <Typography
                   variant="h6"
                   sx={{
-                    color: theme.palette.secondary.main,
+                    color: '#e72838',
                     fontWeight: 800,
                     minWidth: '24px',
                   }}
@@ -106,7 +105,7 @@ const TermsContent: React.FC = () => {
                   variant="h5"
                   sx={{
                     fontWeight: 700,
-                    color: theme.palette.neutral[900],
+                    color: '#0f172a',
                     letterSpacing: '-0.01em',
                   }}
                 >
@@ -118,7 +117,7 @@ const TermsContent: React.FC = () => {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: theme.palette.text.secondary,
+                    color: '#475569',
                     lineHeight: 1.8,
                     mb: section.isList ? 2 : 0,
                   }}
@@ -146,12 +145,12 @@ const TermsContent: React.FC = () => {
                       sx={{
                         display: 'flex',
                         gap: 2,
-                        color: theme.palette.text.secondary,
+                        color: '#475569',
                       }}
                     >
                       <Typography
                         sx={{
-                          color: theme.palette.secondary.light,
+                          color: '#f5777e',
                           fontWeight: 700,
                           fontSize: '0.9rem',
                           mt: '2px',
@@ -172,7 +171,7 @@ const TermsContent: React.FC = () => {
                   href={`mailto:${section.email}`}
                   sx={{
                     display: 'inline-block',
-                    color: theme.palette.primary.main,
+                    color: '#42A605',
                     fontWeight: 600,
                     mt: 2,
                     textDecoration: 'none',

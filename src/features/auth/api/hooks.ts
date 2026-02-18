@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../model/store';
 import { AuthService } from './service';
 import { createLogger } from '@/shared/api';
+import { setAuthCookie } from '../lib/utils';
 import { ApiError } from '@/shared/lib/errors';
 import type { User } from '@/shared/types';
 import type {
@@ -106,20 +107,18 @@ export const useLoginMutation = () => {
       // Extract user and token from different possible locations
       const responseData = response?.data as LoginResponse | undefined;
       const userData = responseData?.user || response?.user;
-      const token = responseData?.token || response?.token;
+      const token = responseData?.token || response?.token || null;
 
-      // Check if we have the required data
-      if (userData && token) {
-        localStorage.setItem('auth-token', token);
-
+      if (userData) {
         const appUser = transformLocalUserToUser(userData);
         storeLogin(appUser, token);
+        if (typeof document !== 'undefined' && token) {
+          setAuthCookie(token);
+        }
         logger.info('User logged in successfully');
       } else {
-        logger.error('Login failed: Missing user data or token');
-        throw new Error(
-          response?.message || response?.code || 'Login failed: Missing user data or token'
-        );
+        logger.error('Login failed: Missing user data');
+        throw new Error(response?.message || response?.code || 'Login failed: Missing user data');
       }
 
       return response;
@@ -129,9 +128,7 @@ export const useLoginMutation = () => {
 
       const responseData = response?.data as LoginResponse | undefined;
       const userData = responseData?.user || response?.user;
-      const token = responseData?.token || response?.token;
-
-      if (userData && token) {
+      if (userData) {
         const cacheUser = transformLocalUserToUser(userData);
         queryClient.setQueryData(authKeys.user(), cacheUser);
         queryClient.invalidateQueries({ queryKey: authKeys.all });
@@ -176,15 +173,17 @@ export const useRegisterMutation = () => {
 
       const responseData = response?.data as RegisterResponse | undefined;
       const userData = responseData?.user || response?.user;
-      const token = responseData?.token || response?.token;
+      const token = responseData?.token || response?.token || null;
 
-      if (userData && token) {
-        localStorage.setItem('auth-token', token);
+      if (userData) {
         const appUser = transformLocalUserToUser(userData);
         storeLogin(appUser, token);
+        if (typeof document !== 'undefined' && token) {
+          setAuthCookie(token);
+        }
         logger.info('User registered and logged in successfully');
       } else {
-        logger.error('Registration failed: Missing user data or token');
+        logger.error('Registration failed: Missing user data');
         throw new Error(response?.message || response?.code || 'Registration failed');
       }
 
@@ -195,9 +194,7 @@ export const useRegisterMutation = () => {
 
       const responseData = response?.data as RegisterResponse | undefined;
       const userData = responseData?.user || response?.user;
-      const token = responseData?.token || response?.token;
-
-      if (userData && token) {
+      if (userData) {
         const cacheUser = transformLocalUserToUser(userData);
         queryClient.setQueryData(authKeys.user(), cacheUser);
         logger.info('Auth cache updated after registration');
@@ -307,7 +304,6 @@ export const useLogoutMutation = () => {
       logger.info('Logout mutation called');
 
       await AuthService.logout();
-      localStorage.removeItem('auth-token');
       storeLogout();
       logger.info('Local logout completed');
     },
@@ -370,19 +366,36 @@ export const useChangePasswordMutation = () => {
 };
 
 /**
- * Custom auth hook
+ * Custom auth hook - simplified version without React Query dependency
  */
 export const useAuth = () => {
   const user = useAuthStore((state) => state.user);
-  const token = useAuthStore((state) => state.token);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const profileQuery = useProfileQuery();
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   logger.debug('Auth hook called');
 
   return {
     user: user || null,
-    token,
+    isAuthenticated: isAuthenticated || !!user,
+    isLoading,
+    error: null,
+    refetch: () => Promise.resolve(),
+  };
+};
+
+/**
+ * Enhanced auth hook with profile query - use when React Query context is available
+ */
+export const useAuthWithProfile = () => {
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const profileQuery = useProfileQuery();
+
+  logger.debug('Auth with profile hook called');
+
+  return {
+    user: user || null,
     isAuthenticated: isAuthenticated || !!profileQuery.data,
     isLoading: profileQuery.isLoading,
     error: profileQuery.error,

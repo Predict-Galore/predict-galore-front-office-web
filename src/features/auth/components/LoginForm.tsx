@@ -1,666 +1,293 @@
-/**
- * Login Form Component
- * Migrated to feature architecture
- */
-
+// features/auth/components/LoginForm.tsx
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-  CircularProgress,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Divider,
-  Fade,
-  Snackbar,
-  InputAdornment,
-  IconButton,
-  Paper,
-} from '@mui/material';
-import { Visibility, VisibilityOff, Lock, Email, Error as ErrorIcon } from '@mui/icons-material';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { loginSchema, LoginFormData, LoginRequestData } from '../validations/schemas';
-import { AUTH_CONSTANTS } from '../lib/constants';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import { Eye, EyeOff, Lock, Mail, AlertTriangle } from 'lucide-react';
+import { Box, Typography, Alert } from '@mui/material';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { Input } from '@/shared/components/ui/Input/Input';
+import SocialAuthButtons from './SocialAuthButtons';
+import toast from 'react-hot-toast';
+
+import { loginSchema, LoginFormData } from '../validations/schemas';
 import { useLoginMutation } from '../api/hooks';
-import { useAuthStore } from '../model/store';
 import { createLogger } from '@/shared/api';
-import { ApiError } from '@/shared/lib/errors';
+import { AUTH_CONSTANTS } from '../lib/constants';
 
 const logger = createLogger('LoginForm');
 
-interface LoginFormProps {
-  onSuccess?: () => void;
+/** Allow redirect only to same-origin app paths (no external or protocol-relative) */
+function getSafeRedirectTarget(callbackUrl: string | null): string {
+  if (!callbackUrl || typeof callbackUrl !== 'string') return AUTH_CONSTANTS.ROUTES.DASHBOARD;
+  const trimmed = callbackUrl.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('//')) {
+    return AUTH_CONSTANTS.ROUTES.DASHBOARD;
+  }
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 }
 
-// Define extended response type to handle different API structures
-interface ExtendedLoginResponse {
-  success?: boolean;
-  status?: string;
-  data?: {
-    user: {
-      id: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      isEmailVerified: boolean;
-      phoneNumber?: string;
-      countryCode?: string;
-      createdAt?: string;
-      updatedAt?: string;
-    };
-    token: string;
-  };
-  user?: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    isEmailVerified: boolean;
-    phoneNumber?: string;
-    countryCode?: string;
-    createdAt?: string;
-    updatedAt?: string;
-  };
-  token?: string;
-  accessToken?: string;
-  message?: string;
-  error?: string;
-  code?: string;
-}
-
-// Type guard to check if object has user property
-function hasUserProperty(obj: unknown): obj is { user: unknown } {
-  return typeof obj === 'object' && obj !== null && 'user' in obj;
-}
-
-// Type guard to check if object has id property (is a user object)
-function hasIdProperty(obj: unknown): obj is { id: unknown } {
-  return typeof obj === 'object' && obj !== null && 'id' in obj;
-}
-
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const router = useRouter();
-  const { login } = useAuthStore();
-
-  // ===================================================================
-  // STATE
-  // ===================================================================
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
   const [showPassword, setShowPassword] = React.useState(false);
   const [localError, setLocalError] = React.useState<string | null>(null);
+  const [loginMethod, setLoginMethod] = React.useState<'phone' | 'email'>('phone');
 
-  // ===================================================================
-  // REACT QUERY MUTATION - Login Submission Logic
-  // ===================================================================
-  const {
-    mutate: submitLogin,
-    isPending: isLoginSubmitting,
-    isError: loginHasSubmissionError,
-    error: loginSubmissionError,
-    isSuccess: isLoginSuccessful,
-    reset: resetLoginMutation,
-  } = useLoginMutation();
+  const { mutate: submitLogin, isPending: isLoginSubmitting } = useLoginMutation();
 
-  // ===================================================================
-  // REACT HOOK FORM - Form State & Validation
-  // ===================================================================
+  // We need to keep track of all values, not just isValid.
   const {
     control,
     handleSubmit,
-    formState: {
-      isValid: isFormValid,
-      errors: formValidationErrors,
-      isSubmitting: isReactHookFormSubmitting,
-    },
+    setValue,
+    watch,
+    trigger,
+    formState: { isValid: isFormValid, errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: '',
-      password: '',
-      rememberMe: false,
-    },
-    mode: 'onBlur',
+    defaultValues: { username: '', password: '', rememberMe: false },
+    mode: 'onChange',
   });
 
-  // ===================================================================
-  // FORM VALIDATION HELPER
-  // ===================================================================
-  const formHasAnyValidationError = Object.keys(formValidationErrors).length > 0;
+  // To ensure reactivity for phone/email username and password
+  const watchedUsername = watch('username');
+  const watchedPassword = watch('password');
 
-  // ===================================================================
-  // FORM SUBMISSION HANDLER
-  // ===================================================================
-  const handleFormSubmission: SubmitHandler<LoginFormData> = async (formData: LoginFormData) => {
-    try {
-      setLocalError(null);
-      logger.debug('Login form submitted', { username: formData.username });
+  // Check if required fields are non-empty (to resolve textbook "button not clickable after filling" bugs)
+  const isFieldsFilled =
+    !!watchedUsername &&
+    !!watchedPassword &&
+    // This ensures phone-input and email-input both work correctly.
+    (!errors.username && !errors.password);
 
-      // Clean data
-      const cleanFormData: LoginRequestData = {
-        username: formData.username.trim(),
-        password: formData.password,
-        ...(formData.rememberMe && { rememberMe: formData.rememberMe }),
-      };
+  // Optional: To debug, you can view the errors and dirtyFields.
+  // console.log({ errors, dirtyFields, watchedUsername, watchedPassword, isFormValid });
 
-      logger.debug('Sending login request');
-
-      // Submit login
-      submitLogin(cleanFormData, {
-        onSuccess: (result) => {
-          logger.debug('Login mutation onSuccess');
-
-          // Cast result to extended type to handle different structures
-          const extendedResult = result as ExtendedLoginResponse;
-
-          // Extract user data from multiple possible response structures
-          const userData =
-            extendedResult?.data?.user || extendedResult?.user || extendedResult?.data;
-          const token =
-            extendedResult?.data?.token || extendedResult?.token || extendedResult?.accessToken;
-
-          // Check success with multiple indicators
-          const isSuccess =
-            extendedResult?.success === true ||
-            extendedResult?.status === 'success' ||
-            (!!userData && !!token);
-
-          logger.debug('Extracted login data', {
-            isSuccess,
-            hasUserData: !!userData,
-            hasToken: !!token,
-          });
-
-          if (isSuccess && userData && token) {
-            // Determine the actual user object based on structure
-            let actualUser: ExtendedLoginResponse['user'];
-
-            if (hasIdProperty(userData)) {
-              // userData is already a user object
-              actualUser = userData as ExtendedLoginResponse['user'];
-            } else if (hasUserProperty(userData)) {
-              // userData contains a user property
-              actualUser = userData.user as ExtendedLoginResponse['user'];
-            } else {
-              logger.error('Invalid user data structure', { userData });
-              setLocalError('Invalid user data received from server.');
-              return;
-            }
-
-            if (!actualUser) {
-              logger.error('No user data found', { userData });
-              setLocalError('No user data received from server.');
-              return;
-            }
-
-            // Convert to app User type
-            const appUser = {
-              ...actualUser,
-              role: 'user' as const,
-              createdAt: actualUser.createdAt || new Date().toISOString(),
-              updatedAt: actualUser.updatedAt || new Date().toISOString(),
-            };
-
-            logger.debug('Storing user in auth store', {
-              userId: appUser.id,
-              email: appUser.email,
-            });
-
-            // Store in Zustand store
-            login(appUser, token);
-
-            // Handle success callback or navigation
-            if (onSuccess) {
-              logger.debug('Calling onSuccess callback');
-              onSuccess();
-            } else {
-              logger.debug('Redirecting to dashboard');
-              router.push('/dashboard');
-              router.refresh();
-            }
-          } else {
-            logger.error('Login response missing required data', { result });
-            setLocalError(
-              extendedResult?.message ||
-                extendedResult?.error ||
-                'Login failed. Please check your credentials.'
-            );
-          }
-        },
-        onError: (error: Error) => {
-          // Only log unexpected errors, API errors are already logged in auth.actions
-          if (!(error instanceof ApiError)) {
-            logger.error('Login mutation onError', {
-              error: error.message || 'Unknown error',
-            });
-          }
-          // Set user-friendly error message
-          const errorMessage =
-            error instanceof ApiError
-              ? error.status === 401 || error.status === 404
-                ? 'Invalid username or password. Please check your credentials.'
-                : error.message
-              : error.message || 'Login failed. Please try again.';
-          setLocalError(errorMessage);
-        },
-      });
-    } catch (error) {
-      logger.error('Login submission error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      setLocalError('An unexpected error occurred. Please try again.');
-    }
-  };
-
-  // ===================================================================
-  // HANDLERS
-  // ===================================================================
-  const handleForgotPassword = () => {
-    router.push(AUTH_CONSTANTS.ROUTES.FORGOT_PASSWORD);
-  };
-
-  const handleRegister = () => {
-    router.push(AUTH_CONSTANTS.ROUTES.REGISTER);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
-
-  const handleCloseError = () => {
+  const handleFormSubmission: SubmitHandler<LoginFormData> = (formData) => {
     setLocalError(null);
-    resetLoginMutation();
+    logger.info('Login form submitted', { loginMethod });
+
+    submitLogin(formData, {
+      onSuccess: () => {
+        toast.success('Login successful! Redirecting...');
+        if (onSuccess) {
+          onSuccess();
+          return;
+        }
+        const target = getSafeRedirectTarget(callbackUrl);
+        // Short delay so cookie is committed before navigation
+        setTimeout(() => {
+          router.replace(target);
+        }, 300);
+      },
+      onError: (err: Error) => {
+        setLocalError(err.message || 'Login failed');
+        toast.error(err.message || 'Login failed');
+      },
+    });
+  };
+
+  // On method switch, clear username and errors.
+  const handleLoginMethodSwitch = () => {
+    setLoginMethod((curr) => (curr === 'phone' ? 'email' : 'phone'));
+    setValue('username', '', { shouldValidate: true, shouldDirty: true });
+    trigger(); // For instant validation feedback
   };
 
   return (
-    <Paper className="p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl shadow-lg w-full">
-      {/* Header Section  */}
-      <Box sx={{ mb: 4 }}>
+    <Box>
+      {/* Header */}
+      <Box sx={{ mb: 5 }}>
         <Typography
-          variant="h3"
           sx={{
+            fontSize: '2.5rem',
             fontWeight: 900,
-            fontFamily: 'serif',
-            color: 'black',
+            color: '#101828',
+            fontFamily: '"Arial Black", sans-serif',
+            lineHeight: 1,
             mb: 1,
           }}
         >
           Welcome Back!
         </Typography>
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+        <Typography sx={{ color: '#667085', fontSize: '1.1rem' }}>
           Login to Continue
         </Typography>
       </Box>
 
-      {/* ===================================================================
-          VALIDATION ERROR SUMMARY
-      =================================================================== */}
-      {formHasAnyValidationError && (
-        <Box className="mb-4">
-          <Alert severity="warning" icon={<ErrorIcon />}>
-            <Typography variant="body2" fontWeight="medium">
-              Please fix the following errors:
-            </Typography>
-            <ul className="mt-1 ml-4 list-disc text-sm">
-              {Object.entries(formValidationErrors).map(([fieldName, error]) => (
-                <li key={fieldName}>
-                  {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}: {error.message}
-                </li>
-              ))}
-            </ul>
-          </Alert>
-        </Box>
-      )}
-
-      {/* ===================================================================
-          LOCAL ERROR MESSAGE
-      =================================================================== */}
       {localError && (
-        <Snackbar
-          open={!!localError}
-          autoHideDuration={7000}
-          onClose={handleCloseError}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            severity="error"
-            variant="filled"
-            onClose={handleCloseError}
-            sx={{ width: '100%' }}
-          >
-            {localError}
-          </Alert>
-        </Snackbar>
+        <Alert severity="error" icon={<AlertTriangle size={20} />} sx={{ mb: 3, borderRadius: 2 }}>
+          {localError}
+        </Alert>
       )}
 
-      {/* ===================================================================
-          API ERROR MESSAGE
-      =================================================================== */}
-      {loginHasSubmissionError && !localError && (
-        <Snackbar
-          open={loginHasSubmissionError}
-          autoHideDuration={7000}
-          onClose={resetLoginMutation}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            severity="error"
-            variant="filled"
-            onClose={resetLoginMutation}
-            sx={{ width: '100%' }}
-          >
-            {loginSubmissionError instanceof Error
-              ? loginSubmissionError.message
-              : 'Login failed. Please check your credentials.'}
-          </Alert>
-        </Snackbar>
-      )}
-
-      {/* ===================================================================
-          SUCCESS MESSAGE
-      =================================================================== */}
-      {isLoginSuccessful && (
-        <Snackbar
-          open={isLoginSuccessful}
-          autoHideDuration={3000}
-          onClose={resetLoginMutation}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            severity="success"
-            variant="filled"
-            onClose={resetLoginMutation}
-            sx={{ width: '100%' }}
-          >
-            Login successful! Redirecting...
-          </Alert>
-        </Snackbar>
-      )}
-
-      {/* ===================================================================
-          LOGIN FORM
-      =================================================================== */}
       <Box
         component="form"
         onSubmit={handleSubmit(handleFormSubmission)}
-        noValidate
-        className="space-y-3 sm:space-y-4 md:space-y-5"
-        sx={{
-          width: '100%',
-          maxWidth: '100%',
-        }}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}
+        autoComplete="off"
       >
-        {/* USERNAME FIELD */}
-        <Box sx={{ mb: 4 }}>
-          <Controller
-            name="username"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="Username or Email"
-                type="text"
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message}
-                disabled={isLoginSubmitting}
-                required
-                className="bg-white"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email className="text-gray-400" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    height: '56px',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                      borderWidth: '2px',
-                    },
-                  },
-                }}
+        {/* Username Field */}
+        <Box>
+          <Typography sx={{ fontWeight: 600, mb: 1, color: '#344054' }}>
+            {loginMethod === 'phone' ? 'Phone number' : 'Email address'}
+          </Typography>
+
+          {loginMethod === 'phone' ? (
+            <Box className="phone-wrapper">
+              <Controller
+                name="username"
+                control={control}
+                render={({ field }) => (
+                  <PhoneInput
+                    country={'ng'}
+                    placeholder="(+234) 000-000-0000"
+                    value={field.value}
+                    onChange={val => {
+                      field.onChange(val);
+                      setValue('username', val, { shouldValidate: true, shouldDirty: true });
+                      trigger('username');
+                    }}
+                    inputProps={{
+                      name: field.name,
+                      required: true,
+                      autoFocus: false,
+                    }}
+                    inputStyle={{
+                      width: '100%',
+                      height: '64px',
+                      borderRadius: '12px',
+                      border: '1px solid #D0D5DD',
+                      fontSize: '1.1rem',
+                    }}
+                  />
+                )}
               />
-            )}
-          />
+              {/* Error below phone input */}
+              {errors.username && (
+                <Typography color="error" sx={{ mt: 1, fontSize: '0.95rem' }}>
+                  {errors.username.message?.toString()}
+                </Typography>
+              )}
+            </Box>
+          ) : (
+            <Controller
+              name="username"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter your email"
+                  leftIcon={<Mail size={20} />}
+                  fullWidth
+                  errorText={fieldState.error?.message?.toString()}
+                />
+              )}
+            />
+          )}
         </Box>
 
-        {/* PASSWORD FIELD */}
-        <Box sx={{ mb: 2 }}>
+        {/* Password Field */}
+        <Box>
+          <Typography sx={{ fontWeight: 600, mb: 1, color: '#344054' }}>Password</Typography>
           <Controller
             name="password"
             control={control}
             render={({ field, fieldState }) => (
-              <TextField
+              <Input
                 {...field}
-                fullWidth
-                label="Password"
                 type={showPassword ? 'text' : 'password'}
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message}
-                disabled={isLoginSubmitting}
-                required
-                className="bg-white"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Lock
-                        className="text-gray-400"
-                        sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}
-                      />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={togglePasswordVisibility}
-                        edge="end"
-                        size="small"
-                        sx={{
-                          color: '#6b7280',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                          },
-                        }}
-                      >
-                        {showPassword ? (
-                          <VisibilityOff fontSize="small" />
-                        ) : (
-                          <Visibility fontSize="small" />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: { xs: '10px', sm: '12px' },
-                    height: { xs: '48px', sm: '56px' },
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                      borderWidth: '2px',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                }}
+                placeholder="Enter password"
+                leftIcon={<Lock size={20} />}
+                rightIcon={
+                  <Box
+                    component="button"
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    sx={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </Box>
+                }
+                errorText={fieldState.error?.message?.toString()}
+                autoComplete="current-password"
               />
             )}
           />
+          <Typography
+            onClick={() => router.push('/forgot-password')}
+            sx={{ color: '#D92D20', fontWeight: 600, fontSize: '0.875rem', mt: 1.5, cursor: 'pointer' }}
+          >
+            Forgot password?
+          </Typography>
+        </Box>
 
-          {/* FORGOT PASSWORD LINK */}
-          <Box className="flex justify-end mt-2">
-            <Link
-              onClick={handleForgotPassword}
-              className="text-red-600 text-sm cursor-pointer hover:text-red-700 transition-colors"
-              underline="hover"
-              sx={{
-                fontWeight: 500,
-              }}
-            >
-              Forgot password?
-            </Link>
+        {/* Buttons */}
+        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Button
+            type="submit"
+            fullWidth
+            sx={{
+              bgcolor: '#4AA900',
+              height: '60px',
+              fontSize: '1.1rem',
+              fontWeight: 700,
+              '&:hover': { bgcolor: '#3d8a00' },
+              '&:disabled': { bgcolor: '#A6D388' }
+            }}
+            // The main fix: also require fields filled (not just isFormValid) for enabling.
+            disabled={!isFieldsFilled || !isFormValid || isLoginSubmitting}
+          >
+            {isLoginSubmitting ? 'Logging in...' : 'Login'}
+          </Button>
+
+          <Button
+            variant="outline"
+            fullWidth
+            onClick={handleLoginMethodSwitch}
+            sx={{ height: '60px', borderColor: '#4AA900', color: '#4AA900', fontWeight: 700 }}
+          >
+            Login with {loginMethod === 'phone' ? 'email address' : 'phone number'}
+          </Button>
+        </Box>
+
+        <SocialAuthButtons label="Or sign up with" />
+
+        <Typography variant="body2" sx={{ textAlign: 'center', color: '#667085', mt: 2 }}>
+          Don&apos;t have an account yet?{' '}
+          <Box
+            component="span"
+            onClick={() => router.push('/register')}
+            sx={{ color: '#4AA900', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Sign up
           </Box>
-        </Box>
-
-        {/* REMEMBER ME CHECKBOX */}
-        <Box sx={{ mb: 4 }}>
-          <Controller
-            name="rememberMe"
-            control={control}
-            defaultValue={false}
-            render={({ field }) => (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    {...field}
-                    checked={field.value}
-                    color="primary"
-                    disabled={isLoginSubmitting}
-                    sx={{
-                      color: AUTH_CONSTANTS.COLORS.PRIMARY,
-                      '&.Mui-checked': {
-                        color: AUTH_CONSTANTS.COLORS.PRIMARY,
-                      },
-                    }}
-                  />
-                }
-                label={
-                  <Typography variant="body2" className="text-gray-700">
-                    Remember me
-                  </Typography>
-                }
-                sx={{
-                  '& .MuiTypography-root': {
-                    fontSize: '0.875rem',
-                  },
-                }}
-              />
-            )}
-          />
-        </Box>
-
-        {/* ===================================================================
-            SUBMIT BUTTON
-        =================================================================== */}
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          fullWidth
-          disabled={
-            isLoginSubmitting || isLoginSuccessful || !isFormValid || isReactHookFormSubmitting
-          }
-          startIcon={isLoginSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
-          sx={{
-            height: { xs: '48px', sm: '56px' },
-            backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-            color: 'white',
-            borderRadius: { xs: '10px', sm: '12px' },
-            textTransform: 'none',
-            fontSize: { xs: '14px', sm: '16px' },
-            fontWeight: 600,
-            '&:hover': {
-              backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-              boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-            },
-            '&.Mui-disabled': {
-              backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_LIGHT,
-              color: '#ffffff',
-            },
-          }}
-        >
-          {isLoginSubmitting ? 'Signing in...' : 'Sign In'}
-        </Button>
-
-        {/* ===================================================================
-            FORM STATUS INDICATOR
-        =================================================================== */}
-        <Fade in={isLoginSubmitting}>
-          <Typography variant="caption" className="text-gray-500 text-center block">
-            {isLoginSubmitting ? 'Authenticating...' : ''}
-          </Typography>
-        </Fade>
-
-        {/* ===================================================================
-            OR DIVIDER
-        =================================================================== */}
-        <Box className="flex items-center gap-4 my-6">
-          <Divider className="flex-1" />
-          <Typography className="text-gray-500 text-sm font-medium">Or continue with</Typography>
-          <Divider className="flex-1" />
-        </Box>
-
-        {/* ===================================================================
-            SOCIAL LOGIN BUTTONS
-        =================================================================== */}
-        <Box className="grid grid-cols-3 gap-4">
-          {AUTH_CONSTANTS.SOCIAL_PROVIDERS.map((provider) => (
-            <Button
-              key={provider.name}
-              variant="outlined"
-              fullWidth
-              onClick={() => {
-                logger.info('Social login initiated', { provider: provider.name });
-              }}
-              disabled={isLoginSubmitting}
-              sx={{
-                height: '56px',
-                borderRadius: '12px',
-                borderColor: '#e5e7eb',
-                backgroundColor: 'white',
-                '&:hover': {
-                  backgroundColor: '#f9fafb',
-                  borderColor: '#d1d5db',
-                },
-              }}
-            >
-              <provider.icon size={24} color={provider.color} />
-            </Button>
-          ))}
-        </Box>
-
-        {/* ===================================================================
-            SIGN UP LINK
-        =================================================================== */}
-        <Box className="text-center mt-8 pt-6 border-t border-gray-200">
-          <Typography className="text-gray-600 text-sm">
-            Don&apos;t have an account yet?{' '}
-            <Link
-              onClick={handleRegister}
-              className="text-green-600 cursor-pointer font-medium hover:text-green-700"
-              underline="hover"
-              sx={{
-                textDecoration: 'none',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              Sign up
-            </Link>
-          </Typography>
-        </Box>
+        </Typography>
       </Box>
-    </Paper>
+
+      {/* CUSTOM PHONE STYLES */}
+      <style jsx global>{`
+        .phone-wrapper .react-tel-input .form-control {
+          width: 100% !important;
+          height: 64px !important;
+          border-radius: 12px !important;
+          border: 1px solid #D0D5DD !important;
+          font-size: 1.1rem !important;
+        }
+        .phone-wrapper .react-tel-input .flag-dropdown {
+          border-radius: 12px 0 0 12px !important;
+          border: 1px solid #D0D5DD !important;
+          background: #fff !important;
+        }
+      `}</style>
+    </Box>
   );
 };
 

@@ -4,58 +4,20 @@
  * Feature-specific utility functions
  */
 
+import { AUTH_COOKIE_NAME } from './constants';
 import type { PasswordStrength } from '../model/types';
 
-/**
- * Check if user is authenticated
- */
-export function isAuthenticated(token: string | null): boolean {
-  return !!token;
+/** Set auth cookie so middleware allows protected routes (must match middleware cookie name) */
+export function setAuthCookie(token: string, maxAgeDays = 7): void {
+  if (typeof document === 'undefined') return;
+  const maxAge = maxAgeDays * 24 * 60 * 60;
+  document.cookie = `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
-/**
- * Get auth token from localStorage
- */
-export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  try {
-    return localStorage.getItem('auth-token');
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Set auth token in localStorage
- */
-export function setAuthToken(token: string): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    localStorage.setItem('auth-token', token);
-  } catch {
-    console.error('Failed to set auth token');
-  }
-}
-
-/**
- * Remove auth token from localStorage
- */
-export function removeAuthToken(): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    localStorage.removeItem('auth-token');
-  } catch {
-    console.error('Failed to remove auth token');
-  }
+/** Clear auth cookie on logout */
+export function clearAuthCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0`;
 }
 
 /**

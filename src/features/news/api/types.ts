@@ -25,10 +25,12 @@ export interface NewsResponse {
   category: string;
   sport?: string;
   author?: string;
+  source?: string;
   publishedAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  externalUrl?: string;
   tags?: string[];
   viewCount?: number;
   likeCount?: number;
@@ -40,7 +42,7 @@ export interface NewsListResponse {
   success: boolean;
   message: string;
   errors: string | null;
-  data: {
+  data: NewsResponse[] | {
     items: NewsResponse[];
     total: number;
     page: number;

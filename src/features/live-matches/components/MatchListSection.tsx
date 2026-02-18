@@ -6,11 +6,10 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { KeyboardArrowUp, KeyboardArrowDown, Lock } from '@mui/icons-material';
-import { Box, Typography, Button, IconButton, Paper, Stack, Chip, Avatar } from '@mui/material';
+import { KeyboardArrowUp, KeyboardArrowDown } from '@mui/icons-material';
+import { Box, Typography, IconButton, Paper, Avatar, Chip } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { Match, CompetitionGroup } from '../model/types';
-import dayjs from 'dayjs';
 
 interface MatchListSectionProps {
   competition: CompetitionGroup;
@@ -21,18 +20,15 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSele
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
 
-  // Competition logos mapping
+  // Competition logos from local assets
   const competitionLogos = useMemo(
     () => ({
-      'Premier League': 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
-      'La Liga': 'https://upload.wikimedia.org/wikipedia/en/0/0c/LaLiga_Santander_logo.svg',
-      'Serie A': 'https://upload.wikimedia.org/wikipedia/en/e/e1/Serie_A_logo_%282019%29.svg',
-      Bundesliga: 'https://upload.wikimedia.org/wikipedia/en/d/df/Bundesliga_logo_%282017%29.svg',
-      'UEFA Champions League':
-        'https://upload.wikimedia.org/wikipedia/en/b/bf/UEFA_Champions_League_logo_2.svg',
-      'Italian Serie A':
-        'https://upload.wikimedia.org/wikipedia/en/e/e1/Serie_A_logo_%282019%29.svg',
-      'Nigeria League': 'https://upload.wikimedia.org/wikipedia/en/0/0c/LaLiga_Santander_logo.svg',
+      'Premier League': '/leagues/premier-league.svg',
+      'La Liga': '/leagues/la-liga.svg',
+      'Serie A': '/leagues/serie-a.svg',
+      Bundesliga: '/leagues/bundesliga.svg',
+      'UEFA Champions League': '/leagues/champions-league.svg',
+      'Italian Serie A': '/leagues/serie-a.svg',
     }),
     []
   );
@@ -51,21 +47,38 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSele
     [onSelectMatch, router]
   );
 
-  const formatDateTime = (dateString: string) => {
-    const date = dayjs(dateString);
-    return date.format('DD/MM/YY • HH:mm [EST]');
+  // Helper to get status badge styling
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { label: string; bgcolor: string; color: string }> = {
+      'FT': { label: 'FT', bgcolor: '#dcfce7', color: '#166534' },
+      'HT': { label: 'HT', bgcolor: '#f3f4f6', color: '#4b5563' },
+      'ET': { label: 'ET', bgcolor: '#fee2e2', color: '#991b1b' },
+      'Live': { label: 'Live', bgcolor: '#fee2e2', color: '#991b1b' },
+      'Prediction': { label: 'Vs', bgcolor: 'transparent', color: '#000' },
+    };
+    return statusMap[status] || { label: 'Vs', bgcolor: 'transparent', color: '#000' };
   };
 
-
   return (
-    <Paper elevation={0} sx={{ mb: 2, overflow: 'hidden', borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        mb: 2, 
+        overflow: 'hidden', 
+        borderRadius: 3, 
+        border: '1px solid', 
+        borderColor: 'grey.200',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+      }}
+    >
       {/* Competition Header */}
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          p: 2,
+          px: 3,
+          py: 2,
           cursor: 'pointer',
           '&:hover': {
             bgcolor: 'grey.50',
@@ -75,14 +88,37 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSele
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {competitionLogo && (
+          {competitionLogo ? (
             <Avatar
               src={competitionLogo}
               alt={competition.name}
               sx={{ width: 32, height: 32 }}
             />
+          ) : (
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                bgcolor: 'grey.100',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'grey.700' }}>
+                {competition.name.substring(0, 2).toUpperCase()}
+              </Typography>
+            </Box>
           )}
-          <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 'bold',
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              color: 'grey.900',
+            }}
+          >
             {competition.name}
           </Typography>
         </Box>
@@ -94,143 +130,172 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSele
           }}
           sx={{
             '&:hover': {
-              bgcolor: 'grey.100',
+              bgcolor: 'transparent',
             },
           }}
         >
           {isCollapsed ? (
-            <KeyboardArrowDown sx={{ fontSize: 20, color: 'grey.600' }} />
+            <KeyboardArrowDown sx={{ fontSize: 24, color: 'grey.600' }} />
           ) : (
-            <KeyboardArrowUp sx={{ fontSize: 20, color: 'grey.600' }} />
+            <KeyboardArrowUp sx={{ fontSize: 24, color: 'grey.600' }} />
           )}
         </IconButton>
       </Box>
 
       {/* Matches List */}
       {!isCollapsed && (
-        <Box sx={{ p: 1.5 }}>
-          <Stack spacing={1.5}>
-            {competition.matches.map((match) => {
-              const isLocked = !match.predictedScore && match.status === 'Prediction';
-              const hasPrediction = match.predictedScore && match.status === 'Prediction';
+        <Box>
+          {competition.matches.length === 0 ? (
+            <Box sx={{ py: 4, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                No matches in this competition
+              </Typography>
+            </Box>
+          ) : (
+            competition.matches.map((match, index) => {
+              const statusBadge = getStatusBadge(match.status);
+              const showScore = match.result && (match.status === 'FT' || match.status === 'HT' || match.status === 'ET' || match.status === 'Live');
 
               return (
-                <Button
+                <Box
                   key={match.id}
-                  onClick={() => handleMatchClick(match)}
                   sx={{
-                    width: '100%',
-                    textAlign: 'left',
-                    borderRadius: 3,
-                    border: '1px solid',
+                    px: 3,
+                    py: 2.5,
+                    cursor: 'pointer',
+                    borderTop: index === 0 ? '1px solid' : 'none',
+                    borderBottom: index < competition.matches.length - 1 ? '1px solid' : 'none',
                     borderColor: 'grey.100',
-                    bgcolor: 'white',
-                    p: 2,
                     '&:hover': {
-                      boxShadow: 1,
+                      bgcolor: 'grey.50',
                     },
-                    transition: 'all 0.2s',
+                    transition: 'background-color 0.2s',
                   }}
+                  onClick={() => handleMatchClick(match)}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, width: '100%', justifyContent: 'space-between' }}>
-                    {/* Home */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
+                  <Box 
+                    sx={{ 
+                      display: 'grid',
+                      gridTemplateColumns: '60px 1fr auto 1fr',
+                      alignItems: 'center',
+                      gap: 2,
+                    }}
+                  >
+                    {/* Status Badge */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Chip
+                        label={statusBadge.label}
+                        sx={{
+                          height: 32,
+                          minWidth: 44,
+                          bgcolor: statusBadge.bgcolor,
+                          color: statusBadge.color,
+                          fontWeight: 600,
+                          fontSize: '0.8125rem',
+                          borderRadius: 2,
+                          '& .MuiChip-label': {
+                            px: 1.5,
+                          },
+                        }}
+                      />
+                    </Box>
+
+                    {/* Home Team */}
+                    <Box 
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5,
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          color: 'text.primary',
+                          fontSize: '0.875rem',
+                          textAlign: 'right',
+                        }}
+                      >
+                        {match.homeTeam.shortName || match.homeTeam.name}
+                      </Typography>
                       <Avatar
                         src={match.homeTeam.logoUrl}
                         alt={match.homeTeam.name}
-                        sx={{ width: 40, height: 40 }}
+                        sx={{ width: 32, height: 32 }}
                       />
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'semibold' }}>
-                          {match.homeTeam.shortName || match.homeTeam.name}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                          <Chip
-                            label={match.status}
-                            size="small"
-                            sx={{
-                              height: 'auto',
-                              fontSize: '0.75rem',
-                              px: 1,
-                              py: 0.25,
-                              bgcolor: match.status === 'FT' ? 'success.light' :
-                                       match.status === 'Live' ? 'error.light' :
-                                       match.status === 'Prediction' ? 'primary.light' : 'grey.light',
-                              color: match.status === 'FT' ? 'success.dark' :
-                                     match.status === 'Live' ? 'error.dark' :
-                                     match.status === 'Prediction' ? 'primary.dark' : 'grey.dark',
-                            }}
-                          />
-                          <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {match.stadium || 'TBD'}
-                          </Typography>
-                        </Box>
-                      </Box>
                     </Box>
 
-                    {/* Score / state */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 90 }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.625rem' }}>
-                        {formatDateTime(match.dateTime)}
-                      </Typography>
-                      {isLocked ? (
-                        <>
-                          <Lock sx={{ fontSize: 20, color: 'grey.400', mb: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            Prediction
-                          </Typography>
-                        </>
-                      ) : hasPrediction ? (
-                        <>
-                          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {match.predictedScore}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Prediction
-                          </Typography>
-                        </>
-                      ) : match.result ? (
-                        <>
-                          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {match.result}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {match.status}
-                          </Typography>
-                        </>
+                    {/* Score */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 60,
+                      }}
+                    >
+                      {showScore ? (
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: '1.25rem',
+                            color: 'grey.900',
+                          }}
+                        >
+                          {match.result}
+                        </Typography>
                       ) : (
-                        <>
-                          <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
-                            Vs
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Upcoming
-                          </Typography>
-                        </>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 600,
+                            fontSize: '1rem',
+                            color: 'grey.900',
+                          }}
+                        >
+                          Vs
+                        </Typography>
                       )}
                     </Box>
 
-                    {/* Away */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, justifyContent: 'flex-end' }}>
-                      <Box sx={{ minWidth: 0, textAlign: 'right' }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'semibold' }}>
-                          {match.awayTeam.shortName || match.awayTeam.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {match.competition || ''}
-                        </Typography>
-                      </Box>
+                    {/* Away Team */}
+                    <Box 
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5,
+                      }}
+                    >
                       <Avatar
                         src={match.awayTeam.logoUrl}
                         alt={match.awayTeam.name}
-                        sx={{ width: 40, height: 40 }}
+                        sx={{ width: 32, height: 32 }}
                       />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          color: 'text.primary',
+                          fontSize: '0.875rem',
+                        }}
+                      >
+                        {match.awayTeam.shortName || match.awayTeam.name}
+                      </Typography>
                     </Box>
                   </Box>
-                </Button>
+                </Box>
               );
-            })}
-          </Stack>
+            })
+          )}
         </Box>
       )}
     </Paper>

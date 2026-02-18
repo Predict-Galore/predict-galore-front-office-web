@@ -15,16 +15,14 @@ const ProfileDetailsTab: React.FC = () => {
   const { data: profile, isLoading } = useProfile();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingField, setEditingField] = useState<'firstName' | 'lastName' | 'email' | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- signature required by parent
   const handleEditClick = useCallback((field: 'firstName' | 'lastName' | 'email') => {
-    setEditingField(field);
     setIsEditModalOpen(true);
   }, []);
 
   const handleEditClose = useCallback(() => {
     setIsEditModalOpen(false);
-    setEditingField(null);
   }, []);
 
   const handleDeleteClick = useCallback(() => {

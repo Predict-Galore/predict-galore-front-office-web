@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useSearchStore } from '../model/store';
 import { useSearchQuery } from '../api/hooks';
+import { getSafeImageUrl } from '@/shared/utils/imageUtils';
 import SearchFilters from './SearchFilters';
 import PopularSection from './PopularSection';
 import NoResults from './NoResults';
@@ -51,12 +52,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick 
   return (
     <Paper
       elevation={3}
+      className={className}
       sx={{
         bgcolor: 'white',
         borderRadius: 2,
         border: '1px solid',
         borderColor: 'grey.200',
-        ...className,
       }}
     >
       {/* Filters */}
@@ -105,9 +106,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick 
                         gap: 1.5,
                       }}
                     >
-                      {result.imageUrl && (
+                      {getSafeImageUrl(result.imageUrl) && (
                         <Avatar
-                          src={result.imageUrl}
+                          src={getSafeImageUrl(result.imageUrl)}
                           alt={result.title}
                           sx={{ width: 40, height: 40 }}
                         />

@@ -57,10 +57,5 @@ export interface PopularItem {
 }
 
 export interface SearchState {
-  query: string;
   searchType: SearchType;
-  results: SearchResult[];
-  popularItems: PopularItem[];
-  isLoading: boolean;
-  isOpen: boolean;
 }

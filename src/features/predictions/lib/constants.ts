@@ -4,10 +4,11 @@
  */
 
 export const PREDICTIONS_CONSTANTS = {
-  MOCK_DATA: {
-    BANNER_QUOTE:
+  /** Static banner content (no backend endpoint). */
+  BANNER: {
+    QUOTE:
       'Bet with your head, not over it. Stay in control and enjoy the game responsibly.',
-    BANNER_AUTHOR: 'Billy Walters',
+    AUTHOR: 'Billy Walters',
   },
 
   TEAM_STATS: {
@@ -35,13 +36,6 @@ export const PREDICTIONS_CONSTANTS = {
     LOCKED: 'Locked',
   },
 
-  PREDICTION_STATS: {
-    AVERAGE_ACCURACY: 78,
-    PREDICTIONS_THIS_WEEK: 24,
-    TOP_MATCH_CONFIDENCE: 92,
-    WIN_RATE: 65,
-  },
-
   // Competition sorting priorities
   COMPETITIONS: {
     PREMIER_LEAGUE: 'Premier League',
@@ -54,15 +48,6 @@ export const PREDICTIONS_CONSTANTS = {
     ],
   },
 
-  // Default sports for tabs (without IDs, IDs are assigned dynamically)
-  DEFAULT_SPORTS: [
-    { name: 'All Sports', icon: 'all', isActive: true },
-    { name: 'Soccer', icon: 'soccer', isActive: true },
-    { name: 'Basketball', icon: 'basketball', isActive: true },
-    { name: 'Tennis', icon: 'tennis', isActive: true },
-    { name: 'Cricket', icon: 'cricket', isActive: true },
-    { name: 'American Football', icon: 'american-football', isActive: true },
-  ] as const,
 } as const;
 
 // Export as DASHBOARD_CONSTANTS for backward compatibility during migration

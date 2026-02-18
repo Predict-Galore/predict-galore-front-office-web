@@ -8,13 +8,11 @@ import {
   AccordionSummary,
   AccordionDetails,
   Container,
-  useTheme,
   Link as MuiLink,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const FAQSection: React.FC = () => {
-  const theme = useTheme();
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -82,14 +80,14 @@ const FAQSection: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: theme.palette.background.default, py: { xs: 8, md: 12 } }}>
+    <Box sx={{ bgcolor: '#ffffff', py: { xs: 8, md: 12 } }}>
       <Container maxWidth="md">
         {/* Section Header */}
         <Box sx={{ textAlign: 'center', mb: 8 }}>
           <Typography
             variant="h3"
             sx={{
-              color: theme.palette.neutral[900],
+              color: '#0f172a',
               mb: 2,
             }}
           >
@@ -98,7 +96,7 @@ const FAQSection: React.FC = () => {
           <Typography
             variant="body1"
             sx={{
-              color: theme.palette.text.secondary,
+              color: '#475569',
               maxWidth: '600px',
               mx: 'auto',
             }}
@@ -117,18 +115,18 @@ const FAQSection: React.FC = () => {
               disableGutters
               elevation={0}
               sx={{
-                border: `1px solid ${theme.palette.neutral[200]}`,
-                borderRadius: `${theme.shape.borderRadius}px !important`,
+                border: `1px solid ${'#e2e8f0'}`,
+                borderRadius: '8px !important',
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  borderColor: theme.palette.primary.main,
-                  bgcolor: theme.palette.neutral[50],
+                  borderColor: '#42A605',
+                  bgcolor: '#f8fafc',
                 },
                 '&:before': { display: 'none' },
                 ...(expanded === faq.id && {
-                  borderColor: theme.palette.primary.main,
-                  boxShadow: `0 4px 20px ${theme.palette.neutral[200]}`,
+                  borderColor: '#42A605',
+                  boxShadow: `0 4px 20px ${'#e2e8f0'}`,
                 }),
               }}
             >
@@ -138,8 +136,8 @@ const FAQSection: React.FC = () => {
                     sx={{
                       color:
                         expanded === faq.id
-                          ? theme.palette.primary.main
-                          : theme.palette.neutral[900],
+                          ? '#42A605'
+                          : '#0f172a',
                       transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       transform: expanded === faq.id ? 'rotate(45deg)' : 'none',
                     }}
@@ -156,7 +154,7 @@ const FAQSection: React.FC = () => {
                 <Typography
                   sx={{
                     fontWeight: 600,
-                    color: theme.palette.neutral[900],
+                    color: '#0f172a',
                     fontSize: '1.05rem',
                   }}
                 >
@@ -166,8 +164,8 @@ const FAQSection: React.FC = () => {
               <AccordionDetails sx={{ px: { xs: 2, md: 4 }, pb: 4, pt: 0 }}>
                 <Typography
                   sx={{
-                    color: theme.palette.text.secondary,
-                    lineHeight: theme.typography.body1.lineHeight,
+                    color: '#475569',
+                    lineHeight: 1.6,
                     fontSize: '0.95rem',
                     textAlign: 'left',
                   }}
@@ -186,23 +184,23 @@ const FAQSection: React.FC = () => {
             textAlign: 'center',
             p: 4,
             borderRadius: 4,
-            bgcolor: theme.palette.neutral[50],
-            border: `1px dashed ${theme.palette.neutral[200]}`,
+            bgcolor: '#f8fafc',
+            border: `1px dashed ${'#e2e8f0'}`,
           }}
         >
           <Typography
             variant="h6"
-            sx={{ fontWeight: 800, mb: 1, color: theme.palette.neutral[900] }}
+            sx={{ fontWeight: 800, mb: 1, color: '#0f172a' }}
           >
             Still have questions?
           </Typography>
-          <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
+          <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
             Do you have a question, request, issue, or comment that is not covered here?
           </Typography>
           <MuiLink
             href="mailto:customerservice@predictgalore.com"
             sx={{
-              color: theme.palette.primary.main,
+              color: '#42A605',
               fontWeight: 700,
               fontSize: '1rem',
               textDecoration: 'none',

@@ -6,22 +6,21 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Container, Chip, useTheme, alpha } from '@mui/material';
+import { Box, Typography, Container, Chip, alpha } from '@mui/material';
 import { ContactMail } from '@mui/icons-material';
 
 const ContactHero: React.FC = () => {
-  const theme = useTheme();
 
   return (
     <Box
-      sx={{
-        // Synchronized brand gradient: Red to Dark Green
+      sx={(theme) => ({
+        // Synchronized brand gradient: Secondary (coolRed) to Primary (green) using theme colors
         background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.dark} 100%)`,
         color: 'white',
         py: { xs: 8, md: 12 },
         position: 'relative',
         overflow: 'hidden',
-      }}
+      })}
     >
       {/* Background Texture Overlay */}
       <Box
@@ -48,27 +47,27 @@ const ContactHero: React.FC = () => {
           <Chip
             icon={
               <ContactMail
-                sx={{
-                  color: `${theme.palette.neutral[900]} !important`,
+                sx={(theme) => ({
+                  color: `${theme.palette.neutral[950]} !important`,
                   fontSize: '20px',
-                }}
+                })}
               />
             }
             label="We'd love to hear from you"
-            sx={{
-              backgroundColor: theme.palette.primary.light, // Brand's signature light green
-              color: theme.palette.neutral[900],
+            sx={(theme) => ({
+              backgroundColor: theme.palette.primary.light, // green-400 from theme
+              color: theme.palette.neutral[950], // #101012 from Figma
               fontWeight: 700,
               height: 44,
               px: 1,
               borderRadius: '100px',
-              border: `1.5px solid ${theme.palette.neutral[900]}`,
-              boxShadow: `4px 4px 0px ${alpha(theme.palette.neutral[900], 0.2)}`,
+              border: `1.5px solid ${theme.palette.neutral[950]}`,
+              boxShadow: `4px 4px 0px ${theme.palette.neutral[950]}33`,
               '& .MuiChip-label': {
                 fontSize: '1rem',
                 px: 2,
               },
-            }}
+            })}
           />
         </Box>
 

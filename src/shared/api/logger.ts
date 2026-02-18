@@ -39,15 +39,20 @@ class Logger {
 
     for (const [key, value] of Object.entries(data)) {
       if (value instanceof Error) {
+        const errorWithExtras = value as Error & {
+          status?: number;
+          statusText?: string;
+          data?: unknown;
+        };
         // Extract Error properties that JSON.stringify normally misses
         result[key] = {
           name: value.name,
           message: value.message,
           stack: value.stack,
           // Include ApiError specific properties
-          ...(value instanceof Error && 'status' in value && { status: (value as any).status }),
-          ...(value instanceof Error && 'statusText' in value && { statusText: (value as any).statusText }),
-          ...(value instanceof Error && 'data' in value && { data: (value as any).data }),
+          ...('status' in errorWithExtras && { status: errorWithExtras.status }),
+          ...('statusText' in errorWithExtras && { statusText: errorWithExtras.statusText }),
+          ...('data' in errorWithExtras && { data: errorWithExtras.data }),
         };
       } else {
         result[key] = value;

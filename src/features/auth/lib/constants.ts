@@ -5,6 +5,9 @@
 
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 
+/** Cookie name used by middleware to allow protected routes */
+export const AUTH_COOKIE_NAME = 'auth-token';
+
 export const AUTH_CONSTANTS = {
   ROUTES: {
     LOGIN: '/login',

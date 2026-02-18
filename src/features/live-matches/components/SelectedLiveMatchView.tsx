@@ -1,6 +1,6 @@
 /**
  * Selected Live Match View Component
- * Matches Figma UI design - Shows detailed match information
+ * Pixel-perfect match detail UI
  */
 
 'use client';
@@ -9,23 +9,20 @@ import React from 'react';
 import {
   ArrowBack,
   Share,
-  Notifications,
-  CalendarToday,
-  AccessTime,
-  EmojiEvents,
-  LocationOn,
-  PlayArrow,
-  Assignment,
+  NotificationsNone,
+  CalendarTodayOutlined,
+  AccessTimeOutlined,
+  LocationOnOutlined,
+  StadiumOutlined,
+  SportsSoccer,
+  PlayCircleOutline,
+  AssignmentOutlined,
+  BarChartOutlined,
 } from '@mui/icons-material';
 import {
-  Box,
-  Stack,
-  Paper,
   Typography,
-  Button,
   Avatar,
   IconButton,
-  Chip,
 } from '@mui/material';
 import { Match, DetailedLiveMatch } from '../model/types';
 import dayjs from 'dayjs';
@@ -51,7 +48,7 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
 
   const dateTime = formatDateTime(match.dateTime);
 
-  // Get goal scorers from events
+  // Goal scorers from events
   const goalScorers = detailedLiveMatch.events
     .filter((event) => event.type === 'goal')
     .map((event) => ({
@@ -59,298 +56,368 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
       minute: event.minute,
       team: event.team,
       isPenalty: event.description?.toLowerCase().includes('penalty') || false,
+      extraTime: event.extraTime,
     }));
 
   const homeGoals = goalScorers.filter((g) => g.team === 'home');
   const awayGoals = goalScorers.filter((g) => g.team === 'away');
 
+  const formatGoal = (g: (typeof goalScorers)[number]) => {
+    let text = g.player || 'Unknown';
+    text += ` ${g.minute}'`;
+    if (g.extraTime) text = `${g.player} ${g.minute}+${g.extraTime}'`;
+    if (g.isPenalty) text += ' (P)';
+    return text;
+  };
+
+  // ==================== GREEN CIRCLE ICON ====================
+  const SectionIcon = ({ children }: { children: React.ReactNode }) => (
+    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center shrink-0">
+      {children}
+    </div>
+  );
+
+  // ==================== RENDER ====================
   return (
-    <Stack spacing={2}>
-      {/* Match Header - Dark Green */}
-      <Paper
-        elevation={1}
-        sx={{
-          bgcolor: 'success.main',
-          borderRadius: 3,
-          color: 'white',
-          overflow: 'hidden',
+    <div className="space-y-0">
+      {/* ===== MATCH HEADER (dark green) ===== */}
+      <div
+        className="rounded-t-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #1a4d2e 0%, #1e5a35 50%, #22673d 100%)',
         }}
       >
-        {/* Top Bar */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-          <IconButton
-            onClick={onBack}
-            sx={{
-              color: 'white',
-              '&:hover': {
-                bgcolor: 'success.dark',
-              },
-            }}
-            aria-label="Back"
-          >
+        {/* Top bar: back + actions */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <IconButton onClick={onBack} sx={{ color: 'white' }} aria-label="Back">
             <ArrowBack />
           </IconButton>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton
-              sx={{
-                color: 'white',
-                '&:hover': {
-                  bgcolor: 'success.dark',
-                },
-              }}
-              aria-label="Share"
-            >
-              <Share />
+          <div className="flex items-center gap-1">
+            <IconButton sx={{ color: 'white' }} aria-label="Share">
+              <Share sx={{ fontSize: 20 }} />
             </IconButton>
-            <IconButton
-              sx={{
-                color: 'white',
-                '&:hover': {
-                  bgcolor: 'success.dark',
-                },
-              }}
-              aria-label="Notifications"
-            >
-              <Notifications />
+            <IconButton sx={{ color: 'white' }} aria-label="Notifications">
+              <NotificationsNone sx={{ fontSize: 22 }} />
             </IconButton>
-          </Box>
-        </Box>
+          </div>
+        </div>
 
-        {/* Teams and Score */}
-        <Box sx={{ px: 2, pb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-            {/* Home Team */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Teams + Score */}
+        <div className="px-4 pb-6">
+          <div className="flex items-start justify-center gap-6 sm:gap-10">
+            {/* Home team */}
+            <div className="flex flex-col items-center flex-1 min-w-0">
               <Avatar
                 src={match.homeTeam.logoUrl}
                 alt={match.homeTeam.name}
-                sx={{ width: 64, height: 64, mb: 1 }}
+                sx={{ width: 64, height: 64, mb: 1, bgcolor: 'white', p: 0.5 }}
               />
-              <Typography variant="body2" sx={{ fontWeight: 'semibold', textTransform: 'uppercase', textAlign: 'center' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  textAlign: 'center',
+                  fontSize: '0.75rem',
+                  letterSpacing: 0.5,
+                }}
+              >
                 {match.homeTeam.shortName || match.homeTeam.name}
               </Typography>
-              {/* Goal Scorers */}
-              {homeGoals.length > 0 && (
-                <Box sx={{ mt: 1, textAlign: 'center' }}>
-                  {homeGoals.map((goal, idx) => (
-                    <Typography key={idx} variant="caption" sx={{ display: 'block', lineHeight: 1.2 }}>
-                      {goal.player} {goal.minute}&apos;
-                      {goal.isPenalty && ' (P)'}
-                    </Typography>
-                  ))}
-                </Box>
-              )}
-            </Box>
+            </div>
 
             {/* Score */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="flex flex-col items-center pt-1">
               <Typography
-                variant="h1"
                 sx={{
-                  fontSize: '3rem',
-                  fontWeight: 'bold',
-                  mb: 0.5,
-                  lineHeight: 0.8,
+                  color: 'white',
+                  fontSize: { xs: '3rem', sm: '3.5rem' },
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: 3,
                 }}
               >
                 {match.result}
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500, opacity: 0.9 }}>
-                {match.status}
-              </Typography>
-            </Box>
+              <div className="mt-2 px-4 py-1 rounded-full bg-white/20">
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'white', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                >
+                  {match.status}
+                </Typography>
+              </div>
+            </div>
 
-            {/* Away Team */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {/* Away team */}
+            <div className="flex flex-col items-center flex-1 min-w-0">
               <Avatar
                 src={match.awayTeam.logoUrl}
                 alt={match.awayTeam.name}
-                sx={{ width: 64, height: 64, mb: 1 }}
+                sx={{ width: 64, height: 64, mb: 1, bgcolor: 'white', p: 0.5 }}
               />
-              <Typography variant="body2" sx={{ fontWeight: 'semibold', textTransform: 'uppercase', textAlign: 'center' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  textAlign: 'center',
+                  fontSize: '0.75rem',
+                  letterSpacing: 0.5,
+                }}
+              >
                 {match.awayTeam.shortName || match.awayTeam.name}
               </Typography>
-              {/* Goal Scorers */}
-              {awayGoals.length > 0 && (
-                <Box sx={{ mt: 1, textAlign: 'center' }}>
-                  {awayGoals.map((goal, idx) => (
-                    <Typography key={idx} variant="caption" sx={{ display: 'block', lineHeight: 1.2 }}>
-                      {goal.player} {goal.minute}&apos;
-                      {goal.isPenalty && ' (P)'}
-                    </Typography>
-                  ))}
-                </Box>
-              )}
-            </Box>
-          </Box>
-        </Box>
-      </Paper>
+            </div>
+          </div>
 
-      {/* Match Details */}
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'grey.200', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 'semibold', mb: 2 }}>
-          Match Details
-        </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, color: 'text.secondary' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CalendarToday sx={{ fontSize: 16, color: 'text.disabled' }} />
-            <Typography variant="body2">{dateTime.date}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <AccessTime sx={{ fontSize: 16, color: 'text.disabled' }} />
-            <Typography variant="body2">{dateTime.time}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <EmojiEvents sx={{ fontSize: 16, color: 'text.disabled' }} />
-            <Typography variant="body2">{match.competition || 'N/A'}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LocationOn sx={{ fontSize: 16, color: 'text.disabled' }} />
-            <Typography variant="body2">{match.stadium || 'TBD'}</Typography>
-          </Box>
-        </Box>
-      </Paper>
+          {/* Goal scorers row */}
+          {(homeGoals.length > 0 || awayGoals.length > 0) && (
+            <div className="flex items-start justify-center gap-3 mt-4 px-2">
+              {/* Home scorers */}
+              <div className="flex-1 text-right">
+                {homeGoals.map((g, i) => (
+                  <Typography
+                    key={i}
+                    variant="caption"
+                    sx={{ display: 'block', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', lineHeight: 1.8 }}
+                  >
+                    {formatGoal(g)}
+                  </Typography>
+                ))}
+              </div>
 
-      {/* Predicted Outcome */}
-      {match.predictedScore && (
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'grey.200', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
-              Predicted outcome
+              {/* Ball icon */}
+              <div className="shrink-0 pt-1">
+                <SportsSoccer sx={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+              </div>
+
+              {/* Away scorers */}
+              <div className="flex-1 text-left">
+                {awayGoals.map((g, i) => (
+                  <Typography
+                    key={i}
+                    variant="caption"
+                    sx={{ display: 'block', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', lineHeight: 1.8 }}
+                  >
+                    {formatGoal(g)}
+                  </Typography>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ===== WHITE CONTENT SECTIONS ===== */}
+      <div className="bg-white rounded-b-2xl border border-t-0 border-gray-200 shadow-sm">
+        {/* ---------- Match Details ---------- */}
+        <div className="px-5 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+              Match Details
             </Typography>
-            <Button
-              endIcon={<PlayArrow sx={{ fontSize: 16 }} />}
-              sx={{
-                color: 'success.main',
-                '&:hover': {
-                  color: 'success.dark',
-                },
-              }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                View all predictions
+            <SectionIcon>
+              <SportsSoccer sx={{ fontSize: 16, color: 'success.main' }} />
+            </SectionIcon>
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-3">
+              <CalendarTodayOutlined sx={{ fontSize: 18, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                {dateTime.date}
               </Typography>
-            </Button>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            </div>
+            <div className="flex items-center gap-3">
+              <AccessTimeOutlined sx={{ fontSize: 18, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                {dateTime.time}
+              </Typography>
+            </div>
+            <div className="flex items-center gap-3">
+              <LocationOnOutlined sx={{ fontSize: 18, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                {match.competition || 'N/A'}
+              </Typography>
+            </div>
+            <div className="flex items-center gap-3">
+              <StadiumOutlined sx={{ fontSize: 18, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                {match.stadium || 'TBD'}
+              </Typography>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-5 border-b border-gray-100" />
+
+        {/* ---------- Predicted Outcome ---------- */}
+        {match.predictedScore && (
+          <>
+            <div className="px-5 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+                  Predicted outcome
+                </Typography>
+                <SectionIcon>
+                  <PlayCircleOutline sx={{ fontSize: 16, color: 'success.main' }} />
+                </SectionIcon>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Avatar
+                  src={match.homeTeam.logoUrl}
+                  alt={match.homeTeam.name}
+                  sx={{ width: 32, height: 32 }}
+                />
+                <div className="flex-1">
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                    {match.homeTeam.shortName || match.homeTeam.name} wins
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+                    {match.predictedScore}
+                  </Typography>
+                </div>
+                <button className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap">
+                  View all predictions
+                </button>
+              </div>
+            </div>
+
+            <div className="mx-5 border-b border-gray-100" />
+          </>
+        )}
+
+        {/* ---------- Player of the Match ---------- */}
+        {detailedLiveMatch.stats.homeTopScorer && (
+          <>
+            <div className="px-5 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+                  Player of the match
+                </Typography>
+                <SectionIcon>
+                  <AssignmentOutlined sx={{ fontSize: 16, color: 'success.main' }} />
+                </SectionIcon>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Player avatar with team badge overlay */}
+                <div className="relative shrink-0">
+                  <Avatar
+                    src={(detailedLiveMatch.stats.homeTopScorer as { imageUrl?: string })?.imageUrl}
+                    alt={detailedLiveMatch.stats.homeTopScorer.name}
+                    sx={{ width: 48, height: 48, bgcolor: 'grey.200' }}
+                  >
+                    {detailedLiveMatch.stats.homeTopScorer.name?.[0]?.toUpperCase() ?? '?'}
+                  </Avatar>
+                  <Avatar
+                    src={match.homeTeam.logoUrl}
+                    alt={match.homeTeam.name}
+                    sx={{
+                      width: 18,
+                      height: 18,
+                      position: 'absolute',
+                      bottom: -2,
+                      right: -2,
+                      border: '2px solid white',
+                      bgcolor: 'grey.100',
+                    }}
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <Typography variant="body1" sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                    {detailedLiveMatch.stats.homeTopScorer.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+                    {detailedLiveMatch.stats.homeTopScorer.position}
+                  </Typography>
+                </div>
+
+                {/* Rating badge */}
+                <div className="shrink-0 px-3 py-1.5 rounded-lg bg-gray-100">
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 700, color: 'text.primary', fontSize: '0.9375rem' }}
+                  >
+                    {detailedLiveMatch.stats.homeTopScorer.rating}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+
+            <div className="mx-5 border-b border-gray-100" />
+          </>
+        )}
+
+        {/* ---------- Match Stats ---------- */}
+        <div className="px-5 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+              Match stats
+            </Typography>
+            <SectionIcon>
+              <BarChartOutlined sx={{ fontSize: 16, color: 'success.main' }} />
+            </SectionIcon>
+          </div>
+
+          {/* Team logos row */}
+          <div className="flex items-center justify-between mb-4 px-1">
             <Avatar
               src={match.homeTeam.logoUrl}
               alt={match.homeTeam.name}
-              sx={{ width: 40, height: 40 }}
+              sx={{ width: 36, height: 36 }}
             />
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="body1" sx={{ fontWeight: 'semibold' }}>
-                {match.homeTeam.shortName || match.homeTeam.name} wins
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {match.predictedScore}
-              </Typography>
-            </Box>
-          </Box>
-        </Paper>
-      )}
-
-      {/* Player of the Match */}
-      {detailedLiveMatch.stats.homeTopScorer && (
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'grey.200', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
-              Player of the match
-            </Typography>
-            <Assignment sx={{ fontSize: 20, color: 'text.disabled' }} />
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar
-              src={`/api/placeholder/80/80`}
-              alt={detailedLiveMatch.stats.homeTopScorer.name}
-              sx={{ width: 80, height: 80 }}
+              src={match.awayTeam.logoUrl}
+              alt={match.awayTeam.name}
+              sx={{ width: 36, height: 36 }}
             />
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
-                {detailedLiveMatch.stats.homeTopScorer.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {detailedLiveMatch.stats.homeTopScorer.position}
-              </Typography>
-              <Box sx={{ mt: 1 }}>
-                <Chip
-                  label={detailedLiveMatch.stats.homeTopScorer.rating}
-                  sx={{
-                    bgcolor: 'success.light',
-                    color: 'success.dark',
-                    fontWeight: 'semibold',
-                  }}
-                />
-              </Box>
-            </Box>
-          </Box>
-        </Paper>
-      )}
+          </div>
 
-      {/* Match Stats */}
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
-            Match stats
-          </Typography>
-          <Assignment sx={{ fontSize: 20, color: 'text.disabled' }} />
-        </Box>
-        <Stack spacing={1.5}>
-          {[
-            [
-              'Shots',
-              detailedLiveMatch.stats.homeTotalShots,
-              detailedLiveMatch.stats.awayTotalShots,
-            ],
-            [
-              'Shots on target',
-              detailedLiveMatch.stats.homeShotsOnTarget,
-              detailedLiveMatch.stats.awayShotsOnTarget,
-            ],
-            [
-              'Possession',
-              `${detailedLiveMatch.stats.homePossession}%`,
-              `${detailedLiveMatch.stats.awayPossession}%`,
-            ],
-            [
-              'Pass accuracy',
-              `${detailedLiveMatch.stats.homeTeam.winPercentage}%`,
-              `${detailedLiveMatch.stats.awayTeam.winPercentage}%`,
-            ],
-            ['Fouls', detailedLiveMatch.stats.homeFouls, detailedLiveMatch.stats.awayFouls],
-            [
-              'Yellow cards',
-              detailedLiveMatch.stats.homeYellowCards,
-              detailedLiveMatch.stats.awayYellowCards,
-            ],
-            [
-              'Red cards',
-              detailedLiveMatch.stats.homeRedCards,
-              detailedLiveMatch.stats.awayRedCards,
-            ],
-            [
-              'Offsides',
-              detailedLiveMatch.stats.homeOffsides,
-              detailedLiveMatch.stats.awayOffsides,
-            ],
-            ['Corners', detailedLiveMatch.stats.homeCorners, detailedLiveMatch.stats.awayCorners],
-          ].map(([label, home, away]) => (
-            <Box key={label} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, alignItems: 'center' }}>
-              <Typography variant="body2" sx={{ fontWeight: 'semibold', color: 'text.secondary' }}>
-                {label}
-              </Typography>
-              <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.primary' }}>
-                {home as string}
-              </Typography>
-              <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.primary' }}>
-                {away as string}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-      </Paper>
-    </Stack>
+          {/* Stats rows */}
+          <div className="space-y-2.5">
+            {([
+              ['Shots', detailedLiveMatch.stats.homeTotalShots, detailedLiveMatch.stats.awayTotalShots],
+              ['Shots on target', detailedLiveMatch.stats.homeShotsOnTarget, detailedLiveMatch.stats.awayShotsOnTarget],
+              ['Possession', detailedLiveMatch.stats.homePossession, detailedLiveMatch.stats.awayPossession],
+              ['Passes', detailedLiveMatch.stats.homeTeam.goalsPerGame, detailedLiveMatch.stats.awayTeam.goalsPerGame],
+              ['Pass accuracy', `${detailedLiveMatch.stats.homeTeam.winPercentage}%`, `${detailedLiveMatch.stats.awayTeam.winPercentage}%`],
+              ['Fouls', `${detailedLiveMatch.stats.homeFouls}%`, `${detailedLiveMatch.stats.awayFouls}%`],
+              ['Yellow cards', detailedLiveMatch.stats.homeYellowCards, detailedLiveMatch.stats.awayYellowCards],
+              ['Red cards', detailedLiveMatch.stats.homeRedCards, detailedLiveMatch.stats.awayRedCards],
+              ['Offsides', detailedLiveMatch.stats.homeOffsides, detailedLiveMatch.stats.awayOffsides],
+              ['Corners', detailedLiveMatch.stats.homeCorners, detailedLiveMatch.stats.awayCorners],
+            ] as [string, string | number, string | number][]).map(([label, home, away]) => (
+              <div key={label} className="grid grid-cols-3 items-center py-1.5">
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: 'text.primary', textAlign: 'left', fontSize: '0.875rem' }}
+                >
+                  {home}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'center', fontSize: '0.8125rem' }}
+                >
+                  {label}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: 'text.primary', textAlign: 'right', fontSize: '0.875rem' }}
+                >
+                  {away}
+                </Typography>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

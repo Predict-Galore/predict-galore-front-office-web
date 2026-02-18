@@ -6,9 +6,10 @@
 'use client';
 
 import React from 'react';
-import { Dialog, Box, Button, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Dialog, Box, IconButton, Typography, useMediaQuery } from '@mui/material';
 import { Close, Lock } from '@mui/icons-material';
 import { cn } from '@/shared/lib/utils';
+import { Button } from '@/shared/components/ui';
 
 interface PremiumModalProps {
   open: boolean;
@@ -18,8 +19,7 @@ interface PremiumModalProps {
 }
 
 const PremiumModal: React.FC<PremiumModalProps> = ({ open, onClose, onGetPremium, limit = 5 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery('(max-width: 600px)');
 
   return (
     <Dialog
@@ -76,12 +76,9 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ open, onClose, onGetPremium
           <Box className="mt-8">
             <Button
               onClick={onGetPremium}
-              variant="contained"
+              variant="primary"
+              size="lg"
               fullWidth
-              className={cn(
-                'normal-case rounded-xl py-3 text-base font-semibold',
-                'bg-green-600 hover:bg-green-700 text-white'
-              )}
             >
               Get premium access
             </Button>

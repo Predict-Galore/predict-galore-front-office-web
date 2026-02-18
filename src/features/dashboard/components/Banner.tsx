@@ -7,8 +7,7 @@
 
 import React, { useCallback } from 'react';
 import { Share } from '@mui/icons-material';
-import { IconButton, Box } from '@mui/material';
-import { cn } from '@/shared/lib/utils';
+import { IconButton, Box, Typography } from '@mui/material';
 import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
 
 interface BannerProps {
@@ -21,7 +20,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       navigator
         .share({
           title: 'Predict Galore',
-          text: PREDICTIONS_CONSTANTS.MOCK_DATA.BANNER_QUOTE,
+          text: PREDICTIONS_CONSTANTS.BANNER.QUOTE,
           url: window.location.href,
         })
         .catch(() => {
@@ -29,25 +28,25 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
         });
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(PREDICTIONS_CONSTANTS.MOCK_DATA.BANNER_QUOTE);
+      navigator.clipboard.writeText(PREDICTIONS_CONSTANTS.BANNER.QUOTE);
     }
   }, []);
 
   return (
     <Box
+      className={className}
       sx={{
         position: 'relative',
         width: '100%',
-        borderRadius: 3,
+        // borderRadius: 3,
         overflow: 'hidden',
-        // Base green panel
-        bgcolor: '#17390F',
-        // Red abstract blobs similar to screenshot
-        backgroundImage:
-          'radial-gradient(circle at 20% 10%, rgba(220,38,38,0.9) 0 140px, transparent 141px),' +
-          'radial-gradient(circle at 60% 40%, rgba(220,38,38,0.85) 0 180px, transparent 181px),' +
-          'radial-gradient(circle at 90% 70%, rgba(220,38,38,0.8) 0 160px, transparent 161px)',
-        ...className,
+        // Base green panel - using theme green-950
+        bgcolor: 'green.950', // #0a2916 from Figma
+        // Red abstract blobs using theme coolRed colors
+        backgroundImage: (theme) =>
+          `radial-gradient(circle at 20% 10%, ${theme.palette.coolRed[600]}E6 0 140px, transparent 141px),` +
+          `radial-gradient(circle at 60% 40%, ${theme.palette.coolRed[600]}D9 0 180px, transparent 181px),` +
+          `radial-gradient(circle at 90% 70%, ${theme.palette.coolRed[600]}CC 0 160px, transparent 161px)`,
       }}
     >
       {/* Inner darkening overlay for contrast */}
@@ -55,21 +54,26 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
 
       {/* Content */}
       <Box sx={{ position: 'relative', zIndex: 10, px: { xs: 3, sm: 4, md: 5 }, py: { xs: 3, sm: 3.5, md: 4 } }}>
-        <p
-          className={cn(
-            'text-white',
-            'font-extrabold',
-            'leading-tight',
-            // Match screenshot: large quote, responsive
-            'text-2xl sm:text-3xl md:text-4xl lg:text-[42px]',
-            'max-w-[980px]'
-          )}
+        <Typography
+          sx={{
+            color: 'common.white',
+            fontWeight: 800,
+            lineHeight: 1.1,
+            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.375rem', lg: '2.625rem' },
+            maxWidth: 980,
+          }}
         >
-          “{PREDICTIONS_CONSTANTS.MOCK_DATA.BANNER_QUOTE}”
-        </p>
-        <p className="mt-3 text-white/80 text-sm sm:text-base">
-          - {PREDICTIONS_CONSTANTS.MOCK_DATA.BANNER_AUTHOR}
-        </p>
+          “{PREDICTIONS_CONSTANTS.BANNER.QUOTE}”
+        </Typography>
+        <Typography
+          sx={{
+            mt: 1.5,
+            color: 'rgba(255,255,255,0.8)',
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+          }}
+        >
+          - {PREDICTIONS_CONSTANTS.BANNER.AUTHOR}
+        </Typography>
       </Box>
 
       {/* Share Button */}

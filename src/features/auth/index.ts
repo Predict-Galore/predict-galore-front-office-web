@@ -9,7 +9,7 @@
 export * from './api';
 
 // Model
-export { useAuthStore, useUser, useToken, useIsAuthenticated } from './model/store';
+export { useAuthStore, useUser, useIsAuthenticated } from './model/store';
 export type * from './model/types';
 
 // Validations

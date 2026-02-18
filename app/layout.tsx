@@ -6,20 +6,23 @@
  * Sets up global providers, metadata, and base structure.
  */
 import type { Metadata, Viewport } from 'next';
+
+// Prevent static prerender so client Providers (context) run in a valid React tree
+export const dynamic = 'force-dynamic';
 import { Inter } from 'next/font/google';
-import Providers from '@/providers';
-// import { AuthProvider } from '../providers/AuthProvider';
+import Providers from '../src/providers/index';
 
 import './globals.css';
 
-// Configure Inter font with explicit options - only load weights we actually use
+// Configure Inter font - Next.js requires this to be a const at module scope
 const inter = Inter({
   subsets: ['latin'],
-  display: 'swap', // Add display swap for better loading
-  weight: ['400', '500', '600', '700'], // Only load weights we use
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
   variable: '--font-inter',
-  preload: true, // Explicitly enable preload
-  adjustFontFallback: true, // Better font fallback
+  preload: true,
+  adjustFontFallback: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
 });
 
 export const metadata: Metadata = {
@@ -44,13 +47,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        {/* Preconnect to Google Fonts domain */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* DNS prefetch and preconnect for better performance */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
         <Providers>
           <main className="min-h-screen bg-gray-50">{children}</main>
         </Providers>

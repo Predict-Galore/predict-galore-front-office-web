@@ -6,9 +6,9 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useLeagueTable } from '@/features/predictions';
 import { LoadingState } from '@/shared/components/shared';
-import SafeImage from '@/shared/components/shared/SafeImage';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import type { LeagueTableEntry } from '@/features/predictions';
 
@@ -81,13 +81,12 @@ const LeagueTableSection: React.FC<LeagueTableSectionProps> = ({
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Box sx={{ position: 'relative', width: 20, height: 20 }}>
-                        <SafeImage
+                        <Image
                           src={entry.team.logoUrl}
                           alt={entry.team.name}
                           fill
                           className="object-contain"
                           sizes="20px"
-                          fallbackVariant="thumb"
                         />
                       </Box>
                       <Typography variant="body2" sx={{ fontWeight: 500, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>

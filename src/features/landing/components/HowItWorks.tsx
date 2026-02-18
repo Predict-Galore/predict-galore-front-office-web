@@ -1,30 +1,32 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Container, useTheme, alpha } from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { alpha } from '@mui/material/styles';
 import Image from 'next/image';
+import { IMAGES } from '@/shared/constants/images';
 
 const HowItWorks: React.FC = () => {
-  const theme = useTheme();
-
   const steps = [
     {
       id: 1,
       title: 'Choose Your Path',
       description: 'Sign up directly on the Web or download the Mobile App to get started.',
-      phoneImage: '/landing-page/how-it-works-1.png',
+      phoneImage: IMAGES.LANDING.HOW_IT_WORKS_1,
     },
     {
       id: 2,
       title: 'Access Predictions',
       description: 'Get expert predictions, player insights, and match analysis all in one place.',
-      phoneImage: '/landing-page/how-it-works-2.png',
+      phoneImage: IMAGES.LANDING.HOW_IT_WORKS_2,
     },
     {
       id: 3,
       title: 'Upgrade for More',
       description: 'Unlock premium insights and advanced features that give you the winning edge.',
-      phoneImage: '/landing-page/how-it-works-3.png',
+      phoneImage: IMAGES.LANDING.HOW_IT_WORKS_3,
     },
   ];
 
@@ -33,7 +35,9 @@ const HowItWorks: React.FC = () => {
       sx={{
         position: 'relative',
         // Matching the deep red/maroon from the screenshot
-        background: `linear-gradient(180deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+        // background:
+        //   'linear-gradient(180deg, var(--theme-secondary-main) 0%, var(--theme-secondary-dark) 100%)',
+        background: '#A8141A',
         py: { xs: 10, md: 15 },
         overflow: 'hidden',
       }}
@@ -57,7 +61,16 @@ const HowItWorks: React.FC = () => {
         }}
       />
 
-      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 10 }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          position: 'relative',
+          zIndex: 10,
+          px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
+          mx: 0,
+          flex: 1,
+        }}
+      >
         {/* Section Header */}
         <Box sx={{ textAlign: 'center', mb: { xs: 8, md: 10 } }}>
           <Typography
@@ -89,7 +102,7 @@ const HowItWorks: React.FC = () => {
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', lg: 'row' },
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             alignItems: { xs: 'center', lg: 'flex-start' },
             gap: { xs: 4, lg: 4 },
             position: 'relative',
@@ -111,7 +124,7 @@ const HowItWorks: React.FC = () => {
                 <Box
                   sx={{
                     width: '100%',
-                    bgcolor: alpha(theme.palette.secondary.light, 0.2),
+                    bgcolor: 'rgba(245, 119, 126, 0.2)',
                     borderRadius: '32px',
                     // p: 3,
                     pb: 0,
@@ -136,14 +149,16 @@ const HowItWorks: React.FC = () => {
                       src={step.phoneImage}
                       alt={step.title}
                       fill
+                      sizes="(max-width: 768px) 240px, 240px"
                       style={{ objectFit: 'contain' }}
+                      unoptimized
                     />
                   </Box>
 
                   {/* Black Text Box Container */}
                   <Box
                     sx={{
-                      bgcolor: theme.palette.neutral[900], // Pure dark/black
+                      bgcolor: '#0f172a',
                       width: 'calc(100% + 2px)', // Match parent width
                       mx: -3,
                       p: { xs: 4, md: 5 },
@@ -193,11 +208,12 @@ const HowItWorks: React.FC = () => {
                     }}
                   >
                     <Image
-                      src="/landing-page/curved-arrow.png"
+                      src={IMAGES.LANDING.CURVED_ARROW}
                       alt="next step"
                       width={120}
                       height={60}
                       style={{ filter: 'brightness(0) invert(1)' }}
+                      unoptimized
                     />
                   </Box>
 
@@ -210,11 +226,12 @@ const HowItWorks: React.FC = () => {
                     }}
                   >
                     <Image
-                      src="/landing-page/vertical-arrow.png"
+                      src={IMAGES.LANDING.VERTICAL_ARROW}
                       alt="next step"
                       width={40}
                       height={80}
                       style={{ filter: 'brightness(0) invert(1)' }}
+                      unoptimized
                     />
                   </Box>
                 </>

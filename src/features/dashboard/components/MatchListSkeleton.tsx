@@ -21,7 +21,7 @@ const MatchListSkeleton: React.FC<MatchListSkeletonProps> = ({
   className,
 }) => {
   return (
-    <Stack spacing={2} sx={{ ...className }} aria-label="Loading matches">
+    <Stack spacing={2} className={className} aria-label="Loading matches">
       {Array.from({ length: sections }).map((_, sIdx) => (
         <Paper
           key={sIdx}

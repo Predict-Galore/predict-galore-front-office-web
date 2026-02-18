@@ -1,12 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Container, useTheme, Link as MuiLink, alpha } from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import Link from '@mui/material/Link';
+import { alpha } from '@mui/material/styles';
 import Image from 'next/image';
-import Link from 'next/link';
+import NextLink from 'next/link';
+import { IMAGES } from '@/shared/constants/images';
 
 const FeaturesSection: React.FC = () => {
-  const theme = useTheme();
 
   const features = [
     {
@@ -16,18 +20,18 @@ const FeaturesSection: React.FC = () => {
         'Highlights of key statistics, updates, trends, patterns, as well as breakdowns by expert analysts, so predictions are smarter and fact-based, not lucky guesses.',
       cta: 'View predictions',
       // Themed Semantic colors
-      colorToken: theme.palette.secondary.main,
-      phoneImage: '/landing-page/feature-insights.png',
-      bgColor: alpha(theme.palette.secondary.light, 0.05),
+      colorToken: '#e72838',
+      phoneImage: IMAGES.LANDING.FEATURE_INSIGHTS,
+      bgColor: 'rgba(245, 119, 126, 0.05)',
     },
     {
       id: 'live',
       title: 'Live Game Centre ',
       description:
         'Stay connected to the action no matter where you are. Get real-time scores, play-by-play details, and instant notifications as games unfold. Whether it’s football, basketball, or any other sport.',
-      colorToken: theme.palette.primary.main,
-      phoneImage: '/landing-page/feature-live.png',
-      bgColor: alpha(theme.palette.primary.light, 0.05),
+      colorToken: '#42A605',
+      phoneImage: IMAGES.LANDING.FEATURE_LIVE,
+      bgColor: 'rgba(92, 204, 128, 0.05)',
     },
     {
       id: 'hub',
@@ -35,9 +39,9 @@ const FeaturesSection: React.FC = () => {
       description:
         'Access detailed statistics, player performance analyses, and historical data to fuel your sports knowledge and predictions. Whether you are debating with friends or tracking your team’s progress for your betting needs, we’ve got you covered.',
       cta: 'Check Current Standings',
-      colorToken: theme.palette.primary.main,
-      phoneImage: '/landing-page/feature-hub.png',
-      bgColor: alpha(theme.palette.primary.light, 0.03),
+      colorToken: '#42A605',
+      phoneImage: IMAGES.LANDING.FEATURE_HUB,
+      bgColor: 'rgba(92, 204, 128, 0.03)',
     },
     {
       id: 'feed',
@@ -45,21 +49,28 @@ const FeaturesSection: React.FC = () => {
       description:
         'Personalise your experience by selecting the teams, athletes, and competitions you care about most. Your feed automatically adapts to bring you the latest highlights, news, and statistics, based on your choices—all in one place.',
       cta: 'Read Latest Updates',
-      colorToken: theme.palette.secondary.main,
-      phoneImage: '/landing-page/feature-feed.png',
-      bgColor: alpha(theme.palette.secondary.light, 0.03),
+      colorToken: '#e72838',
+      phoneImage: IMAGES.LANDING.FEATURE_FEED,
+      bgColor: 'rgba(245, 119, 126, 0.03)',
     },
   ];
 
   return (
-    <Box sx={{ bgcolor: theme.palette.background.default, py: { xs: 8, md: 12 } }}>
-      <Container maxWidth="xl">
+    <Box sx={{ bgcolor: '#ffffff', py: { xs: 8, md: 12 } }}>
+        <Container
+        maxWidth={false}
+        sx={{
+          px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
+          mx: 0,
+          flex: 1,
+        }}
+      >
         {/* Section Header */}
         <Box sx={{ textAlign: 'center', mb: { xs: 8, md: 10 } }}>
           <Typography
             variant="h2"
             sx={{
-              color: theme.palette.neutral[900],
+              color: '#0f172a',
               mb: 3,
             }}
           >
@@ -68,7 +79,7 @@ const FeaturesSection: React.FC = () => {
           <Typography
             variant="body1"
             sx={{
-              color: theme.palette.text.secondary,
+              color: '#475569',
               maxWidth: '800px',
               margin: '0 auto',
             }}
@@ -97,11 +108,11 @@ const FeaturesSection: React.FC = () => {
                 flexDirection: 'column',
                 height: '100%',
                 overflow: 'hidden',
-                border: `1px solid ${alpha(theme.palette.neutral[200], 0.6)}`,
+                border: '1px solid rgba(226, 232, 240, 0.6)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
                   transform: 'translateY(-8px)',
-                  boxShadow: `0 24px 48px ${alpha(theme.palette.neutral[900], 0.08)}`,
+                  boxShadow: '0 24px 48px rgba(15, 23, 42, 0.08)',
                   borderColor: feature.colorToken,
                   bgcolor: alpha(feature.bgColor, 0.08),
                 },
@@ -122,7 +133,7 @@ const FeaturesSection: React.FC = () => {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: theme.palette.text.secondary,
+                    color: '#475569',
                     mb: 4,
                     lineHeight: 1.6,
                   }}
@@ -130,8 +141,8 @@ const FeaturesSection: React.FC = () => {
                   {feature.description}
                 </Typography>
 
-                <MuiLink
-                  component={Link}
+                <Link
+                  component={NextLink}
                   href="#"
                   sx={{
                     display: 'inline-flex',
@@ -151,7 +162,7 @@ const FeaturesSection: React.FC = () => {
                   <Box component="span" sx={{ transition: 'transform 0.3s' }}>
                     →
                   </Box>
-                </MuiLink>
+                </Link>
               </Box>
 
               {/* Image Container */}
@@ -168,10 +179,12 @@ const FeaturesSection: React.FC = () => {
                   src={feature.phoneImage}
                   alt={feature.title}
                   fill
+                  sizes="(max-width: 768px) 300px, 400px"
                   style={{
                     objectFit: 'contain',
                     objectPosition: 'bottom center',
                   }}
+                  unoptimized
                 />
               </Box>
             </Box>

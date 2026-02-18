@@ -17,10 +17,11 @@ const logger = createLogger('LiveMatchesHooks');
 /**
  * Get live scores hook
  */
-export function useLiveScoresQuery(filters?: GetLiveScoresRequest) {
+export function useLiveScoresQuery(filters?: GetLiveScoresRequest, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: liveMatchesKeys.scores(filters?.sport),
     queryFn: () => LiveMatchesService.getLiveScores(filters),
+    enabled: options?.enabled !== false,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: 60 * 1000, // Refetch every minute

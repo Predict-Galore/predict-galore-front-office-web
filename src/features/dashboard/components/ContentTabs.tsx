@@ -6,9 +6,8 @@
 'use client';
 
 import React from 'react';
-import { Button, Box } from '@mui/material';
-import { cn } from '@/shared/lib/utils';
-import { textColors } from '@/shared/constants/color-tokens';
+import { Box } from '@mui/material';
+import { Button } from '@/shared/components/ui';
 
 export type ContentTabType = 'predictions' | 'live-matches';
 
@@ -20,27 +19,66 @@ interface ContentTabsProps {
 
 const ContentTabs: React.FC<ContentTabsProps> = ({ activeTab, onTabChange, className }) => {
   return (
-    <Box sx={{ width: '100%', ...className }}>
-      <Box sx={{ width: '100%', bgcolor: 'white', border: '1px solid', borderColor: 'grey.300', borderRadius: 2, p: 0.5, display: 'flex' }}>
+    <Box sx={{ width: '100%' }} className={className}>
+      <Box
+        sx={{
+          width: '100%',
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'neutral.300',
+          // borderRadius: 2,
+          p: 0.5,
+          display: 'flex',
+          gap: 0.5,
+        }}
+      >
         <Button
           onClick={() => onTabChange('predictions')}
-          className={cn(
-            'flex-1 px-6 py-2 rounded-md font-semibold text-sm transition-colors normal-case',
-            activeTab === 'predictions'
-              ? 'bg-green-50 text-green-700 border border-green-500 shadow-sm'
-              : cn('bg-transparent', textColors.tertiary, 'hover:bg-gray-50')
-          )}
+          variant="ghost"
+          size="sm"
+          sx={{
+            flex: 1,
+            // borderRadius: 1.5,
+            fontWeight: 600,
+            ...(activeTab === 'predictions'
+              ? {
+                  bgcolor: 'green.50',
+                  color: 'green.700',
+                  border: '1px solid',
+                  borderColor: 'green.500',
+                }
+              : {
+                  bgcolor: 'transparent',
+                  color: 'text.secondary',
+                  border: '1px solid transparent',
+                  '&:hover': { bgcolor: 'neutral.50' },
+                }),
+          }}
         >
           Predictions
         </Button>
         <Button
           onClick={() => onTabChange('live-matches')}
-          className={cn(
-            'flex-1 px-6 py-2 rounded-md font-semibold text-sm transition-colors normal-case',
-            activeTab === 'live-matches'
-              ? 'bg-green-50 text-green-700 border border-green-500 shadow-sm'
-              : cn('bg-transparent', textColors.tertiary, 'hover:bg-gray-50')
-          )}
+          variant="ghost"
+          size="sm"
+          sx={{
+            flex: 1,
+            // borderRadius: 1.5,
+            fontWeight: 600,
+            ...(activeTab === 'live-matches'
+              ? {
+                  bgcolor: 'green.50',
+                  color: 'green.700',
+                  border: '1px solid',
+                  borderColor: 'green.500',
+                }
+              : {
+                  bgcolor: 'transparent',
+                  color: 'text.secondary',
+                  border: '1px solid transparent',
+                  '&:hover': { bgcolor: 'neutral.50' },
+                }),
+          }}
         >
           Live Matches
         </Button>

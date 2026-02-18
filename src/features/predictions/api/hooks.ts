@@ -157,17 +157,11 @@ export function useRefreshAllData() {
       };
 
       if (sportId) {
-        const now = new Date();
-        const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
         predictionsResult = await PredictionService.getPredictions({
           sportId,
           leagueId,
           page: 1,
           pageSize: 20,
-          fromUtc: now.toISOString(),
-          toUtc: nextWeek.toISOString(),
-          status: 'Prediction',
         });
       }
 
@@ -212,7 +206,40 @@ export function useRefreshAllData() {
 }
 
 /**
- * Get detailed match hook
+ * Get prediction by id (includes picks)
+ */
+export function usePredictionById(id: number | null, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: predictionKeys.predictionById(id || 0),
+    queryFn: async () => {
+      if (!id) {
+        logger.debug('Skipping prediction by id - no id provided');
+        return Promise.resolve(null);
+      }
+      
+      try {
+        const result = await PredictionService.getPredictionById(id);
+        logger.info('Prediction by id hook result:', { 
+          id, 
+          hasPrediction: !!result?.prediction,
+          hasDetailed: !!result?.detailed,
+          hasPicks: !!result?.picks 
+        });
+        return result;
+      } catch (error) {
+        logger.error('Error in usePredictionById hook:', { error, id });
+        throw error;
+      }
+    },
+    enabled: options?.enabled !== false && !!id,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+}
+
+/**
+ * Get detailed match hook (prediction for a selected match)
  */
 export function useDetailedMatch(matchId: number | null, options?: { enabled?: boolean }) {
   return useQuery({
@@ -252,17 +279,21 @@ export function useMatchOdds(matchId: number | null, options?: { enabled?: boole
 }
 
 /**
- * Get league table hook
+ * Get league table hook (optional seasonYear query param)
  */
-export function useLeagueTable(leagueId: number | null, options?: { enabled?: boolean }) {
+export function useLeagueTable(
+  leagueId: number | null,
+  options?: { enabled?: boolean; seasonYear?: number }
+) {
+  const seasonYear = options?.seasonYear;
   return useQuery({
-    queryKey: predictionKeys.leagueTable(leagueId || 0),
+    queryKey: predictionKeys.leagueTable(leagueId || 0, seasonYear),
     queryFn: () => {
       if (!leagueId) {
         logger.debug('Skipping league table query - no leagueId provided');
         return Promise.resolve([]);
       }
-      return PredictionService.getLeagueTable(leagueId);
+      return PredictionService.getLeagueTable(leagueId, seasonYear);
     },
     enabled: options?.enabled !== false && !!leagueId,
     staleTime: 5 * 60 * 1000,

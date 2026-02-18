@@ -8,7 +8,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Container, Typography, Box, IconButton, useTheme } from '@mui/material';
+import { Container, Typography, Box, IconButton } from '@mui/material';
 import { Facebook, Twitter, Instagram, YouTube, Email, Apple, Android } from '@mui/icons-material';
 
 /**
@@ -16,8 +16,6 @@ import { Facebook, Twitter, Instagram, YouTube, Email, Apple, Android } from '@m
  * Styled to match the red footer section in your design.
  */
 const Footer: React.FC = () => {
-  const theme = useTheme();
-
   const socialLinks = [
     {
       platform: 'Facebook',
@@ -48,40 +46,47 @@ const Footer: React.FC = () => {
 
   return (
     <Box
-      className="text-white py-10"
-      sx={{
-        backgroundColor: '#640C0F',
+      sx={(theme) => ({
+        color: 'white',
+        py: 5,
+        backgroundColor: theme.palette.coolRed[950], // #490812 - darkest coolRed from Figma
         overflow: 'hidden',
-      }}
+      })}
     >
-      <Container maxWidth="lg" className="grid grid-cols-1 md:grid-cols-7 ">
+      <Container
+        maxWidth="lg"
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(7, 1fr)' },
+        }}
+      >
         {/* Brand & Social Section */}
-        <Box className="md:col-span-2">
-          <Box className="flex items-center mb-4">
+        <Box sx={{ gridColumn: { md: 'span 2' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Image
               src="/predict-galore-logo.png"
               alt="Predict Galore"
               width={140}
               height={36}
               quality={75}
-              className="h-9 w-auto"
+              style={{ height: '36px', width: 'auto' }}
             />
           </Box>
           {/* tagline */}
           <Typography
             variant="body2"
-            className="mb-6"
             sx={{
-              color: theme.palette.text.disabled || 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.7)',
               fontSize: '0.875rem',
+              mb: 3,
             }}
           >
             Smart predictions. Smarter choices.
           </Typography>
 
-          {/* Social Links  */}
-          <Box className="mb-6">
-            <Box className="flex gap-2">
+          {/* Social Links */}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               {socialLinks.map((social) =>
                 social.icon ? (
                   <IconButton
@@ -131,23 +136,27 @@ const Footer: React.FC = () => {
         <Box>
           <Typography
             variant="subtitle1"
-            className="mb-3"
             sx={{
               fontFamily: 'var(--font-ultra)',
               fontWeight: 400,
-              color: theme.palette.text.disabled || 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.7)',
+              mb: 1.5,
             }}
           >
             Download our App
           </Typography>
-          <Box className="space-y-3 text-sm">
-            <Box className="flex items-center gap-2">
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, fontSize: '0.875rem' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Apple fontSize="small" />
-              <Typography variant="body2">App Store</Typography>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                App Store
+              </Typography>
             </Box>
-            <Box className="flex items-center gap-2">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Android fontSize="small" />
-              <Typography variant="body2">Google Play</Typography>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                Google Play
+              </Typography>
             </Box>
           </Box>
         </Box>
@@ -156,146 +165,213 @@ const Footer: React.FC = () => {
         <Box>
           <Typography
             variant="subtitle1"
-            className="mb-3"
             sx={{
               fontFamily: 'var(--font-ultra)',
               fontWeight: 400,
-              color: theme.palette.text.disabled || 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.7)',
+              mb: 1.5,
             }}
           >
             COMPANY
           </Typography>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link
+          <Box component="ul" sx={{ display: 'flex', flexDirection: 'column', gap: 1, fontSize: '0.875rem', listStyle: 'none', p: 0, m: 0 }}>
+            <Box component="li">
+              <Box
+                component={Link}
                 href="/docs/predict-galore-about-us.pdf"
-                className="hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 About Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/careers" className="hover:underline">
+              </Box>
+            </Box>
+            <Box component="li">
+              <Box
+                component={Link}
+                href="/careers"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
                 Careers
-              </Link>
-            </li>
-            <li>
-              <Link href="/faqs" className="hover:underline">
+              </Box>
+            </Box>
+            <Box component="li">
+              <Box
+                component={Link}
+                href="/faqs"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
                 FAQs
-              </Link>
-            </li>
-          </ul>
+              </Box>
+            </Box>
+          </Box>
         </Box>
 
         {/* LEGAL Section */}
         <Box>
           <Typography
             variant="subtitle1"
-            className="mb-3"
             sx={{
               fontFamily: 'var(--font-ultra)',
               fontWeight: 400,
-              color: theme.palette.text.disabled || 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.7)',
+              mb: 1.5,
             }}
           >
             LEGAL
           </Typography>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link
+          <Box component="ul" sx={{ display: 'flex', flexDirection: 'column', gap: 1, fontSize: '0.875rem', listStyle: 'none', p: 0, m: 0 }}>
+            <Box component="li">
+              <Box
+                component={Link}
                 href="/docs/predict-galore-privacy-policy.pdf"
-                className="hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 Privacy Policy
-              </Link>
-            </li>
-            <li>
-              <Link
+              </Box>
+            </Box>
+            <Box component="li">
+              <Box
+                component={Link}
                 href="/docs/predict-galore-terms-of-use.pdf"
-                className="hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 Terms of Use
-              </Link>
-            </li>
-            <li>
-              <Link
+              </Box>
+            </Box>
+            <Box component="li">
+              <Box
+                component={Link}
                 href="/docs/predict-galore-cookie-policy.pdf"
-                className="hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 Cookie Policy
-              </Link>
-            </li>
-          </ul>
+              </Box>
+            </Box>
+          </Box>
         </Box>
 
         {/* Get in Touch */}
-        <Box className="md:col-span-2">
+        <Box sx={{ gridColumn: { md: 'span 2' } }}>
           <Typography
             variant="subtitle1"
-            className="mb-3"
             sx={{
               fontFamily: 'var(--font-ultra)',
               fontWeight: 400,
-              color: theme.palette.text.disabled || 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.7)',
+              mb: 1.5,
             }}
           >
             Get in Touch
           </Typography>
-          <Typography variant="body2" className="mb-2" sx={{ color: 'white' }}>
+          <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
             +2349068192247
           </Typography>
-          <Typography variant="body2" className="mb-2" sx={{ color: 'white' }}>
-            <Email fontSize="small" className="mr-1" /> customerservice@predictgalore.com
+          <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
+            <Email fontSize="small" sx={{ mr: 0.5 }} /> customerservice@predictgalore.com
           </Typography>
         </Box>
       </Container>
 
-      {/* Gambling Problem Section  */}
-      <Container maxWidth="lg" className="mt-8">
+      {/* Gambling Problem Section */}
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Box
-          className="p-4 rounded"
           sx={{
+            p: 2,
+            borderRadius: 1,
             backgroundColor: 'rgba(0,0,0,0.2)',
-            borderLeft: '4px solid #ff6b6b',
+            borderLeft: '4px solid',
+            borderLeftColor: 'secondary.light',
           }}
         >
           <Typography
             variant="subtitle2"
-            className="mb-2"
             sx={{
               fontFamily: 'var(--font-ultra)',
               fontWeight: 400,
-              color: '#ff6b6b',
+              color: 'secondary.light',
+              mb: 1,
             }}
           >
             Gambling Problem? Call GambleAlert.
           </Typography>
 
-          <Box className="space-y-1 text-sm">
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, fontSize: '0.875rem' }}>
             <Typography variant="body2" sx={{ color: 'white' }}>
               Support Email:{' '}
-              <Link href="mailto:support@gamblealert.org" className="hover:underline text-blue-200">
+              <Box
+                component={Link}
+                href="mailto:support@gamblealert.org"
+                sx={{
+                  color: 'info.light',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
                 support@gamblealert.org
-              </Link>
+              </Box>
             </Typography>
             <Typography variant="body2" sx={{ color: 'white' }}>
               Website:{' '}
-              <Link
+              <Box
+                component={Link}
                 href="https://gamblealert.org/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline text-blue-200"
+                sx={{
+                  color: 'info.light',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 https://gamblealert.org/
-              </Link>
+              </Box>
             </Typography>
             <Typography variant="body2" sx={{ color: 'white' }}>
               Helpline: +2347058890073, +2347058890074
@@ -304,15 +380,20 @@ const Footer: React.FC = () => {
         </Box>
       </Container>
 
-      {/* copyright */}
+      {/* Copyright */}
       <Box
-        className="mt-10 text-center border-t pt-4"
-        sx={{ borderColor: 'rgba(255,255,255,0.3)' }}
+        sx={{
+          mt: 5,
+          textAlign: 'center',
+          borderTop: '1px solid',
+          borderTopColor: 'rgba(255,255,255,0.3)',
+          pt: 2,
+        }}
       >
         <Typography
           variant="caption"
           sx={{
-            color: theme.palette.text.disabled || 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,0.5)',
             fontFamily: 'var(--font-ultra)',
           }}
         >

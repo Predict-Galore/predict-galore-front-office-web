@@ -2,7 +2,7 @@
  * CENTRALIZED API CLIENT
  *
  * Unified API client for all HTTP requests with:
- * - Automatic token injection
+ * - Cookie-based auth (httpOnly)
  * - Request/response logging
  * - Error handling
  * - Type safety
@@ -11,6 +11,7 @@
 import { API_CONFIG } from './config';
 import { createLogger } from './logger';
 import { ApiError, NetworkError } from '@/shared/lib/errors';
+import { getAuthToken } from '@/shared/lib/auth-token';
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -31,22 +32,6 @@ class ApiClient {
       'Content-Type': 'application/json',
       ...config.headers,
     };
-  }
-
-  /**
-   * Get authentication token from localStorage
-   */
-  private getAuthToken(): string | null {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-
-    try {
-      return localStorage.getItem('auth-token');
-    } catch (error) {
-      this.logger.warn('Failed to get auth token', { error });
-      return null;
-    }
   }
 
   /**
@@ -72,12 +57,12 @@ class ApiClient {
   }
 
   /**
-   * Build request headers
+   * Build request headers (includes Authorization when token is present)
    */
   private buildHeaders(customHeaders?: Record<string, string>): Record<string, string> {
     const headers = { ...this.defaultHeaders };
 
-    const token = this.getAuthToken();
+    const token = getAuthToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -110,11 +95,11 @@ class ApiClient {
         response.statusText ||
         'Request failed';
 
-      // Only log as error if it's a server error (5xx) or unexpected client error
-      // 4xx errors (like 404, 401) are expected in some cases and should be handled gracefully
+      // Only log as error if it's a server error (5xx) or unexpected client error.
+      // 401/403 (auth/authz) and 404 are expected and handled in UI.
       const isServerError = response.status >= 500;
       const isUnexpectedClientError =
-        response.status === 400 || response.status === 403 || response.status === 409;
+        response.status === 400 || response.status === 409;
 
       if (isServerError || isUnexpectedClientError) {
         this.logger.error('API request failed', {
@@ -124,7 +109,6 @@ class ApiClient {
           error: errorData,
         });
       } else {
-        // Log 404, 401, etc. as debug/info in development only
         this.logger.debug('API request failed (expected)', {
           status: response.status,
           statusText: response.statusText,

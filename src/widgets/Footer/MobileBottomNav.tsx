@@ -41,7 +41,13 @@ const MobileBottomNav: React.FC = () => {
 
   const activeId = React.useMemo(() => {
     if (pathname === '/dashboard' || pathname === '/dashboard/') return 'home';
-    const match = NAV_ITEMS.find((item) => pathname.startsWith(item.path));
+
+    // Match more specific routes first so '/dashboard' doesn't win for every page
+    const specificItems = NAV_ITEMS.filter((item) => item.path !== '/dashboard').sort(
+      (a, b) => b.path.length - a.path.length
+    );
+
+    const match = specificItems.find((item) => pathname.startsWith(item.path));
     return match?.id || '';
   }, [pathname]);
 

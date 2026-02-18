@@ -11,9 +11,11 @@ export const predictionKeys = {
   leagues: (sportId?: number) => [...predictionKeys.all, 'leagues', sportId] as const,
   predictions: (sportId?: number, leagueId?: number, page?: number) =>
     [...predictionKeys.all, 'predictions', sportId, leagueId, page] as const,
+  predictionById: (id: number) => [...predictionKeys.all, 'prediction', id] as const,
   detailedMatch: (matchId: number) => [...predictionKeys.all, 'detailed-match', matchId] as const,
   matchOdds: (matchId: number) => [...predictionKeys.all, 'match-odds', matchId] as const,
-  leagueTable: (leagueId: number) => [...predictionKeys.all, 'league-table', leagueId] as const,
+  leagueTable: (leagueId: number, seasonYear?: number) =>
+    [...predictionKeys.all, 'league-table', leagueId, seasonYear] as const,
 };
 
 // Service
@@ -28,6 +30,7 @@ export {
   useRefreshLeagues,
   useRefreshPredictions,
   useRefreshAllData,
+  usePredictionById,
   useDetailedMatch,
   useMatchOdds,
   useLeagueTable,

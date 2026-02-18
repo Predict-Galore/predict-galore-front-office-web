@@ -3,17 +3,16 @@
  *
  * Catches JavaScript errors anywhere in the child component tree,
  * logs those errors, and displays a fallback UI instead of crashing.
- * Migrated to shared components
+ * Migrated to use new Tailwind design system components
  */
 
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Box, Button, Typography, Paper } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import HomeIcon from '@mui/icons-material/Home';
 import Link from 'next/link';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { Box, Typography } from '@mui/material';
+import { Button } from '@/shared/components/ui/Button/Button';
 import { createLogger } from '@/shared/api/logger';
 
 const logger = createLogger('ErrorBoundary');
@@ -128,39 +127,43 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      // Default fallback UI
+      // Default fallback UI using new design system
       return (
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '400px',
+            minHeight: 400,
             p: 3,
           }}
         >
-          <Paper
-            elevation={3}
+          <Box
             sx={{
-              maxWidth: 500,
-              width: '100%',
+              bgcolor: 'background.paper',
+              borderRadius: 4,
+              boxShadow: 3,
               p: 4,
+              maxWidth: '28rem',
+              width: '100%',
               textAlign: 'center',
             }}
           >
-            <ErrorOutlineIcon
-              sx={{
-                fontSize: 60,
-                color: 'error.main',
-                mb: 2,
+            <AlertTriangle
+              className="w-15 h-15"
+              style={{
+                width: '60px',
+                height: '60px',
+                color: '#dc2626',
+                margin: '0 auto 16px',
               }}
             />
 
-            <Typography variant="h5" component="h1" gutterBottom fontWeight="bold">
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
               Something went wrong
             </Typography>
 
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
               {this.state.error?.message || 'An unexpected error occurred'}
             </Typography>
 
@@ -169,40 +172,49 @@ class ErrorBoundary extends Component<Props, State> {
                 sx={{
                   mt: 3,
                   p: 2,
-                  bgcolor: 'grey.100',
-                  borderRadius: 1,
+                  bgcolor: 'neutral.100',
+                  borderRadius: 3,
                   textAlign: 'left',
-                  maxHeight: 200,
+                  maxHeight: 192,
                   overflow: 'auto',
                 }}
               >
-                <Typography
-                  variant="caption"
+                <Box
                   component="pre"
-                  sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
+                  sx={{
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    color: 'text.primary',
+                    whiteSpace: 'pre-wrap',
+                    m: 0,
+                  }}
                 >
                   {this.state.error?.stack}
-                </Typography>
+                </Box>
               </Box>
             )}
 
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', mt: 3 }}>
               <Button
-                variant="contained"
-                startIcon={<RefreshIcon />}
+                variant="primary"
+                leftIcon={<RefreshCw className="w-4 h-4" />}
                 onClick={this.resetErrorBoundary}
                 sx={{ minWidth: 140 }}
               >
                 Try Again
               </Button>
 
-              <Link href="/" passHref style={{ textDecoration: 'none' }}>
-                <Button variant="outlined" startIcon={<HomeIcon />} sx={{ minWidth: 140 }}>
+              <Link href="/" style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="outline"
+                  leftIcon={<Home className="w-4 h-4" />}
+                  sx={{ minWidth: 140 }}
+                >
                   Go Home
                 </Button>
               </Link>
             </Box>
-          </Paper>
+          </Box>
         </Box>
       );
     }

@@ -171,9 +171,6 @@ export function useDeleteAccount() {
     mutationFn: () => ProfileService.deleteAccount(),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['profile'] });
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth-token');
-      }
     },
   });
 }

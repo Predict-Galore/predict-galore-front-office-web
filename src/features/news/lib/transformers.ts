@@ -20,10 +20,12 @@ export class NewsTransformer {
       category: response.category,
       sport: response.sport,
       author: response.author,
+      source: response.source,
       publishedAt: response.publishedAt,
       updatedAt: response.updatedAt,
       imageUrl: response.imageUrl,
       thumbnailUrl: response.thumbnailUrl,
+      externalUrl: response.externalUrl,
       tags: response.tags,
       viewCount: response.viewCount,
       likeCount: response.likeCount,
@@ -33,34 +35,41 @@ export class NewsTransformer {
   }
 
   /**
-   * Transform news list response
+   * Transform news list response.
+   * Handles both shapes: data as array directly, or data.items.
    */
   static transformNewsListResponse(response: NewsListResponse): {
     items: NewsItem[];
     pagination: NewsPagination;
   } {
-    if (!response.success || !response.data || !response.data.items) {
+    if (!response.success || !response.data) {
       return {
         items: [],
-        pagination: {
-          page: response.data?.page || 1,
-          pageSize: response.data?.pageSize || 10,
-          total: response.data?.total || 0,
-          totalPages: response.data?.totalPages || 0,
-        },
+        pagination: { page: 1, pageSize: 10, total: 0, totalPages: 0 },
       };
     }
 
-    // Ensure items is an array
-    const items = Array.isArray(response.data.items) ? response.data.items : [];
+    const data = response.data as
+      | { items?: NewsResponse[]; page?: number; pageSize?: number; total?: number; totalPages?: number }
+      | NewsResponse[];
+
+    // Backend returns data as array directly (not wrapped in items)
+    const rawItems = Array.isArray(data)
+      ? data
+      : (Array.isArray(data?.items) ? data.items : []);
+    
+    const items = rawItems.map(this.transformNewsResponse);
+
+    // When data is an array, pagination info is not available
+    const paginationData = Array.isArray(data) ? {} : data;
 
     return {
-      items: items.map(this.transformNewsResponse),
+      items,
       pagination: {
-        page: response.data.page || 1,
-        pageSize: response.data.pageSize || 10,
-        total: response.data.total || 0,
-        totalPages: response.data.totalPages || 0,
+        page: paginationData?.page ?? 1,
+        pageSize: paginationData?.pageSize ?? items.length,
+        total: paginationData?.total ?? items.length,
+        totalPages: paginationData?.totalPages ?? 1,
       },
     };
   }

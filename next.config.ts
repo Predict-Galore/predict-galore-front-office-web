@@ -8,7 +8,6 @@ import type { NextConfig } from 'next';
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
-const path = require('path');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -26,27 +25,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'media.api-sports.io',
-        pathname: '/football/teams/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-        pathname: '/wikipedia/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ui-avatars.com',
-        pathname: '/api/**',
-      },
-      {
-        protocol: 'https',
         hostname: process.env.NEXT_PUBLIC_API_HOSTNAME || 'apidev.predictgalore.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
         pathname: '/**',
       },
     ],
@@ -179,16 +158,6 @@ const nextConfig: NextConfig = {
   // Production source maps (disabled for better performance)
   productionBrowserSourceMaps: false,
 
-  webpack: (config) => {
-    // Global alias to wrap next/image with fallback support
-    config.resolve = config.resolve || {};
-    config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias['next/image'] = path.resolve(
-      __dirname,
-      'src/shared/lib/next-image-fallback.tsx'
-    );
-    return config;
-  },
 };
 
 export default withBundleAnalyzer(nextConfig);

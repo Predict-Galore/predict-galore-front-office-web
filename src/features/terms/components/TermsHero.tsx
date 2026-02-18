@@ -1,22 +1,21 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Chip, Container, useTheme, alpha } from '@mui/material';
+import { Box, Typography, Chip, Container, alpha } from '@mui/material';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 
 const TermsHero: React.FC = () => {
-  const theme = useTheme();
 
   return (
     <Box
-      sx={{
-        // Consistent brand gradient: Red to Dark Green
+      sx={(theme) => ({
+        // Consistent brand gradient: Secondary (coolRed) to Primary (green) using theme colors
         background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.dark} 100%)`,
         color: 'white',
         py: { xs: 8, md: 12 },
         position: 'relative',
         overflow: 'hidden',
-      }}
+      })}
     >
       {/* Background Texture Overlay */}
       <Box
@@ -52,27 +51,27 @@ const TermsHero: React.FC = () => {
             icon={
               <ArticleOutlinedIcon
                 sx={{
-                  color: `${theme.palette.neutral[900]} !important`,
+                  color: 'neutral.950 !important',
                   fontSize: '20px',
                 }}
               />
             }
             label="Using Predict Galore"
-            sx={{
-              backgroundColor: theme.palette.primary.light, // Uses the brand's light green
-              color: theme.palette.neutral[900],
+            sx={(theme) => ({
+              backgroundColor: theme.palette.primary.light, // green-400 from theme
+              color: theme.palette.neutral[950], // #101012 from Figma
               fontWeight: 700,
               height: 44,
               px: 1,
               mb: 4,
               borderRadius: '100px',
-              border: `1.5px solid ${theme.palette.neutral[900]}`,
-              boxShadow: `4px 4px 0px ${alpha(theme.palette.neutral[900], 0.2)}`, // Subtle retro pop
+              border: `1.5px solid ${theme.palette.neutral[950]}`,
+              boxShadow: `4px 4px 0px ${theme.palette.neutral[950]}33`, // Subtle retro pop
               '& .MuiChip-label': {
                 fontSize: '1rem',
                 px: 2,
               },
-            }}
+            })}
           />
 
           {/* Title - Using Fluid Typography */}

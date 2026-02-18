@@ -217,6 +217,7 @@ const ComingSoonPage: React.FC = () => {
                 src="/assets/landing-page/hero/phone-mockup.png"
                 alt="Predict Galore Coming Soon Preview"
                 fill
+                sizes="(max-width: 768px) 300px, (max-width: 1024px) 400px, 500px"
                 quality={100}
                 priority
                 style={{

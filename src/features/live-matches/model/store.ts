@@ -42,8 +42,8 @@ interface LiveMatchesState {
 }
 
 export const useLiveMatchesStore = create<LiveMatchesState>((set) => ({
-  // Initial state
-  activeSport: 'soccer',
+  // Initial state (use 'all' until API/sports are loaded)
+  activeSport: 'all',
   activeTab: 'live-matches',
   sections: [],
   liveViewers: 0,
@@ -84,11 +84,7 @@ export const useLiveMatchesStore = create<LiveMatchesState>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  refreshLiveData: () =>
-    set(() => ({
-      lastUpdated: new Date(),
-      liveViewers: Math.floor(Math.random() * 5000) + 10000,
-    })),
+  refreshLiveData: () => set({ lastUpdated: new Date() }),
 
   selectLiveMatch: (match) =>
     set({

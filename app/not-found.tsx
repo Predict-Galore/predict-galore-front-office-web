@@ -1,157 +1,110 @@
 /**
- * 404 NOT FOUND PAGE - SIMPLE VERSION
- *
- * Clean, professional 404 page with minimal animations.
+ * 404 NOT FOUND PAGE
+ * Server Component so it can be statically prerendered without client context.
  */
-'use client';
-
-import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Box, Button, Typography, Container } from '@mui/material';
-import { Home, ArrowBack, SportsScore } from '@mui/icons-material';
 
 export default function NotFoundPage() {
-  const router = useRouter();
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
   return (
-    <Container
-      maxWidth="md"
-      sx={{
+    <div
+      style={{
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        py: 4,
-        px: 2,
+        padding: '2rem 1rem',
       }}
     >
-      {/* Error Code */}
-      <Box sx={{ position: 'relative', mb: 4 }}>
-        <Typography
-          variant="h1"
-          sx={{
-            fontSize: { xs: '8rem', sm: '10rem', md: '12rem' },
+      <div style={{ position: 'relative', marginBottom: '2rem' }}>
+        <span
+          style={{
+            fontSize: 'clamp(4rem, 12vw, 12rem)',
             fontWeight: 900,
-            background: 'linear-gradient(45deg, #16a34a 30%, #2563eb 90%)',
-            backgroundClip: 'text',
+            background: 'linear-gradient(135deg, #36b15e 0%, #ec4751 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
             lineHeight: 1,
           }}
         >
           404
-        </Typography>
+        </span>
+      </div>
 
-        {/* Sports Icon */}
-        <SportsScore
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            fontSize: { xs: '3rem', md: '4rem' },
-            opacity: 0.1,
-            color: 'primary.main',
-          }}
-        />
-      </Box>
-
-      {/* Title */}
-      {/* <Typography
-        variant="h4"
-        sx={{
+      <h1
+        style={{
+          fontSize: 'clamp(1.25rem, 2.5vw, 1.875rem)',
           fontWeight: 700,
-          color: 'text.primary',
-          mb: 2,
+          color: '#393941',
+          marginBottom: '1rem',
         }}
       >
         Page Not Found
-      </Typography> */}
+      </h1>
 
-      {/* Description */}
-      <Typography
-        variant="body1"
-        sx={{
-          color: 'text.secondary',
-          maxWidth: '500px',
-          mb: 4,
-          lineHeight: 1.6,
+      <p
+        style={{
+          color: '#5d5e6c',
+          maxWidth: '28rem',
+          marginBottom: '2rem',
+          lineHeight: 1.75,
         }}
       >
         The page you&apos;re looking for doesn&apos;t exist or has been moved. Please check the URL
         or navigate back to the homepage.
-      </Typography>
+      </p>
 
-      {/* Action Buttons */}
-      <Box
-        sx={{
+      <div
+        style={{
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 4,
+          flexWrap: 'wrap',
+          gap: '1rem',
+          justifyContent: 'center',
+          marginBottom: '2rem',
         }}
       >
-        <Link href="/" passHref legacyBehavior>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            startIcon={<Home />}
-            sx={{
-              px: 4,
-              py: 1.5,
-              borderRadius: 2,
-              fontWeight: 600,
-            }}
-          >
-            Back to Home
-          </Button>
-        </Link>
-
-        <Button
-          variant="outlined"
-          color="secondary"
-          size="large"
-          startIcon={<ArrowBack />}
-          onClick={handleGoBack}
-          sx={{
-            px: 4,
-            py: 1.5,
-            borderRadius: 2,
-            fontWeight: 600,
-            borderWidth: 2,
-          }}
-        >
-          Go Back
-        </Button>
-      </Box>
-
-      {/* Help Text */}
-      <Typography
-        variant="body2"
-        sx={{
-          color: 'text.disabled',
-          mt: 4,
-        }}
-      >
-        Need help?{' '}
         <Link
-          href="/contact"
+          href="/"
           style={{
-            color: 'inherit',
-            textDecoration: 'underline',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#36b15e',
+            color: '#fff',
+            fontWeight: 600,
+            borderRadius: '12px',
+            textDecoration: 'none',
           }}
         >
+          Back to Home
+        </Link>
+        <Link
+          href="/landing-page"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1.5rem',
+            border: '2px solid #d9d9de',
+            color: '#393941',
+            fontWeight: 600,
+            borderRadius: '12px',
+            textDecoration: 'none',
+          }}
+        >
+          Go to Landing
+        </Link>
+      </div>
+
+      <p style={{ color: '#5d5e6c', fontSize: '0.875rem', marginTop: '1rem' }}>
+        Need help?{' '}
+        <Link href="/contact-us" style={{ color: '#36b15e', textDecoration: 'none' }}>
           Contact support
         </Link>
-      </Typography>
-    </Container>
+      </p>
+    </div>
   );
 }

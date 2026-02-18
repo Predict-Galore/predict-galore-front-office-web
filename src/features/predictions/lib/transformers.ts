@@ -8,8 +8,6 @@ import type { Sport, League, Prediction, PredictionPagination } from '../model/t
 import type {
   SportsResponse,
   LeaguesResponse,
-  PredictionsResponse,
-  BackendPredictionResponse,
 } from '../api/types';
 
 export class PredictionTransformer {
@@ -38,31 +36,98 @@ export class PredictionTransformer {
   /**
    * Transform predictions response
    */
-  static transformPredictionsResponse(response: PredictionsResponse | BackendPredictionResponse): {
+  static transformPredictionsResponse(response: unknown): {
     predictions: Prediction[];
     pagination: PredictionPagination;
   } {
+    const typedResponse = response as Record<string, unknown>;
+    
     // Handle PredictionsResponse format
-    if ('predictions' in response) {
+    if ('predictions' in typedResponse) {
       return {
-        predictions: response.predictions,
+        predictions: typedResponse.predictions as Prediction[],
         pagination: {
-          page: response.page,
-          pageSize: response.pageSize,
-          total: response.total,
-          hasMore: response.hasMore,
+          page: typedResponse.page as number,
+          pageSize: typedResponse.pageSize as number,
+          total: typedResponse.total as number,
+          hasMore: typedResponse.hasMore as boolean,
         },
       };
     }
 
-    // Handle BackendPredictionResponse format
+    // Handle new backend format with data.items
+    if (typedResponse.data && typeof typedResponse.data === 'object' && 'items' in typedResponse.data) {
+      const data = typedResponse.data as Record<string, unknown>;
+      const items = (data.items || []) as Record<string, unknown>[];
+      
+      // Transform items to match Prediction interface
+      const predictions = items.map((item) => {
+        // If item has match field (simplified format), parse it
+        if (item.match && typeof item.match === 'string') {
+          const [homeTeamName, awayTeamName] = item.match.split(' vs ').map((s: string) => s.trim());
+          
+          return {
+            id: item.id,
+            homeTeam: {
+              id: 0,
+              name: homeTeamName || 'Unknown',
+              logoUrl: '',
+              shortName: homeTeamName || 'Unknown',
+            },
+            awayTeam: {
+              id: 0,
+              name: awayTeamName || 'Unknown',
+              logoUrl: '',
+              shortName: awayTeamName || 'Unknown',
+            },
+            predictedScore: '0-0',
+            status: item.status || 'Prediction',
+            startTime: item.datePostedUtc || item.dateTime || new Date().toISOString(),
+            competition: 'N/A',
+            sportId: 0,
+            leagueId: 0,
+            confidence: item.accuracy || 0,
+            picksCount: item.picksCount,
+            accuracy: item.accuracy,
+          } as Prediction;
+        }
+        
+        // Otherwise return as is (already in correct format)
+        return item;
+      });
+      
+      return {
+        predictions,
+        pagination: {
+          page: response.data.page || 1,
+          pageSize: response.data.pageSize || 20,
+          total: response.data.total || 0,
+          hasMore: (response.data.page || 1) * (response.data.pageSize || 20) < (response.data.total || 0),
+        },
+      };
+    }
+
+    // Handle old BackendPredictionResponse format (flat data array)
+    if (response.data && Array.isArray(response.data)) {
+      return {
+        predictions: response.data || [],
+        pagination: {
+          page: response.currentPage || 1,
+          pageSize: response.pageSize || 20,
+          total: response.totalItems || 0,
+          hasMore: (response.currentPage || 1) < (response.totalPages || 1),
+        },
+      };
+    }
+
+    // Fallback
     return {
-      predictions: response.data || [],
+      predictions: [],
       pagination: {
-        page: response.currentPage || 1,
-        pageSize: response.pageSize || 20,
-        total: response.totalItems || 0,
-        hasMore: (response.currentPage || 1) < (response.totalPages || 1),
+        page: 1,
+        pageSize: 20,
+        total: 0,
+        hasMore: false,
       },
     };
   }
@@ -118,9 +183,6 @@ export class PredictionTransformer {
     leagueId?: number;
     page?: number;
     pageSize?: number;
-    fromUtc?: string;
-    toUtc?: string;
-    status?: string;
   }): Record<string, string | number> {
     const params: Record<string, string | number> = {};
 
@@ -128,9 +190,6 @@ export class PredictionTransformer {
     if (filters.leagueId) params.leagueId = filters.leagueId;
     if (filters.page) params.page = filters.page;
     if (filters.pageSize) params.pageSize = filters.pageSize;
-    if (filters.fromUtc) params.fromUtc = filters.fromUtc;
-    if (filters.toUtc) params.toUtc = filters.toUtc;
-    if (filters.status) params.status = filters.status;
 
     return params;
   }

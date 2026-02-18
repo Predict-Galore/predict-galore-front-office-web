@@ -1,40 +1,47 @@
 // src/app/(public)/layout.tsx
-'use client';
 
-import React, { ReactNode, Suspense } from 'react';
+import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
+
 // Lazy load heavy components to improve initial load time
+// We keep `ssr: true` but avoid showing custom gradient placeholders;
+// the route segment `app/(public)/loading.tsx` already shows a global loader.
 const Header = dynamic(() => import('./components/Header'), {
   ssr: true,
-  loading: () => <div className="h-16 bg-white" />, // Placeholder for header
+  loading: () => null,
 });
 
 const Footer = dynamic(() => import('./components/Footer'), {
   ssr: true,
-  loading: () => <div className="h-64 bg-[#991b1b]" />, // Placeholder for footer
+  loading: () => null,
 });
 
 const CTASection = dynamic(() => import('./components/CTASection'), {
   ssr: true,
-  loading: () => <div className="h-96 bg-[#166534]" />, // Placeholder for CTA
+  loading: () => null,
 });
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-const PublicLayout: React.FC<LayoutProps> = ({ children }) => {
+const PublicLayout = ({ children }: LayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Suspense fallback={<div className="h-16 bg-white" />}>
+      <Suspense fallback={null}>
         <Header />
       </Suspense>
-      <main className="grow">{children}</main>
-      <Suspense fallback={<div className="h-96 bg-[#166534]" />}>
+      
+
+        <main className="grow">{children}</main>
+
+      
+      <Suspense fallback={null}>
         <CTASection />
       </Suspense>
-      <Suspense fallback={<div className="h-64 bg-[#991b1b]" />}>
+      <Suspense fallback={null}>
         <Footer />
       </Suspense>
     </div>

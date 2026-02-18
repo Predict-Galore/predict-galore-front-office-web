@@ -5,10 +5,12 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { Box, Button, Avatar, Stack, Paper, Typography } from '@mui/material';
-import SafeImage from '@/shared/components/shared/SafeImage';
 import { useFollowings, useFollowTeam, useUnfollowTeam } from '@/features/profile';
-import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
+import { useSports } from '@/features/predictions';
+import { getSafeImageUrl } from '@/shared/utils/imageUtils';
+import { SportTabs } from '@/shared/components/shared';
 import type { Sport } from '@/features/predictions/model/types';
 import type { Following } from '@/features/profile/model/types';
 import { LoadingState } from '@/shared/components/shared';
@@ -16,16 +18,17 @@ import { LoadingState } from '@/shared/components/shared';
 const FollowingsTab: React.FC = () => {
   const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
   const { data: followings = [], isLoading } = useFollowings();
+  const { data: sportsData = [] } = useSports();
   const { mutate: followTeam } = useFollowTeam();
   const { mutate: unfollowTeam } = useUnfollowTeam();
 
-  // Create sports array for tabs
+  // Use API sports data for tabs
   const sportsForTabs: Sport[] = useMemo(() => {
-    return PREDICTIONS_CONSTANTS.DEFAULT_SPORTS.map((sport, index) => ({
-      ...sport,
-      id: index + 1,
-    }));
-  }, []);
+    if (!sportsData || sportsData.length === 0) {
+      return [];
+    }
+    return sportsData;
+  }, [sportsData]);
 
   const selectedSportForTabs = useMemo((): Sport => {
     if (selectedSport?.name === 'All Sports') {
@@ -68,41 +71,12 @@ const FollowingsTab: React.FC = () => {
 
   return (
     <Stack spacing={3}>
-      {/* Sport Pills */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 1.5,
-          flexWrap: 'wrap',
-        }}
-      >
-        {sportsForTabs.map((sport) => {
-          const isActive = selectedSportForTabs?.id === sport.id;
-          return (
-            <Button
-              key={sport.id}
-              onClick={() => handleSportSelect(sport)}
-              variant="outlined"
-              sx={{
-                minWidth: 88,
-                borderRadius: 999,
-                textTransform: 'none',
-                fontWeight: 600,
-                px: 3,
-                borderColor: isActive ? 'transparent' : 'grey.300',
-                bgcolor: isActive ? '#5bbf4a33' : 'white',
-                color: isActive ? '#1b7f1b' : 'text.primary',
-                '&:hover': {
-                  bgcolor: isActive ? '#5bbf4a44' : 'grey.50',
-                  borderColor: isActive ? 'transparent' : 'grey.400',
-                },
-              }}
-            >
-              {sport.name}
-            </Button>
-          );
-        })}
-      </Box>
+      {/* Sport Tabs */}
+      <SportTabs
+        sports={sportsForTabs}
+        selectedSport={selectedSportForTabs}
+        onSelectSport={handleSportSelect}
+      />
 
       {/* Followings List */}
       <Stack spacing={1.5}>
@@ -129,14 +103,13 @@ const FollowingsTab: React.FC = () => {
               }}
             >
               <Box sx={{ position: 'relative', width: 48, height: 48, flexShrink: 0 }}>
-                {following.imageUrl ? (
-                  <SafeImage
-                    src={following.imageUrl}
+                {getSafeImageUrl(following.imageUrl) ? (
+                  <Image
+                    src={getSafeImageUrl(following.imageUrl)}
                     alt={following.name}
                     fill
                     className="object-cover rounded-full"
                     sizes="48px"
-                    fallbackVariant="thumb"
                   />
                 ) : (
                   <Avatar sx={{ width: 48, height: 48, bgcolor: 'grey.200' }}>

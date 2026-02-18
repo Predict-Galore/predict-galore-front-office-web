@@ -5,9 +5,10 @@
  * Page for email verification with token validation.
  */
 import React from 'react';
-import { Box, Typography, Button, Alert, Container, Paper } from '@mui/material';
+import { Mail } from 'lucide-react';
 import { Metadata } from 'next';
 import VerifyEmailForm from '@/features/auth/components/VerifyEmailForm';
+import { Button, Alert } from '@/shared/components/ui';
 
 export const metadata: Metadata = {
   title: 'Verify Email - Predict Galore',
@@ -25,24 +26,28 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
   // If token is provided in URL (email link), show simplified verification
   if (urlToken) {
     return (
-      <Container maxWidth="sm">
-        <Paper elevation={3} className="p-8 mt-8">
-          <Box className="text-center space-y-6">
-            <Alert severity="info" className="w-full">
-              <Typography variant="body2">
-                You&apos;ve clicked a verification link. The system is verifying your email...
-              </Typography>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center space-y-6">
+            <div className="mb-4">
+              <Mail className="w-16 h-16 text-primary mx-auto" />
+            </div>
+            
+            <Alert variant="info" title="Email Verification">
+              You&apos;ve clicked a verification link. The system is verifying your email...
             </Alert>
-            <Typography variant="body1" className="text-gray-600">
+            
+            <p className="text-gray-600">
               If verification doesn&apos;t complete automatically, please use the manual
               verification form.
-            </Typography>
-            <Button variant="contained" href="/verify-email" fullWidth size="large">
+            </p>
+            
+            <Button variant="primary" fullWidth size="lg" component="a" href="/verify-email">
               Go to Manual Verification
             </Button>
-          </Box>
-        </Paper>
-      </Container>
+          </div>
+        </div>
+      </div>
     );
   }
 

@@ -1,50 +1,36 @@
 /**
  * SEARCH STORE
- *
- * Zustand store for search state management
+ * Simplified Zustand store for search state management
  */
 
 import { create } from 'zustand';
-import type { SearchState, SearchType, SearchResult, PopularItem } from './types';
+import type { SearchType } from './types';
 
-interface SearchStore extends SearchState {
+interface SearchStore {
+  query: string;
+  searchType: SearchType;
+  isOpen: boolean;
+  isLoading: boolean;
   setQuery: (query: string) => void;
   setSearchType: (type: SearchType) => void;
-  setResults: (results: SearchResult[]) => void;
-  setPopularItems: (items: PopularItem[]) => void;
-  setIsLoading: (loading: boolean) => void;
-  setIsOpen: (open: boolean) => void;
+  setIsOpen: (isOpen: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
   clearSearch: () => void;
 }
 
-const initialState: SearchState = {
+export const useSearchStore = create<SearchStore>((set) => ({
   query: '',
   searchType: 'all',
-  results: [],
-  popularItems: [],
-  isLoading: false,
   isOpen: false,
-};
-
-export const useSearchStore = create<SearchStore>((set) => ({
-  ...initialState,
+  isLoading: false,
 
   setQuery: (query: string) => set({ query }),
 
   setSearchType: (type: SearchType) => set({ searchType: type }),
 
-  setResults: (results: SearchResult[]) => set({ results }),
+  setIsOpen: (isOpen: boolean) => set({ isOpen }),
 
-  setPopularItems: (items: PopularItem[]) => set({ popularItems: items }),
+  setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
-  setIsLoading: (loading: boolean) => set({ isLoading: loading }),
-
-  setIsOpen: (open: boolean) => set({ isOpen: open }),
-
-  clearSearch: () =>
-    set({
-      query: '',
-      results: [],
-      searchType: 'all',
-    }),
+  clearSearch: () => set({ query: '', searchType: 'all' }),
 }));

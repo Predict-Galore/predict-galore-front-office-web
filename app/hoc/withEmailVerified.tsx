@@ -3,8 +3,9 @@
 
 import { useEffect, useState, ComponentType } from 'react';
 import { useRouter } from 'next/navigation';
-import { CircularProgress, Box, Typography, Button } from '@mui/material';
+import { Mail, Shield } from 'lucide-react';
 import { useAuthStore, useProfileQuery } from '@/features/auth';
+import { Button, Loading } from '@/shared/components/ui';
 
 /**
  * HOC to protect pages that require email verification
@@ -26,7 +27,7 @@ const withEmailVerified = <P extends object>(
     const [isChecking, setIsChecking] = useState(true);
 
     // Use Zustand store directly
-    const { token, user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated } = useAuthStore();
 
     // Validate session to get latest user data
     const {
@@ -40,17 +41,13 @@ const withEmailVerified = <P extends object>(
 
     useEffect(() => {
       const verifyAuth = async () => {
-        // Check if we have a token
-        const hasToken =
-          token || (typeof window !== 'undefined' && localStorage.getItem('auth-token'));
-
-        if (!hasToken) {
+        if (!isAuthenticated && !user) {
           setIsChecking(false);
           return;
         }
 
         // Validate session to ensure we have latest user data
-        if (hasToken && !isSessionLoading) {
+        if (!isSessionLoading) {
           try {
             await checkSession();
           } catch {
@@ -62,77 +59,72 @@ const withEmailVerified = <P extends object>(
       };
 
       verifyAuth();
-    }, [token, isSessionLoading, checkSession]);
+    }, [isAuthenticated, user, isSessionLoading, checkSession]);
 
     // Determine if user is actually authenticated
-    const isUserAuthenticated =
-      isAuthenticated || (typeof window !== 'undefined' && !!localStorage.getItem('auth-token'));
+    const isUserAuthenticated = isAuthenticated || !!user;
+
+    useEffect(() => {
+      if (!isChecking && !isSessionLoading && !isUserAuthenticated) {
+        router.replace('/login');
+      }
+    }, [isChecking, isSessionLoading, isUserAuthenticated, router]);
 
     // Show loading state
     if ((isChecking || isSessionLoading) && showLoading) {
       return (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            gap: 2,
-          }}
-        >
-          <CircularProgress size={60} />
-          <Typography variant="h6" color="text.secondary">
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+          <Loading variant="spinner" size="lg" />
+          <h2 className="text-xl font-semibold text-gray-700">
             Checking email verification status...
-          </Typography>
-        </Box>
+          </h2>
+        </div>
       );
     }
 
     // Redirect to login if not authenticated
     if (!isUserAuthenticated) {
-      if (typeof window !== 'undefined') {
-        // User not authenticated - redirecting to login
-        setTimeout(() => {
-          router.replace('/login');
-        }, 0);
-      }
       return null;
     }
 
     // Check if email is verified
     if (!currentUser?.isEmailVerified) {
       return (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            gap: 3,
-            p: 3,
-          }}
-        >
-          <Typography variant="h4" color="primary" gutterBottom>
-            Email Verification Required
-          </Typography>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6">
+          <div className="text-center">
+            <div className="mb-4">
+              <Shield className="w-16 h-16 text-primary mx-auto" />
+            </div>
+            
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Email Verification Required
+            </h1>
 
-          <Typography variant="body1" color="text.secondary" align="center" sx={{ maxWidth: 500 }}>
-            Please verify your email address before accessing this page. We&apos;ve sent a
-            verification link to your email.
-          </Typography>
+            <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+              Please verify your email address before accessing this page. We&apos;ve sent a
+              verification link to your email.
+            </p>
+          </div>
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-            <Button variant="contained" color="primary" onClick={() => router.push(redirectTo)}>
+          <div className="flex gap-4">
+            <Button 
+              variant="primary" 
+              onClick={() => router.push(redirectTo)}
+              className="px-6"
+            >
+              <Mail className="w-4 h-4" />
               Verify Email
             </Button>
 
-            <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard')}>
+            <Button 
+              variant="outline" 
+              onClick={() => router.push('/dashboard')}
+              className="px-6"
+            >
               Go to Dashboard
             </Button>
-          </Box>
-        </Box>
+          </div>
+        </div>
       );
     }
 

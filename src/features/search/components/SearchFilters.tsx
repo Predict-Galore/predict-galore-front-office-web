@@ -27,12 +27,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ className }) => {
 
   return (
     <Box
+      className={className}
       sx={{
         display: 'flex',
         gap: 1,
         overflowX: 'auto',
         pb: 1,
-        ...className,
       }}
     >
       {FILTERS.map((filter) => {

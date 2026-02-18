@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { KeyboardArrowUp, KeyboardArrowDown, Lock, AccessTime } from '@mui/icons-material';
 import {
   Box,
@@ -24,7 +24,6 @@ interface LeagueSectionProps {
   leagueLogo?: string;
   matches: Prediction[];
   onMatchClick?: (match: Prediction) => void;
-  className?: string;
 }
 
 const LeagueSection: React.FC<LeagueSectionProps> = ({
@@ -32,28 +31,13 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
   leagueLogo,
   matches,
   onMatchClick,
-  className,
+  // className,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
 
-  // Competition logos mapping
-  const competitionLogos = useMemo(
-    () => ({
-      'Premier League': 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
-      'La Liga': 'https://upload.wikimedia.org/wikipedia/en/0/0c/LaLiga_Santander_logo.svg',
-      'Serie A': 'https://upload.wikimedia.org/wikipedia/en/e/e1/Serie_A_logo_%282019%29.svg',
-      Bundesliga: 'https://upload.wikimedia.org/wikipedia/en/d/df/Bundesliga_logo_%282017%29.svg',
-      'UEFA Champions League':
-        'https://upload.wikimedia.org/wikipedia/en/b/bf/UEFA_Champions_League_logo_2.svg',
-      'Italian Serie A':
-        'https://upload.wikimedia.org/wikipedia/en/e/e1/Serie_A_logo_%282019%29.svg',
-      'Nigeria League': 'https://upload.wikimedia.org/wikipedia/en/0/0c/LaLiga_Santander_logo.svg',
-    }),
-    []
-  );
-
-  const displayLogo = leagueLogo || competitionLogos[leagueName as keyof typeof competitionLogos];
+  // Only use backend-provided leagueLogo if present (no static/mock logo mapping)
+  const displayLogo = leagueLogo;
 
   const handleMatchClick = useCallback(
     (match: Prediction) => {
@@ -75,12 +59,12 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
     <Paper
       elevation={0}
       sx={{
-        mb: 2.5,
-        borderRadius: 3,
+        mb: 2,
         border: '1px solid',
         borderColor: 'grey.200',
+        borderRadius: 3,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         overflow: 'hidden',
-        ...className,
       }}
     >
       {/* League Header */}
@@ -89,8 +73,8 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          px: 2,
-          py: 1.75,
+          px: { xs: 2.5, sm: 3 },
+          py: 2,
           cursor: 'pointer',
           '&:hover': {
             bgcolor: 'grey.50',
@@ -100,14 +84,37 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {displayLogo && (
+          {displayLogo ? (
             <Avatar
               src={displayLogo}
               alt={leagueName}
               sx={{ width: 32, height: 32 }}
             />
+          ) : (
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                bgcolor: 'grey.100',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'grey.700' }}>
+                {leagueName.trim().slice(0, 2).toUpperCase()}
+              </Typography>
+            </Box>
           )}
-          <Typography variant="h6" sx={{ fontWeight: 'semibold' }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              fontWeight: 'bold',
+              color: 'grey.900',
+            }}
+          >
             {leagueName}
           </Typography>
         </Box>
@@ -120,14 +127,14 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
           aria-label={isCollapsed ? 'Expand league' : 'Collapse league'}
           sx={{
             '&:hover': {
-              bgcolor: 'grey.100',
+              bgcolor: 'transparent',
             },
           }}
         >
           {isCollapsed ? (
-            <KeyboardArrowDown sx={{ fontSize: 20, color: 'grey.600' }} />
+            <KeyboardArrowDown sx={{ fontSize: 24, color: 'grey.600' }} />
           ) : (
-            <KeyboardArrowUp sx={{ fontSize: 20, color: 'grey.600' }} />
+            <KeyboardArrowUp sx={{ fontSize: 24, color: 'grey.600' }} />
           )}
         </IconButton>
       </Box>
@@ -153,7 +160,7 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
                 }}
                 onClick={() => handleMatchClick(match)}
               >
-                {/* Row layout (matches screenshot) */}
+                {/* Row layout  */}
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {/* Status pill */}
                   <Chip

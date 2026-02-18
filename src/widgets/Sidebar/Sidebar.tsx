@@ -7,7 +7,7 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { IconButton, Drawer, useMediaQuery, useTheme, Box, Tooltip } from '@mui/material';
+import { IconButton, Drawer, useMediaQuery, Box, Tooltip } from '@mui/material';
 import {
   Dashboard,
   ChevronLeft,
@@ -49,16 +49,16 @@ const MENU_ITEMS: SidebarItem[] = [
     path: '/dashboard/predictions',
   },
   {
-    id: 'news',
-    label: 'News',
-    icon: <FeedOutlined />,
-    path: '/dashboard/news',
-  },
-  {
     id: 'live-matches',
     label: 'Live Matches',
     icon: <SportsSoccerOutlined />,
     path: '/dashboard/live-matches',
+  },
+  {
+    id: 'news',
+    label: 'News',
+    icon: <FeedOutlined />,
+    path: '/dashboard/news',
   },
 ];
 
@@ -110,8 +110,7 @@ const SidebarItem: React.FC<{
 
 // Main Sidebar Component
 const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const pathname = usePathname();
 
   // Determine active item based on current pathname
@@ -138,9 +137,8 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: 'background.paper',
+        backgroundColor: 'common.white',
       }}
-      className="bg-white"
     >
       {/* Top spacing + mobile close button */}
       <Box
@@ -155,7 +153,12 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
         {isMobile && (
           <IconButton
             onClick={handleCloseMobile}
-            className="text-gray-600 hover:text-gray-900"
+            sx={{
+              color: 'text.secondary',
+              '&:hover': {
+                color: 'text.primary',
+              },
+            }}
             aria-label="Close sidebar"
           >
             <ChevronLeft />
@@ -204,10 +207,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
           '& .MuiDrawer-paper': {
             width: isMobile ? DRAWER_WIDTH : COLLAPSED_WIDTH,
             boxSizing: 'border-box',
-            transition: theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
+            transition: 'width 225ms cubic-bezier(0.4, 0, 0.6, 1)',
             overflowX: 'hidden',
             ...(isMobile && {
               boxShadow: '0 0 24px rgba(0,0,0,0.1)',
@@ -233,7 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: theme.zIndex.drawer - 1,
+            zIndex: 1099,
           }}
           onClick={handleCloseMobile}
         />

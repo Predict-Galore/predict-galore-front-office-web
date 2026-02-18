@@ -1,76 +1,139 @@
 /**
  * SEARCH SERVICE
  *
- * Application layer - Business logic and API calls for search
+ * Uses GET /api/v1/search?q={query}&limit={limit}
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
-import { SearchTransformer } from '../lib/transformers';
 import type {
   SearchRequest,
   BackendSearchResponse,
-  PopularItemsResponse,
   SearchResponse,
 } from './types';
-import type { PopularItem } from '../model/types';
+import type { SearchResult, SearchType } from '../model/types';
 
 const logger = createLogger('SearchService');
 
 /**
- * Search Service Class
- * Handles all search-related API calls
+ * Extract results array from various possible backend response shapes.
+ * Handles grouped responses like { players: [], teams: [], matches: [], leagues: [] }
  */
-export class SearchService {
-  /**
-   * Search for items
-   */
-  static async search(request: SearchRequest): Promise<SearchResponse> {
-    logger.info('Search request', { query: request.query, type: request.type });
+function extractResults(response: BackendSearchResponse): SearchResult[] {
+  if (!response) return [];
 
-    try {
-      const params: Record<string, string | number> = {
-        query: request.query,
-      };
+  // 1. response is an array directly
+  if (Array.isArray(response)) return response as unknown as SearchResult[];
 
-      if (request.type && request.type !== 'all') {
-        params.type = request.type;
+  // 2. response.data is an array
+  if (Array.isArray(response.data)) return response.data;
+
+  // 3. response.data is an object with grouped results (players, teams, matches, leagues)
+  if (response.data && typeof response.data === 'object') {
+    const d = response.data as Record<string, unknown>;
+    
+    // Check if it's a grouped response
+    const hasGroupedData = ['players', 'teams', 'matches', 'leagues'].some(key => Array.isArray(d[key]));
+    
+    if (hasGroupedData) {
+      const results: SearchResult[] = [];
+      
+      // Extract and transform players
+      if (Array.isArray(d.players)) {
+        results.push(...d.players.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          type: 'players' as SearchType,
+          title: item.name as string,
+          subtitle: (item.subTitle || item.subText) as string | undefined,
+          imageUrl: item.imageUrl as string | undefined,
+          metadata: item.meta as Record<string, unknown> | undefined,
+        })));
       }
-
-      if (request.page) {
-        params.page = request.page;
+      
+      // Extract and transform teams
+      if (Array.isArray(d.teams)) {
+        results.push(...d.teams.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          type: 'teams' as SearchType,
+          title: item.name as string,
+          subtitle: (item.subTitle || item.subText || item.league) as string | undefined,
+          imageUrl: item.imageUrl as string | undefined,
+          metadata: item.meta as Record<string, unknown> | undefined,
+        })));
       }
-
-      if (request.pageSize) {
-        params.pageSize = request.pageSize;
+      
+      // Extract and transform matches
+      if (Array.isArray(d.matches)) {
+        results.push(...d.matches.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          type: 'matches' as SearchType,
+          title: item.name as string,
+          subtitle: (item.subTitle || item.subText) as string | undefined,
+          imageUrl: (item.imageUrl || (item.meta as Record<string, unknown>)?.homeLogo) as string | undefined,
+          metadata: item.meta as Record<string, unknown> | undefined,
+        })));
       }
-
-      const response = await api.get<BackendSearchResponse>(API_ENDPOINTS.SEARCH.QUERY, params);
-
-      return SearchTransformer.transformSearchResponse(response);
-    } catch (error) {
-      logger.error('Search failed', { error, request });
-      throw error;
+      
+      // Extract and transform leagues
+      if (Array.isArray(d.leagues)) {
+        results.push(...d.leagues.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          type: 'leagues' as SearchType,
+          title: item.name as string,
+          subtitle: (item.subTitle || item.subText) as string | undefined,
+          imageUrl: item.imageUrl as string | undefined,
+          metadata: item.meta as Record<string, unknown> | undefined,
+        })));
+      }
+      
+      return results;
     }
+    
+    // Fallback to items or results arrays
+    if (Array.isArray(d.items)) return d.items as SearchResult[];
+    if (Array.isArray(d.results)) return d.results as SearchResult[];
   }
 
+  // 4. response.results is an array
+  if (Array.isArray(response.results)) return response.results;
+
+  return [];
+}
+
+export class SearchService {
   /**
-   * Get popular/trending items
+   * Search using GET /api/v1/search?q=&limit=
    */
-  static async getPopularItems(country?: string): Promise<PopularItem[]> {
-    logger.info('Get popular items request', { country });
-
-    try {
-      const params: Record<string, string> = {};
-      if (country) {
-        params.country = country;
-      }
-
-      const response = await api.get<PopularItemsResponse>(API_ENDPOINTS.SEARCH.POPULAR, params);
-
-      return SearchTransformer.transformPopularItems(response);
-    } catch (error) {
-      logger.error('Get popular items failed', { error, country });
-      throw error;
+  static async search(request: SearchRequest): Promise<SearchResponse> {
+    const q = request.q?.trim();
+    if (!q) {
+      return { results: [], total: 0, hasMore: false };
     }
+
+    logger.info('Search request', { q, limit: request.limit });
+
+    const params: Record<string, string | number> = { q };
+    if (request.limit) {
+      params.limit = request.limit;
+    }
+
+    const response = await api.get<BackendSearchResponse>(
+      API_ENDPOINTS.SEARCH.QUERY,
+      params
+    );
+
+    const results = extractResults(response);
+    
+    // Get total from response.data.totalResults or fallback to results length
+    const total = (response.data && typeof response.data === 'object' && 'totalResults' in response.data) 
+      ? (response.data as Record<string, unknown>).totalResults as number
+      : results.length;
+
+    logger.info('Search results', { count: results.length, total });
+
+    return {
+      results,
+      total,
+      hasMore: false,
+    };
   }
 }

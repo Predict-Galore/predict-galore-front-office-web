@@ -8,69 +8,205 @@
 
 import { createTheme } from '@mui/material/styles';
 
-// Extend palette to include neutral colors
+// Extend palette to include full color scales from Figma
 declare module '@mui/material/styles' {
   interface Palette {
     neutral: {
+      0: string;
       50: string;
+      100: string;
       200: string;
+      300: string;
       400: string;
+      500: string;
       600: string;
+      700: string;
+      800: string;
       900: string;
+      950: string;
+    };
+    warmRed: {
+      50: string;
+      100: string;
+      200: string;
+      300: string;
+      400: string;
+      500: string;
+      600: string;
+      700: string;
+      800: string;
+      900: string;
+      950: string;
+    };
+    coolRed: {
+      50: string;
+      100: string;
+      200: string;
+      300: string;
+      400: string;
+      500: string;
+      600: string;
+      700: string;
+      800: string;
+      900: string;
+      950: string;
+    };
+    green: {
+      50: string;
+      100: string;
+      200: string;
+      300: string;
+      400: string;
+      500: string;
+      600: string;
+      700: string;
+      800: string;
+      900: string;
+      950: string;
     };
   }
   interface PaletteOptions {
-    neutral: {
-      50: string;
-      200: string;
-      400: string;
-      600: string;
-      900: string;
+    neutral?: {
+      0?: string;
+      50?: string;
+      100?: string;
+      200?: string;
+      300?: string;
+      400?: string;
+      500?: string;
+      600?: string;
+      700?: string;
+      800?: string;
+      900?: string;
+      950?: string;
+    };
+    warmRed?: {
+      50?: string;
+      100?: string;
+      200?: string;
+      300?: string;
+      400?: string;
+      500?: string;
+      600?: string;
+      700?: string;
+      800?: string;
+      900?: string;
+      950?: string;
+    };
+    coolRed?: {
+      50?: string;
+      100?: string;
+      200?: string;
+      300?: string;
+      400?: string;
+      500?: string;
+      600?: string;
+      700?: string;
+      800?: string;
+      900?: string;
+      950?: string;
+    };
+    green?: {
+      50?: string;
+      100?: string;
+      200?: string;
+      300?: string;
+      400?: string;
+      500?: string;
+      600?: string;
+      700?: string;
+      800?: string;
+      900?: string;
+      950?: string;
     };
   }
 }
 
-// Core color palette - Comprehensive design system
+// Exact Figma color palette
 const colors = {
-  primary: {
-    main: '#42A605', // Brand green
-    light: '#5ccc80', // Hover/light states
-    dark: '#22733d', // Active/pressed states
-    darker: '#166534', // Darker variant for CTAs
-    contrastText: '#fff',
-  },
-  secondary: {
-    main: '#e72838', // Brand red for secondary actions
-    light: '#f5777e', // Light error/warning
-    dark: '#b61a2e', // Critical actions
-    darker: '#991b1b', // Footer/darker red variant
-    darkest: '#7f1d1d', // Darkest red variant
-    contrastText: '#fff',
-  },
+  // Grayscale/Neutral palette from Figma
   neutral: {
-    50: '#f8fafc', // Light backgrounds
-    100: '#f1f5f9', // Very light backgrounds
-    200: '#e2e8f0', // Borders, dividers
-    300: '#cbd5e1', // Light borders
-    400: '#94a3b8', // Disabled text
-    500: '#64748b', // Medium text
-    600: '#475569', // Secondary text
-    700: '#334155', // Dark text
-    800: '#1e293b', // Very dark text
-    900: '#0f172a', // Primary text
+    0: '#ffffff',
+    50: '#f7f7f8',
+    100: '#eeeef0',
+    200: '#d9d9de',
+    300: '#b8b9c1',
+    400: '#91939f',
+    500: '#737584',
+    600: '#5d5e6c',
+    700: '#4c4d58',
+    800: '#41414b',
+    900: '#393941',
+    950: '#101012',
+  },
+  // Warm Red/Orange palette from Figma
+  warmRed: {
+    50: '#fefde8',
+    100: '#fffcc2',
+    200: '#fff687',
+    300: '#ffe943',
+    400: '#ffd60a',
+    500: '#efbe03',
+    600: '#ce9300',
+    700: '#a46804',
+    800: '#88510b',
+    900: '#734210',
+    950: '#432205',
+  },
+  // Cool Red/Pink palette from Figma
+  coolRed: {
+    50: '#fef2f2',
+    100: '#fee6e5',
+    200: '#fccfd0',
+    300: '#f9a8a8',
+    400: '#f5777b',
+    500: '#ec4751',
+    600: '#d72638',
+    700: '#b61a2e',
+    800: '#98192d',
+    900: '#83182c',
+    950: '#490812',
+  },
+  // Green palette from Figma
+  green: {
+    50: '#f2fbf5',
+    100: '#e0f8e7',
+    200: '#c2f0d0',
+    300: '#93e2ad',
+    400: '#5ccc80',
+    500: '#36b15e',
+    600: '#28914b',
+    700: '#22733d',
+    800: '#1e5631',
+    900: '#1c4b2d',
+    950: '#0a2916',
+  },
+  // Primary colors mapped from Figma
+  primary: {
+    main: '#36b15e', // green-500 from Figma
+    light: '#5ccc80', // green-400
+    dark: '#22733d', // green-700 (active state)
+    contrastText: '#fff',
+  },
+  // Secondary/Error colors mapped from Figma
+  secondary: {
+    main: '#ec4751', // coolRed-500
+    light: '#f5777b', // coolRed-400
+    dark: '#b61a2e', // coolRed-700
+    contrastText: '#fff',
   },
   // Additional semantic colors
   gradients: {
     hero: 'linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(234, 88, 12, 0.9) 50%, rgba(163, 230, 53, 0.9) 100%)',
     contact: 'linear-gradient(180deg, #DC2626 0%, #EA580C 100%)',
-    primary: 'linear-gradient(135deg, #42A605 0%, #22733d 100%)',
-    secondary: 'linear-gradient(135deg, #e72838 0%, #991b1b 100%)',
+    primary: 'linear-gradient(135deg, #36b15e 0%, #22733d 100%)',
+    secondary: 'linear-gradient(135deg, #ec4751 0%, #b61a2e 100%)',
   },
 };
 
 // Create and customize MUI theme
 const theme = createTheme({
-  // Color system
+  // Color system - Exact Figma colors
   palette: {
     primary: {
       main: colors.primary.main,
@@ -84,18 +220,40 @@ const theme = createTheme({
       dark: colors.secondary.dark,
       contrastText: colors.secondary.contrastText,
     },
-    error: { main: colors.secondary.main },
-    success: { main: colors.primary.main },
+    error: { 
+      main: colors.coolRed[500], // #ec4751
+      light: colors.coolRed[100], // #fee6e5 (light background)
+      dark: colors.coolRed[700], // #b61a2e
+    },
+    success: { 
+      main: colors.green[500], // #36b15e
+      light: colors.green[100], // #e0f8e7 (light background)
+      dark: colors.green[700], // #22733d
+    },
+    warning: {
+      main: colors.warmRed[500], // #efbe03
+      light: colors.warmRed[100], // #fffcc2 (light background)
+      dark: colors.warmRed[700], // #a46804
+    },
+    info: {
+      main: colors.neutral[600], // #5d5e6c
+      light: colors.neutral[100], // #eeeef0 (light background)
+      dark: colors.neutral[700], // #4c4d58
+    },
     background: {
-      default: '#ffffff',
-      paper: '#ffffff',
+      default: colors.neutral[0], // #ffffff
+      paper: colors.neutral[0], // #ffffff
     },
     text: {
-      primary: colors.neutral[900],
-      secondary: colors.neutral[600],
-      disabled: colors.neutral[400],
+      primary: colors.neutral[900], // #393941
+      secondary: colors.neutral[600], // #5d5e6c
+      disabled: colors.neutral[400], // #91939f
     },
+    // Full color scales from Figma
     neutral: colors.neutral,
+    warmRed: colors.warmRed,
+    coolRed: colors.coolRed,
+    green: colors.green,
   },
 
   // Typography - Standard responsive font sizes and weights
@@ -140,28 +298,118 @@ const theme = createTheme({
     },
   },
 
-  // Global shape
+  // Global shape - Match Figma rounded corners
   shape: {
-    borderRadius: 8,
+    borderRadius: 12, // Rounded-xl from Figma (8-12px)
   },
 
-  // Component customizations
+  // Component customizations - Match Figma exactly
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
           fontWeight: 600,
-          borderRadius: 8,
-        },
-        containedPrimary: {
+          borderRadius: 12, // Match Figma rounded-xl
+          padding: '12px 24px',
+          minHeight: '48px',
+          fontSize: '0.9375rem',
+          boxShadow: 'none',
           '&:hover': {
-            backgroundColor: colors.primary.dark,
+            boxShadow: 'none',
+          },
+          '&:active': {
+            transform: 'scale(0.98)',
           },
         },
-        containedSecondary: {
+        contained: {
+          backgroundColor: colors.green[500], // #36b15e
+          color: '#fff',
           '&:hover': {
-            backgroundColor: colors.secondary.dark,
+            backgroundColor: colors.green[700], // #22733d (active state)
+          },
+          '&:active': {
+            backgroundColor: colors.green[700], // #22733d
+          },
+          '&.Mui-disabled': {
+            backgroundColor: colors.green[200], // #c2f0d0 (light green for disabled)
+            color: colors.green[300], // #93e2ad (muted green text)
+            opacity: 1,
+          },
+        },
+        outlined: {
+          borderColor: colors.green[500], // #36b15e
+          borderWidth: 2,
+          color: colors.green[500],
+          backgroundColor: 'transparent',
+          '&:hover': {
+            borderColor: colors.green[700], // #22733d
+            backgroundColor: 'transparent',
+            color: colors.green[700],
+          },
+          '&:active': {
+            borderColor: colors.green[700],
+            color: colors.green[700],
+          },
+          '&.Mui-disabled': {
+            borderColor: colors.green[200], // #c2f0d0
+            color: colors.green[300], // #93e2ad
+          },
+        },
+        text: {
+          color: colors.neutral[700], // #4c4d58
+          '&:hover': {
+            backgroundColor: colors.neutral[100], // #eeeef0
+          },
+        },
+        sizeSmall: {
+          padding: '8px 16px',
+          minHeight: '36px',
+          fontSize: '0.875rem',
+        },
+        sizeLarge: {
+          padding: '16px 32px',
+          minHeight: '56px',
+          fontSize: '1rem',
+        },
+        // Icon button styles
+        startIcon: {
+          marginRight: '8px',
+          marginLeft: 0,
+        },
+        endIcon: {
+          marginLeft: '8px',
+          marginRight: 0,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          padding: '12px',
+          minWidth: '48px',
+          minHeight: '48px',
+          '&.Mui-disabled': {
+            backgroundColor: colors.neutral[100], // #eeeef0
+            color: colors.neutral[400], // #91939f
+          },
+        },
+        colorPrimary: {
+          backgroundColor: colors.green[500],
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: colors.green[700],
+          },
+        },
+        colorSecondary: {
+          backgroundColor: 'transparent',
+          border: `2px solid ${colors.green[500]}`,
+          color: colors.green[500],
+          '&:hover': {
+            backgroundColor: 'transparent',
+            borderColor: colors.green[700],
+            color: colors.green[700],
           },
         },
       },
@@ -170,10 +418,87 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 8,
-            '&.Mui-focused fieldset': {
-              borderColor: colors.primary.main,
+            borderRadius: 12, // Match Figma rounded-xl
+            backgroundColor: '#fff',
+            '& fieldset': {
+              borderColor: colors.neutral[200], // #d9d9de (default border)
               borderWidth: 2,
+            },
+            '&:hover fieldset': {
+              borderColor: colors.neutral[300], // #b8b9c1 (hover border)
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: colors.green[500], // #36b15e (focused/success border)
+              borderWidth: 2,
+            },
+            '&.Mui-error fieldset': {
+              borderColor: colors.coolRed[500], // #ec4751 (error border)
+            },
+            '&.Mui-disabled': {
+              backgroundColor: colors.neutral[100], // #eeeef0
+              '& fieldset': {
+                borderColor: colors.neutral[200], // #d9d9de
+              },
+            },
+          },
+          '& .MuiInputLabel-root': {
+            color: colors.neutral[700], // #4c4d58
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            marginBottom: '8px',
+            '&.Mui-focused': {
+              color: colors.green[500],
+            },
+            '&.Mui-error': {
+              color: colors.coolRed[500],
+            },
+            '&.Mui-disabled': {
+              color: colors.neutral[400], // #91939f
+            },
+          },
+          '& .MuiInputBase-input': {
+            padding: '12px 16px',
+            fontSize: '1rem',
+            color: colors.neutral[900], // #393941
+            '&::placeholder': {
+              color: colors.neutral[400], // #91939f
+              opacity: 1,
+            },
+            '&.Mui-disabled': {
+              color: colors.neutral[400], // #91939f
+              WebkitTextFillColor: colors.neutral[400],
+            },
+          },
+          '& .MuiFormHelperText-root': {
+            marginTop: '8px',
+            fontSize: '0.875rem',
+            '&.Mui-error': {
+              color: colors.coolRed[500], // #ec4751
+            },
+          },
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginTop: '8px',
+          fontSize: '0.875rem',
+          '&.Mui-error': {
+            color: colors.coolRed[500], // #ec4751
+          },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focused': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: colors.green[500], // Success/focused state
             },
           },
         },
@@ -184,6 +509,43 @@ const theme = createTheme({
         root: {
           borderRadius: 12,
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: `1px solid ${colors.neutral[200]}`, // #d9d9de
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4, // Slightly rounded corners
+          padding: '8px',
+          color: colors.neutral[300], // #b8b9c1
+          '&.Mui-checked': {
+            color: colors.green[500], // #36b15e
+            '&:hover': {
+              backgroundColor: `${colors.green[50]}33`, // Light green with opacity
+            },
+          },
+          '&:hover': {
+            backgroundColor: `${colors.neutral[100]}33`, // Light gray with opacity
+          },
+          '&.Mui-disabled': {
+            color: colors.neutral[200], // #d9d9de
+            backgroundColor: colors.neutral[100], // #eeeef0
+          },
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        root: {
+          '& .MuiBackdrop-root': {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+          },
+        },
+        paper: {
+          borderRadius: 12,
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         },
       },
     },

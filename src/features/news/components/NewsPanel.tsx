@@ -17,13 +17,13 @@ import {
   Alert,
   AlertTitle,
   Button,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import VirtualizedList from '@/shared/components/shared/VirtualizedList';
 import { NewReleases, AccessTime, ErrorOutline, ExpandMore, ExpandLess } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { cn } from '@/shared/lib/utils';
-import { getCategoryColorClass } from '@/shared/constants/color-tokens';
 import type { NewsItem } from '../model/types';
 
 // Extend dayjs with relative time plugin
@@ -82,8 +82,41 @@ const NewsItemComponent: React.FC<{
     return dayjs(news.timestamp).fromNow();
   }, [news.timestamp]);
 
-  const getCategoryColor = (category: string) => {
-    return getCategoryColorClass(category);
+  const getCategoryVariant = (
+    category: string
+  ): 'error' | 'warning' | 'info' | 'success' | 'neutral' => {
+    const key = (category || '').trim().toLowerCase();
+    if (key.includes('breaking')) return 'error';
+    if (key.includes('transfer')) return 'warning';
+    if (key.includes('match')) return 'info';
+    if (key.includes('analysis') || key.includes('prediction')) return 'success';
+    return 'neutral';
+  };
+
+  const categoryChipSx: SxProps<Theme> = (theme) => {
+    const v = getCategoryVariant(news.category);
+    const base = {
+      fontWeight: 600,
+      border: '1px solid',
+    } as const;
+
+    switch (v) {
+      case 'error':
+        return { ...base, bgcolor: theme.palette.error.light, color: theme.palette.error.dark, borderColor: theme.palette.error.main };
+      case 'warning':
+        return { ...base, bgcolor: theme.palette.warning.light, color: theme.palette.warning.dark, borderColor: theme.palette.warning.main };
+      case 'info':
+        return { ...base, bgcolor: theme.palette.info.light, color: theme.palette.info.dark, borderColor: theme.palette.info.main };
+      case 'success':
+        return { ...base, bgcolor: theme.palette.success.light, color: theme.palette.success.dark, borderColor: theme.palette.success.main };
+      default:
+        return {
+          ...base,
+          bgcolor: theme.palette.neutral[100],
+          color: theme.palette.neutral[800],
+          borderColor: theme.palette.neutral[200],
+        };
+    }
   };
 
   // Truncate content for preview
@@ -94,60 +127,113 @@ const NewsItemComponent: React.FC<{
 
   return (
     <Box sx={{ transition: 'opacity 0.2s' }}>
-      <Paper className="mb-4 hover:shadow-lg transition-shadow duration-300" elevation={1}>
-        <ListItem className="flex flex-col p-0">
+      <Paper
+        sx={{
+          mb: 2,
+          '&:hover': {
+            boxShadow: 3,
+          },
+          transition: 'box-shadow 0.3s',
+        }}
+        elevation={1}
+      >
+        <ListItem sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
           {/* Header */}
-          <Box className="w-full p-4 border-b border-gray-200">
-            <Box className="flex justify-between items-start mb-2">
+          <Box
+            sx={{
+              width: '100%',
+              p: 2,
+              borderBottom: '1px solid',
+              borderColor: 'neutral.200',
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Chip
                 label={news.category.toUpperCase()}
                 size="small"
-                className={`${getCategoryColor(news.category)} font-medium`}
+                sx={categoryChipSx}
               />
               {news.isBreaking && (
                 <Chip
                   icon={<NewReleases fontSize="small" />}
                   label="BREAKING"
                   size="small"
-                  className="bg-red-100 text-red-800 border border-red-300 ml-2"
+                  sx={{
+                    bgcolor: 'error.light',
+                    color: 'error.dark',
+                    border: '1px solid',
+                    borderColor: 'error.main',
+                    ml: 1,
+                  }}
                 />
               )}
             </Box>
 
             <Typography
               variant="h6"
-              className={cn(
-                'font-semibold text-gray-900 mb-2',
-                'text-sm sm:text-base',
-                'line-clamp-2'
-              )}
+              sx={{
+                fontWeight: 600,
+                color: 'text.primary',
+                mb: 1,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
             >
               {news.title}
             </Typography>
 
             <Box
-              className={cn(
-                'flex flex-col sm:flex-row',
-                'justify-between items-start sm:items-center',
-                'gap-1 sm:gap-0'
-              )}
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                gap: { xs: 0.5, sm: 0 },
+              }}
             >
               <Typography
                 variant="caption"
-                className={cn('text-gray-500', 'text-xs', 'flex items-center gap-1')}
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
               >
-                {news.author && <span className="hidden sm:inline">{news.author} • </span>}
-                <AccessTime fontSize="small" className="inline" />
+                {news.author && (
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {news.author} •{' '}
+                  </Box>
+                )}
+                <AccessTime fontSize="small" />
                 <span>{formattedTime}</span>
               </Typography>
             </Box>
           </Box>
 
           {/* Content */}
-          <Box className={cn('w-full p-3 sm:p-4', 'flex-1')}>
+          <Box
+            sx={{
+              width: '100%',
+              p: { xs: 1.5, sm: 2 },
+              flex: 1,
+            }}
+          >
             <Typography
               variant="body2"
-              className={cn('text-gray-700 mb-3', 'text-xs sm:text-sm', 'line-clamp-3')}
+              sx={{
+                color: 'text.primary',
+                mb: 1.5,
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                display: '-webkit-box',
+                WebkitLineClamp: expanded ? 'none' : 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
             >
               {displayContent}
               {shouldTruncate && !expanded && '...'}
@@ -158,7 +244,11 @@ const NewsItemComponent: React.FC<{
                 size="small"
                 onClick={() => setExpanded(!expanded)}
                 endIcon={expanded ? <ExpandLess /> : <ExpandMore />}
-                className="normal-case text-blue-600 hover:text-blue-800"
+                sx={{
+                  textTransform: 'none',
+                  color: 'info.main',
+                  '&:hover': { color: 'info.dark', bgcolor: 'transparent' },
+                }}
               >
                 {expanded ? 'Read Less' : 'Read More'}
               </Button>
@@ -166,14 +256,24 @@ const NewsItemComponent: React.FC<{
 
             {/* Tags */}
             {news.tags && news.tags.length > 0 && (
-              <Box className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-gray-100">
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 0.5,
+                  mt: 1.5,
+                  pt: 1.5,
+                  borderTop: '1px solid',
+                  borderColor: 'neutral.100',
+                }}
+              >
                 {news.tags.map((tag, idx) => (
                   <Chip
                     key={idx}
                     label={`#${tag}`}
                     size="small"
                     variant="outlined"
-                    className="text-gray-500 border-gray-300"
+                    sx={{ color: 'text.secondary', borderColor: 'neutral.300' }}
                   />
                 ))}
               </Box>
@@ -186,10 +286,10 @@ const NewsItemComponent: React.FC<{
 };
 
 const LoadingSkeleton: React.FC = () => (
-  <Box className="space-y-4">
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
     {Array.from({ length: 3 }).map((_, i) => (
-      <Paper key={i} className="p-4" elevation={1}>
-        <Box className="space-y-3">
+      <Paper key={i} sx={{ p: 2 }} elevation={1}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Skeleton variant="rectangular" width={80} height={24} />
           <Skeleton variant="text" width="100%" height={28} />
           <Skeleton variant="text" width="60%" height={20} />
@@ -238,10 +338,23 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
 
   if (isLoading) {
     return (
-      <Paper className="p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 w-full">
+      <Paper
+        sx={{
+          p: { xs: 2, sm: 2.5, md: 3 },
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'neutral.200',
+          width: '100%',
+        }}
+      >
         <Typography
           variant="h6"
-          className={cn('font-bold text-gray-800 mb-4', 'text-base sm:text-lg')}
+          sx={{
+            fontWeight: 700,
+            color: 'text.primary',
+            mb: 2,
+            fontSize: { xs: '1rem', sm: '1.125rem' },
+          }}
         >
           {getPanelTitle}
         </Typography>
@@ -252,7 +365,15 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
 
   if (isError) {
     return (
-      <Paper className="p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 w-full">
+      <Paper
+        sx={{
+          p: { xs: 2, sm: 2.5, md: 3 },
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'neutral.200',
+          width: '100%',
+        }}
+      >
         <Alert severity="error" icon={<ErrorOutline />}>
           <AlertTitle>Failed to load news</AlertTitle>
           {errorMessage || 'An error occurred while loading news.'}
@@ -263,20 +384,47 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
 
   if (filteredNews.length === 0) {
     return (
-      <Paper className="p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 w-full">
+      <Paper
+        sx={{
+          p: { xs: 2, sm: 2.5, md: 3 },
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'neutral.200',
+          width: '100%',
+        }}
+      >
         <Typography
           variant="h6"
-          className={cn('font-bold text-gray-800 mb-4', 'text-base sm:text-lg')}
+          sx={{
+            fontWeight: 700,
+            color: 'text.primary',
+            mb: 2,
+            fontSize: { xs: '1rem', sm: '1.125rem' },
+          }}
         >
           {getPanelTitle}
         </Typography>
-        <Box className="text-center py-6 sm:py-8">
-          <NewReleases className="text-gray-300 text-4xl sm:text-5xl mx-auto mb-4" />
-          <Typography variant="body1" className={cn('text-gray-500 mb-2', 'text-sm sm:text-base')}>
+        <Box sx={{ textAlign: 'center', py: { xs: 3, sm: 4 } }}>
+          <NewReleases
+            sx={{
+              color: 'neutral.300',
+              fontSize: { xs: '2.25rem', sm: '3rem' },
+              mx: 'auto',
+              mb: 2,
+            }}
+          />
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'text.secondary',
+              mb: 1,
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+            }}
+          >
             No news available
           </Typography>
           {selectedSport !== 'all' && (
-            <Typography variant="caption" className="text-gray-400">
+            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
               Try selecting &quot;All&quot; sports
             </Typography>
           )}
@@ -286,9 +434,24 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
   }
 
   return (
-    <Paper className={cn('rounded-xl border border-gray-200 overflow-hidden', 'w-full')}>
+    <Paper
+      sx={{
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'neutral.200',
+        overflow: 'hidden',
+        width: '100%',
+      }}
+    >
       {/* Header */}
-      <Box className={cn('p-3 sm:p-4', 'border-b border-gray-200 bg-gray-50')}>
+      <Box
+        sx={{
+          p: { xs: 1.5, sm: 2 },
+          borderBottom: '1px solid',
+          borderColor: 'neutral.200',
+          bgcolor: 'neutral.50',
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -300,7 +463,11 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
         >
           <Typography
             variant="h6"
-            sx={{ fontWeight: 'bold', color: 'text.primary', fontSize: { xs: '1rem', sm: '1.125rem' } }}
+            sx={{
+              fontWeight: 700,
+              color: 'text.primary',
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+            }}
           >
             {getPanelTitle}
           </Typography>
@@ -311,7 +478,7 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
                 size="small"
                 color="warning"
                 variant="outlined"
-                className="text-xs"
+                sx={{ fontSize: '0.75rem' }}
               />
             )}
             <Chip
@@ -319,7 +486,7 @@ const NewsPanel: React.FC<NewsPanelProps> = ({
               size="small"
               color="primary"
               variant="outlined"
-              className="text-xs"
+              sx={{ fontSize: '0.75rem' }}
             />
           </Box>
         </Box>

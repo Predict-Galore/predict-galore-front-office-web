@@ -1,298 +1,88 @@
 /**
  * Notifications API Hooks
- * TanStack Query hooks for notifications
+ * Mock implementation for development
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useQueryClient as useReactQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { NotificationService } from './service';
-import type {
-  Notification,
-  NotificationFilter,
-  NotificationResponse,
-  UnreadCountResponse,
-} from './types';
-/**
- * Get auth token helper
- */
-function getAuthTokenHelper(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    return localStorage.getItem('auth-token');
-  } catch {
-    return null;
-  }
+import { useQuery } from '@tanstack/react-query';
+
+export interface NotificationItem {
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  title: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
+  avatar?: string;
+  actionUrl?: string;
 }
 
-/**
- * Socket.IO Manager for notifications
- */
-class NotificationSocketManager {
-  private socket: Socket | null = null;
-  private listeners = new Map<string, ((data: unknown) => void)[]>();
-  private isConnected = false;
-
-  connect(): void {
-    if (this.socket?.connected || typeof window === 'undefined') return;
-
-    const token = getAuthTokenHelper();
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000';
-
-    this.socket = io(socketUrl, {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      auth: token ? { token } : {},
-      autoConnect: true,
-    });
-
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
-    if (!this.socket) return;
-
-    this.socket.on('connect', () => {
-      this.isConnected = true;
-    });
-
-    this.socket.on('disconnect', () => {
-      this.isConnected = false;
-    });
-
-    this.socket.on('notification:new', (notification: Notification) => {
-      this.emit('notification:new', notification);
-    });
-
-    this.socket.on('notification:read', (data: { id: number }) => {
-      this.emit('notification:read', data);
-    });
-
-    this.socket.on('notification:delete', (data: { id: number }) => {
-      this.emit('notification:delete', data);
-    });
-  }
-
-  on(event: string, callback: (data: unknown) => void): void {
-    const currentListeners = this.listeners.get(event) || [];
-    currentListeners.push(callback);
-    this.listeners.set(event, currentListeners);
-  }
-
-  off(event: string, callback: (data: unknown) => void): void {
-    const currentListeners = this.listeners.get(event) || [];
-    const filteredListeners = currentListeners.filter((cb) => cb !== callback);
-    this.listeners.set(event, filteredListeners);
-  }
-
-  private emit(event: string, data: unknown): void {
-    const listeners = this.listeners.get(event) || [];
-    listeners.forEach((callback) => callback(data));
-  }
-
-  disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-      this.isConnected = false;
-    }
-  }
-
-  get connected(): boolean {
-    return this.isConnected;
-  }
+interface NotificationsQueryParams {
+  page: number;
+  pageSize: number;
 }
 
-const socketManager = new NotificationSocketManager();
+// Mock notifications data
+const mockNotifications: NotificationItem[] = [
+  {
+    id: '1',
+    type: 'success',
+    title: 'Prediction Successful',
+    message: 'Your prediction for Arsenal vs Chelsea was successful! You earned 50 points.',
+    timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+    isRead: false,
+  },
+  {
+    id: '2',
+    type: 'info',
+    title: 'Match Starting Soon',
+    message: 'Manchester United vs Liverpool starts in 30 minutes. Don\'t forget to place your predictions!',
+    timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
+    isRead: false,
+  },
+  {
+    id: '3',
+    type: 'warning',
+    title: 'Subscription Expiring',
+    message: 'Your premium subscription expires in 3 days. Renew now to continue enjoying premium features.',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    isRead: true,
+  },
+  {
+    id: '4',
+    type: 'info',
+    title: 'Weekly Report Ready',
+    message: 'Your weekly prediction report is now available. Check your performance stats.',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    isRead: true,
+  },
+];
 
-// Get notifications hook
-export function useNotifications(filters?: NotificationFilter) {
+export const useNotificationsQuery = (params: NotificationsQueryParams) => {
   return useQuery({
-    queryKey: ['notifications', filters],
-    queryFn: () => NotificationService.getNotifications(filters),
-    staleTime: 60 * 1000, // 1 minute
-    retry: 1,
-    enabled: typeof window !== 'undefined',
+    queryKey: ['notifications', params],
+    queryFn: async () => {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Return paginated results
+      const start = (params.page - 1) * params.pageSize;
+      const end = start + params.pageSize;
+      return mockNotifications.slice(start, end);
+    },
+    staleTime: 30000, // 30 seconds
   });
-}
+};
 
-// Get unread count hook
-export function useUnreadCount() {
+export const useUnreadCount = () => {
   return useQuery({
     queryKey: ['notifications', 'unread-count'],
-    queryFn: () => NotificationService.getUnreadCount(),
-    refetchInterval: 30 * 1000, // 30 seconds
-    staleTime: 60 * 1000,
-    enabled: typeof window !== 'undefined',
+    queryFn: async () => {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const unreadCount = mockNotifications.filter(n => !n.isRead).length;
+      return { unreadCount };
+    },
+    staleTime: 30000, // 30 seconds
   });
-}
-
-// Mark as read hook
-export function useMarkAsRead() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => NotificationService.markAsRead(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: ['notifications'] });
-
-      const previousNotifications = queryClient.getQueryData<NotificationResponse>([
-        'notifications',
-      ]);
-
-      if (previousNotifications) {
-        queryClient.setQueryData<NotificationResponse | undefined>(['notifications'], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            items: old.items.map((item: Notification) =>
-              item.id === id ? { ...item, isRead: true } : item
-            ),
-          };
-        });
-      }
-
-      queryClient.setQueryData<UnreadCountResponse | undefined>(
-        ['notifications', 'unread-count'],
-        (old) => {
-          if (!old) return old;
-          return { unreadCount: Math.max(0, old.unreadCount - 1) };
-        }
-      );
-
-      return { previousNotifications };
-    },
-    onError: (_error, _id, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(['notifications'], context.previousNotifications);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    },
-  });
-}
-
-// Mark all as read hook
-export function useMarkAllAsRead() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => NotificationService.markAllAsRead(),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['notifications'] });
-
-      const previousNotifications = queryClient.getQueryData<NotificationResponse>([
-        'notifications',
-      ]);
-
-      if (previousNotifications) {
-        queryClient.setQueryData<NotificationResponse | undefined>(['notifications'], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            items: old.items.map((item: Notification) => ({ ...item, isRead: true })),
-          };
-        });
-      }
-
-      queryClient.setQueryData<UnreadCountResponse>(['notifications', 'unread-count'], () => ({
-        unreadCount: 0,
-      }));
-
-      return { previousNotifications };
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    },
-  });
-}
-
-// Delete notification hook
-export function useDeleteNotification() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => NotificationService.deleteNotification(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: ['notifications'] });
-
-      const previousNotifications = queryClient.getQueryData<NotificationResponse>([
-        'notifications',
-      ]);
-      const previousCount = queryClient.getQueryData<UnreadCountResponse>([
-        'notifications',
-        'unread-count',
-      ]);
-
-      if (previousNotifications) {
-        const notificationToDelete = previousNotifications.items.find((item) => item.id === id);
-        const wasUnread = notificationToDelete?.isRead === false;
-
-        queryClient.setQueryData<NotificationResponse | undefined>(['notifications'], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            items: old.items.filter((item: Notification) => item.id !== id),
-            total: old.total - 1,
-          };
-        });
-
-        if (wasUnread && previousCount) {
-          queryClient.setQueryData<UnreadCountResponse>(['notifications', 'unread-count'], {
-            unreadCount: Math.max(0, previousCount.unreadCount - 1),
-          });
-        }
-      }
-
-      return { previousNotifications, previousCount };
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    },
-  });
-}
-
-// Socket.IO hook
-export function useNotificationSocket(onNewNotification?: (notification: Notification) => void) {
-  const queryClient = useReactQueryClient();
-
-  useEffect(() => {
-    socketManager.connect();
-
-    const handleNewNotification = (notification: unknown) => {
-      const newNotification = notification as Notification;
-
-      queryClient.setQueryData<NotificationResponse | undefined>(['notifications'], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: [newNotification, ...old.items],
-          total: old.total + 1,
-        };
-      });
-
-      queryClient.setQueryData<UnreadCountResponse | undefined>(
-        ['notifications', 'unread-count'],
-        (old) => {
-          if (!old) return { unreadCount: 1 };
-          return { unreadCount: old.unreadCount + 1 };
-        }
-      );
-
-      onNewNotification?.(newNotification);
-    };
-
-    socketManager.on('notification:new', handleNewNotification);
-
-    return () => {
-      socketManager.off('notification:new', handleNewNotification);
-    };
-  }, [queryClient, onNewNotification]);
-
-  return {
-    isConnected: socketManager.connected,
-    disconnect: () => socketManager.disconnect(),
-  };
-}
+};

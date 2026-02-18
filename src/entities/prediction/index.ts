@@ -1,0 +1,17 @@
+/**
+ * PREDICTION ENTITY - Main Export
+ * 
+ * Centralized exports for Prediction entity
+ */
+
+// Types
+export * from './model/types';
+
+// Validation schemas
+export * from './model/schemas';
+
+// Transformers
+export * from './model/transformers';
+
+// Utilities
+export * from './model/utils';

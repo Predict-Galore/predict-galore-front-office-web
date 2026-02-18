@@ -23,10 +23,12 @@ export interface NewsItem {
   category: string;
   sport?: string;
   author?: string;
+  source?: string;
   publishedAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  externalUrl?: string;
   tags?: string[];
   viewCount?: number;
   likeCount?: number;

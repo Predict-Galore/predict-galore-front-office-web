@@ -8,7 +8,6 @@
 
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { cn } from '@/shared/lib/utils';
 
 interface EmptyStateProps {
   title: string;
@@ -21,18 +20,34 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({ title, description, icon, action, className }) => {
   return (
     <Box
-      className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}
+      className={className}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 6,
+        px: 2,
+        textAlign: 'center',
+      }}
       role="status"
       aria-live="polite"
     >
-      {icon && <Box className="mb-6">{icon}</Box>}
-      <Typography variant="h6" className="text-gray-700 mb-2">
+      {icon && <Box sx={{ mb: 3 }}>{icon}</Box>}
+      <Typography variant="h6" sx={{ color: 'text.primary', mb: 1 }}>
         {title}
       </Typography>
-      <Typography variant="body2" className="text-gray-500 mb-4 max-w-md">
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 2,
+          maxWidth: '28rem',
+        }}
+      >
         {description}
       </Typography>
-      {action && <Box className="mt-2">{action}</Box>}
+      {action && <Box sx={{ mt: 1 }}>{action}</Box>}
     </Box>
   );
 };

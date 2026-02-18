@@ -7,35 +7,33 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import {
-  Box,
-  Button,
-  Switch,
-  TextField,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
   IconButton,
-  Stack,
   Typography,
-  Divider,
-  Paper,
+  Box,
+  Stack,
+  Switch,
 } from '@mui/material';
+import {
+  CheckCircle,
+  Lock,
+  Info,
+} from 'lucide-react';
 import {
   Close,
   Visibility,
   VisibilityOff,
-  CheckCircle,
-  Lock,
-  InfoOutlined,
 } from '@mui/icons-material';
 import {
   useChangePassword,
   useToggleTwoFactorAuth,
   useNotificationSettings,
 } from '@/features/profile';
-import { cn } from '@/shared/lib/utils';
-import { buttonColors } from '@/shared/constants/color-tokens';
+import { Button, Alert } from '@/shared/components/ui';
 
 const SettingsTab: React.FC = () => {
   const { data: notificationSettings } = useNotificationSettings();
@@ -126,39 +124,21 @@ const SettingsTab: React.FC = () => {
   );
 
   return (
-    <Stack spacing={3}>
+    <div className="space-y-6">
       {showSuccessMessage && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            borderRadius: 3,
-            border: '2px solid #22c55e',
-            bgcolor: '#ecfdf3',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 2,
-          }}
+        <Alert
+          variant="success"
+          onClose={() => setShowSuccessMessage(false)}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <InfoOutlined sx={{ color: '#22c55e' }} />
-            <Typography sx={{ color: '#15803d', fontWeight: 700 }}>
-              Password Changed successfully
-            </Typography>
-          </Box>
-          <IconButton
-            size="small"
-            onClick={() => setShowSuccessMessage(false)}
-            sx={{ color: '#15803d' }}
-          >
-            <Close />
-          </IconButton>
-        </Paper>
+          <div className="flex items-center gap-2">
+            <Info className="w-5 h-5" />
+            <span className="font-bold">Password Changed successfully</span>
+          </div>
+        </Alert>
       )}
 
-      <Paper elevation={0} sx={{ p: 0, borderRadius: 2, overflow: 'hidden' }}>
-        <Stack divider={<Divider />}>
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="divide-y divide-gray-200">
           <RowWithButton
             title="Change Your Password"
             buttonLabel="Change"
@@ -174,18 +154,18 @@ const SettingsTab: React.FC = () => {
             checked={quoteboardEnabled}
             onChange={(val) => setQuoteboardEnabled(val)}
           />
-        </Stack>
-      </Paper>
+        </div>
+      </div>
 
-      <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}>
-        <Stack spacing={2}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-gray-900">
             Notification
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+          </h3>
+          <p className="text-sm text-gray-600">
             Get notifications to find out what&apos;s going on when you&apos;re not in app. You can
             turn them off anytime.
-          </Typography>
+          </p>
 
           <NotifyGroup
             title="Prediction Insights"
@@ -207,8 +187,8 @@ const SettingsTab: React.FC = () => {
             state={newsAlerts}
             onChange={setNewsAlerts}
           />
-        </Stack>
-      </Paper>
+        </div>
+      </div>
 
       {/* Change Password Dialog */}
       <Dialog
@@ -221,7 +201,7 @@ const SettingsTab: React.FC = () => {
         }}
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
             Change Password
           </Typography>
           <IconButton onClick={() => setIsPasswordDialogOpen(false)}>
@@ -321,7 +301,7 @@ const SettingsTab: React.FC = () => {
           <Button onClick={() => setIsPasswordDialogOpen(false)}>Cancel</Button>
           <Button
             onClick={handleChangePassword}
-            variant="contained"
+            variant="primary"
             disabled={
               isChangingPassword ||
               !oldPassword ||
@@ -329,13 +309,13 @@ const SettingsTab: React.FC = () => {
               !confirmPassword ||
               !passwordsMatch
             }
-            className={cn('normal-case', buttonColors.primary.bg, buttonColors.primary.text)}
+            className="normal-case bg-green-600 text-white hover:bg-green-700"
           >
             {isChangingPassword ? 'Changing...' : 'Change Password'}
           </Button>
         </DialogActions>
       </Dialog>
-    </Stack>
+    </div>
   );
 };
 
@@ -362,16 +342,17 @@ const RowWithButton: React.FC<RowWithButtonProps> = ({ title, buttonLabel, onCli
     </Typography>
     <Button
       onClick={onClick}
-      variant="outlined"
+      variant="outline"
       sx={{
         textTransform: 'none',
         fontWeight: 700,
-        color: '#19910c',
-        borderColor: '#19910c',
         borderWidth: 2,
         px: 3,
         borderRadius: 2,
-        '&:hover': { bgcolor: '#e8f7e5', borderColor: '#15830a' },
+        '&:hover': {
+          borderWidth: 2,
+          bgcolor: 'green.50',
+        },
       }}
     >
       {buttonLabel}

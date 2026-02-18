@@ -17,14 +17,13 @@ interface LiveLeagueSectionProps {
   leagueName: string;
   matches: Match[];
   onMatchClick?: (match: Match) => void;
-  className?: string;
 }
 
 const LiveLeagueSection: React.FC<LiveLeagueSectionProps> = ({
   leagueName,
   matches,
   onMatchClick,
-  className,
+  // className,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -42,11 +41,10 @@ const LiveLeagueSection: React.FC<LiveLeagueSectionProps> = ({
       elevation={0}
       sx={{
         mb: 2.5,
-        borderRadius: 3,
+
         border: '1px solid',
         borderColor: 'grey.200',
         overflow: 'hidden',
-        ...className,
       }}
     >
       <Box

@@ -4,8 +4,21 @@
  * Centralized configuration for API endpoints and settings
  */
 
+/**
+ * Use same-origin (empty string) by default so browser requests go to this app
+ * and Next.js rewrites proxy them to the backend — avoids CORS when API is on another domain.
+ * Set NEXT_PUBLIC_API_URL to the full API base (e.g. https://apidev.predictgalore.com) only if
+ * the backend allows your frontend origin in CORS.
+ */
+const getApiBaseUrl = (): string => {
+  const url = process.env.NEXT_PUBLIC_API_URL ?? '';
+  return url.trim() || '';
+};
+
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://apidev.predictgalore.com',
+  get BASE_URL(): string {
+    return getApiBaseUrl();
+  },
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 2,
   RETRY_DELAY: 1000, // 1 second
@@ -35,19 +48,22 @@ export const API_ENDPOINTS = {
     LEAGUE: (leagueId: number) => `/api/v1/livescores/league/${leagueId}`,
   },
 
-  // Predictions endpoints
+  // Predictions endpoints (backend: /api/v1/prediction)
   PREDICTIONS: {
     SPORTS: '/api/v1/sports',
     LEAGUES: (sportId: number) => `/api/v1/predictions/leagues?sportId=${sportId}`,
-    MATCHES: (sportId?: number, leagueId?: number) => {
-      const params = new URLSearchParams();
-      if (sportId) params.append('sportId', String(sportId));
-      if (leagueId) params.append('leagueId', String(leagueId));
-      return `/api/v1/predictions/matches?${params.toString()}`;
-    },
-    DETAIL: (matchId: number) => `/api/v1/predictions/matches/${matchId}`,
+    /** List predictions: query params sportId, leagueId, page, pageSize */
+    LIST: '/api/v1/prediction',
+    /** Get prediction by id (includes picks) */
+    BY_ID: (id: number) => `/api/v1/prediction/${id}`,
+    /** Get prediction for a selected match */
+    MATCH: (matchId: number) => `/api/v1/prediction/matches/${matchId}`,
     ODDS: (matchId: number) => `/api/v1/predictions/matches/${matchId}/odds`,
-    LEAGUE_TABLE: (leagueId: number) => `/api/v1/predictions/leagues/${leagueId}/table`,
+  },
+
+  // League table (backend: /api/v1/leagues/leagues/{leagueId}/table)
+  LEAGUES: {
+    TABLE: (leagueId: number) => `/api/v1/leagues/leagues/${leagueId}/table`,
   },
 
   // News endpoints

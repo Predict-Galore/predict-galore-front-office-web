@@ -50,6 +50,10 @@ export interface Prediction {
     draw: number;
     away: number;
   };
+  // Additional fields from backend
+  picksCount?: number;
+  accuracy?: number;
+  match?: string; // For simplified format: "Team A vs Team B"
 }
 
 export interface PredictionFilter {
@@ -57,9 +61,6 @@ export interface PredictionFilter {
   leagueId?: number;
   page?: number;
   pageSize?: number;
-  fromUtc?: string;
-  toUtc?: string;
-  status?: string;
 }
 
 export interface PredictionPagination {
@@ -111,6 +112,7 @@ export interface PlayerStats {
   name: string;
   position: string;
   rating: number;
+  playerImage?: string;
   age: number;
   height: string;
   weight: string;
@@ -202,5 +204,6 @@ export interface LeagueTableEntry {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  form?: string[];
   qualification?: 'champions-league' | 'europa-league' | 'relegation';
 }

@@ -5,19 +5,19 @@
 // React Query keys
 export const searchKeys = {
   all: ['search'] as const,
-  search: (query: string, type?: string, page?: number) =>
-    [...searchKeys.all, 'query', query, type, page] as const,
-  popular: (country?: string) => [...searchKeys.all, 'popular', country] as const,
+  search: (query: string, limit?: number) =>
+    [...searchKeys.all, 'query', query, limit] as const,
 };
 
 // Service
 export { SearchService } from './service';
 
 // Hooks
-export { useSearchQuery, usePopularItemsQuery, useSearchMutation } from './hooks';
+export { useSearchQuery } from './hooks';
 
 // Types
-export type { SearchRequest, BackendSearchResponse, PopularItemsResponse } from './types';
-
-// Re-export SearchResponse with alias to avoid conflict with model types
-export type { SearchResponse as SearchApiResponse } from './types';
+export type {
+  SearchRequest,
+  BackendSearchResponse,
+  SearchResponse,
+} from './types';

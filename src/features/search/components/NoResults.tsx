@@ -15,7 +15,17 @@ interface NoResultsProps {
 
 const NoResults: React.FC<NoResultsProps> = ({ query, className }) => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 6, px: 2, ...className }}>
+    <Box
+      className={className}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 6,
+        px: 2,
+      }}
+    >
       {/* Sad Emoji */}
       <Box sx={{ fontSize: '4rem', mb: 2 }}>😔</Box>
 
