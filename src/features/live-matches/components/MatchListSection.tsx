@@ -1,72 +1,217 @@
 /**
  * Match List Section Component
- * Matches Figma UI design - Shows matches grouped by competition
+ * Displays matches grouped by competition with collapsible sections
+ * 
+ * This component shows:
+ * - Competition header with logo and name
+ * - List of matches with team logos, names, and scores
+ * - Match status badges (FT, HT, ET, Live, Vs)
+ * - Collapsible/expandable competition sections
  */
 
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { KeyboardArrowUp, KeyboardArrowDown } from '@mui/icons-material';
-import { Box, Typography, IconButton, Paper, Avatar, Chip } from '@mui/material';
+import {
+  Box,
+  Typography,
+  IconButton,
+  Paper,
+  Avatar,
+  Chip,
+  Stack,
+  Collapse,
+  Divider,
+} from '@mui/material';
+import {
+  KeyboardArrowUp,
+  KeyboardArrowDown,
+  SportsSoccer,
+} from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { Match, CompetitionGroup } from '../model/types';
+
+// ==================== TYPES ====================
 
 interface MatchListSectionProps {
   competition: CompetitionGroup;
   onSelectMatch?: (match: Match) => void;
 }
 
-const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSelectMatch }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const router = useRouter();
+// ==================== CONSTANTS ====================
 
-  // Competition logos from local assets
-  const competitionLogos = useMemo(
-    () => ({
-      'Premier League': '/leagues/premier-league.svg',
-      'La Liga': '/leagues/la-liga.svg',
-      'Serie A': '/leagues/serie-a.svg',
-      Bundesliga: '/leagues/bundesliga.svg',
-      'UEFA Champions League': '/leagues/champions-league.svg',
-      'Italian Serie A': '/leagues/serie-a.svg',
-    }),
-    []
+/**
+ * Competition logo mapping
+ * Maps competition names to their logo paths
+ */
+const COMPETITION_LOGOS: Record<string, string> = {
+  'Premier League': '/leagues/premier-league.svg',
+  'La Liga': '/leagues/la-liga.svg',
+  'Serie A': '/leagues/serie-a.svg',
+  'Bundesliga': '/leagues/bundesliga.svg',
+  'UEFA Champions League': '/leagues/champions-league.svg',
+  'Italian Serie A': '/leagues/serie-a.svg',
+};
+
+/**
+ * Status badge configuration
+ * Defines styling for different match statuses
+ */
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; bgcolor: string; color: string }
+> = {
+  FT: { label: 'FT', bgcolor: 'success.50', color: 'success.dark' },
+  HT: { label: 'HT', bgcolor: 'grey.100', color: 'grey.700' },
+  ET: { label: 'ET', bgcolor: 'error.50', color: 'error.dark' },
+  Live: { label: 'Live', bgcolor: 'error.50', color: 'error.dark' },
+  Prediction: { label: 'Vs', bgcolor: 'transparent', color: 'text.primary' },
+};
+
+// ==================== HELPER COMPONENTS ====================
+
+/**
+ * Competition Logo Component
+ * Displays competition logo or fallback initials
+ */
+interface CompetitionLogoProps {
+  name: string;
+  logoUrl?: string;
+}
+
+const CompetitionLogo: React.FC<CompetitionLogoProps> = ({ name, logoUrl }) => {
+  if (logoUrl) {
+    return (
+      <Avatar
+        src={logoUrl}
+        alt={name}
+        sx={{ width: 32, height: 32 }}
+      />
+    );
+  }
+
+  // Fallback: Show initials
+  const initials = name.substring(0, 2).toUpperCase();
+  return (
+    <Avatar
+      sx={{
+        width: 32,
+        height: 32,
+        bgcolor: 'grey.100',
+        color: 'grey.700',
+        fontSize: '0.75rem',
+        fontWeight: 700,
+      }}
+    >
+      {initials}
+    </Avatar>
+  );
+};
+
+/**
+ * Match Status Badge Component
+ * Displays match status with appropriate styling
+ */
+interface StatusBadgeProps {
+  status: string;
+}
+
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.Prediction;
+
+  return (
+    <Chip
+      label={config.label}
+      sx={{
+        height: 32,
+        minWidth: 44,
+        bgcolor: config.bgcolor,
+        color: config.color,
+        fontWeight: 600,
+        fontSize: '0.8125rem',
+        borderRadius: 2,
+        '& .MuiChip-label': {
+          px: 1.5,
+        },
+      }}
+    />
+  );
+};
+
+/**
+ * Empty State Component
+ * Shown when no matches are available
+ */
+const EmptyState: React.FC = () => (
+  <Box sx={{ py: 6, textAlign: 'center' }}>
+    <SportsSoccer sx={{ fontSize: 48, color: 'grey.300', mb: 2 }} />
+    <Typography variant="body2" color="text.secondary">
+      No matches in this competition
+    </Typography>
+  </Box>
+);
+
+// ==================== MAIN COMPONENT ====================
+
+const MatchListSection: React.FC<MatchListSectionProps> = ({
+  competition,
+  onSelectMatch,
+}) => {
+  const router = useRouter();
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  // ==================== COMPUTED VALUES ====================
+
+  /**
+   * Get competition logo URL
+   */
+  const competitionLogo = useMemo(
+    () => COMPETITION_LOGOS[competition.name],
+    [competition.name]
   );
 
-  const competitionLogo = competitionLogos[competition.name as keyof typeof competitionLogos];
+  /**
+   * Check if match should show score
+   */
+  const shouldShowScore = useCallback((match: Match): boolean => {
+    const scoreStatuses = ['FT', 'HT', 'ET', 'Live'];
+    return Boolean(match.result && scoreStatuses.includes(match.status));
+  }, []);
 
+  // ==================== EVENT HANDLERS ====================
+
+  /**
+   * Handle match click
+   * Either calls onSelectMatch callback or navigates to match detail page
+   */
   const handleMatchClick = useCallback(
     (match: Match) => {
       if (onSelectMatch) {
         onSelectMatch(match);
       } else {
-        // Navigate to match detail page
         router.push(`/dashboard/live-matches/${match.id}`);
       }
     },
     [onSelectMatch, router]
   );
 
-  // Helper to get status badge styling
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; bgcolor: string; color: string }> = {
-      'FT': { label: 'FT', bgcolor: '#dcfce7', color: '#166534' },
-      'HT': { label: 'HT', bgcolor: '#f3f4f6', color: '#4b5563' },
-      'ET': { label: 'ET', bgcolor: '#fee2e2', color: '#991b1b' },
-      'Live': { label: 'Live', bgcolor: '#fee2e2', color: '#991b1b' },
-      'Prediction': { label: 'Vs', bgcolor: 'transparent', color: '#000' },
-    };
-    return statusMap[status] || { label: 'Vs', bgcolor: 'transparent', color: '#000' };
-  };
+  /**
+   * Toggle competition section expansion
+   */
+  const toggleExpansion = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
+
+  // ==================== RENDER ====================
 
   return (
-    <Paper 
-      elevation={0} 
-      sx={{ 
-        mb: 2, 
-        overflow: 'hidden', 
-        borderRadius: 3, 
-        border: '1px solid', 
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 2,
+        overflow: 'hidden',
+        borderRadius: 3,
+        border: '1px solid',
         borderColor: 'grey.200',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}
@@ -85,219 +230,172 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSele
           },
           transition: 'background-color 0.2s',
         }}
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={toggleExpansion}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {competitionLogo ? (
-            <Avatar
-              src={competitionLogo}
-              alt={competition.name}
-              sx={{ width: 32, height: 32 }}
-            />
-          ) : (
-            <Box
-              sx={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                bgcolor: 'grey.100',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'grey.700' }}>
-                {competition.name.substring(0, 2).toUpperCase()}
-              </Typography>
-            </Box>
-          )}
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 'bold',
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <CompetitionLogo name={competition.name} logoUrl={competitionLogo} />
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
               fontSize: { xs: '1rem', sm: '1.125rem' },
               color: 'grey.900',
             }}
           >
             {competition.name}
           </Typography>
-        </Box>
+        </Stack>
+
         <IconButton
           size="small"
           onClick={(e) => {
             e.stopPropagation();
-            setIsCollapsed(!isCollapsed);
+            toggleExpansion();
           }}
+          aria-label={isExpanded ? 'Collapse' : 'Expand'}
           sx={{
             '&:hover': {
               bgcolor: 'transparent',
             },
           }}
         >
-          {isCollapsed ? (
-            <KeyboardArrowDown sx={{ fontSize: 24, color: 'grey.600' }} />
-          ) : (
+          {isExpanded ? (
             <KeyboardArrowUp sx={{ fontSize: 24, color: 'grey.600' }} />
+          ) : (
+            <KeyboardArrowDown sx={{ fontSize: 24, color: 'grey.600' }} />
           )}
         </IconButton>
       </Box>
 
       {/* Matches List */}
-      {!isCollapsed && (
-        <Box>
-          {competition.matches.length === 0 ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                No matches in this competition
-              </Typography>
-            </Box>
-          ) : (
-            competition.matches.map((match, index) => {
-              const statusBadge = getStatusBadge(match.status);
-              const showScore = match.result && (match.status === 'FT' || match.status === 'HT' || match.status === 'ET' || match.status === 'Live');
+      <Collapse in={isExpanded} timeout="auto">
+        {competition.matches.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <Box>
+            {competition.matches.map((match, index) => {
+              const showScore = shouldShowScore(match);
 
               return (
-                <Box
-                  key={match.id}
-                  sx={{
-                    px: 3,
-                    py: 2.5,
-                    cursor: 'pointer',
-                    borderTop: index === 0 ? '1px solid' : 'none',
-                    borderBottom: index < competition.matches.length - 1 ? '1px solid' : 'none',
-                    borderColor: 'grey.100',
-                    '&:hover': {
-                      bgcolor: 'grey.50',
-                    },
-                    transition: 'background-color 0.2s',
-                  }}
-                  onClick={() => handleMatchClick(match)}
-                >
-                  <Box 
-                    sx={{ 
-                      display: 'grid',
-                      gridTemplateColumns: '60px 1fr auto 1fr',
-                      alignItems: 'center',
-                      gap: 2,
+                <React.Fragment key={match.id}>
+                  {index > 0 && <Divider />}
+                  
+                  <Box
+                    sx={{
+                      px: 3,
+                      py: 2.5,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        bgcolor: 'grey.50',
+                      },
+                      transition: 'background-color 0.2s',
                     }}
+                    onClick={() => handleMatchClick(match)}
                   >
-                    {/* Status Badge */}
                     <Box
                       sx={{
-                        display: 'flex',
+                        display: 'grid',
+                        gridTemplateColumns: '60px 1fr auto 1fr',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        gap: 2,
                       }}
                     >
-                      <Chip
-                        label={statusBadge.label}
+                      {/* Status Badge */}
+                      <Box
                         sx={{
-                          height: 32,
-                          minWidth: 44,
-                          bgcolor: statusBadge.bgcolor,
-                          color: statusBadge.color,
-                          fontWeight: 600,
-                          fontSize: '0.8125rem',
-                          borderRadius: 2,
-                          '& .MuiChip-label': {
-                            px: 1.5,
-                          },
-                        }}
-                      />
-                    </Box>
-
-                    {/* Home Team */}
-                    <Box 
-                      sx={{ 
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1.5,
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 500,
-                          color: 'text.primary',
-                          fontSize: '0.875rem',
-                          textAlign: 'right',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
-                        {match.homeTeam.shortName || match.homeTeam.name}
-                      </Typography>
-                      <Avatar
-                        src={match.homeTeam.logoUrl}
-                        alt={match.homeTeam.name}
-                        sx={{ width: 32, height: 32 }}
-                      />
-                    </Box>
+                        <StatusBadge status={match.status} />
+                      </Box>
 
-                    {/* Score */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minWidth: 60,
-                      }}
-                    >
-                      {showScore ? (
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
-                            fontWeight: 'bold',
-                            fontSize: '1.25rem',
-                            color: 'grey.900',
+                      {/* Home Team */}
+                      <Stack
+                        direction="row"
+                        spacing={1.5}
+                        alignItems="center"
+                        justifyContent="flex-end"
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            color: 'text.primary',
+                            fontSize: '0.875rem',
+                            textAlign: 'right',
                           }}
                         >
-                          {match.result}
+                          {match.homeTeam.shortName || match.homeTeam.name}
                         </Typography>
-                      ) : (
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
-                            fontWeight: 600,
-                            fontSize: '1rem',
-                            color: 'grey.900',
-                          }}
-                        >
-                          Vs
-                        </Typography>
-                      )}
-                    </Box>
+                        <Avatar
+                          src={match.homeTeam.logoUrl}
+                          alt={match.homeTeam.name}
+                          sx={{ width: 32, height: 32 }}
+                        />
+                      </Stack>
 
-                    {/* Away Team */}
-                    <Box 
-                      sx={{ 
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1.5,
-                      }}
-                    >
-                      <Avatar
-                        src={match.awayTeam.logoUrl}
-                        alt={match.awayTeam.name}
-                        sx={{ width: 32, height: 32 }}
-                      />
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 500,
-                          color: 'text.primary',
-                          fontSize: '0.875rem',
+                      {/* Score or Vs */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minWidth: 60,
                         }}
                       >
-                        {match.awayTeam.shortName || match.awayTeam.name}
-                      </Typography>
+                        {showScore ? (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '1.25rem',
+                              color: 'grey.900',
+                            }}
+                          >
+                            {match.result}
+                          </Typography>
+                        ) : (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: '1rem',
+                              color: 'grey.900',
+                            }}
+                          >
+                            Vs
+                          </Typography>
+                        )}
+                      </Box>
+
+                      {/* Away Team */}
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Avatar
+                          src={match.awayTeam.logoUrl}
+                          alt={match.awayTeam.name}
+                          sx={{ width: 32, height: 32 }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            color: 'text.primary',
+                            fontSize: '0.875rem',
+                          }}
+                        >
+                          {match.awayTeam.shortName || match.awayTeam.name}
+                        </Typography>
+                      </Stack>
                     </Box>
                   </Box>
-                </Box>
+                </React.Fragment>
               );
-            })
-          )}
-        </Box>
-      )}
+            })}
+          </Box>
+        )}
+      </Collapse>
     </Paper>
   );
 };
