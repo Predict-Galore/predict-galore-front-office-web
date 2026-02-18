@@ -6,14 +6,12 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Container, Stack, Box, Paper, Typography, Chip } from '@mui/material';
 import { Article } from '@mui/icons-material';
 import { SportTabs } from '@/shared/components/shared';
 import { useLeagues, useSports } from '@/features/predictions';
 import { useNews, useFeaturedNews } from '@/features/news';
 import {
-  RecentNewsSection,
   SportsArticleSection,
   LeagueTableSection,
 } from '@/features/news/components';
@@ -24,7 +22,6 @@ import withAuth from '../../../hoc/withAuth';
 import { getFriendlyErrorMessage } from '@/shared/lib/errors';
 
 const NewsPage: React.FC = () => {
-  const router = useRouter();
   const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
 
   // Get sports data

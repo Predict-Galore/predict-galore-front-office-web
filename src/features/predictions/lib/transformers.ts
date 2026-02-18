@@ -93,29 +93,31 @@ export class PredictionTransformer {
         }
         
         // Otherwise return as is (already in correct format)
-        return item;
+        return item as unknown as Prediction;
       });
       
+      const dataObj = typedResponse.data as Record<string, unknown>;
       return {
         predictions,
         pagination: {
-          page: response.data.page || 1,
-          pageSize: response.data.pageSize || 20,
-          total: response.data.total || 0,
-          hasMore: (response.data.page || 1) * (response.data.pageSize || 20) < (response.data.total || 0),
+          page: (dataObj.page as number) || 1,
+          pageSize: (dataObj.pageSize as number) || 20,
+          total: (dataObj.total as number) || 0,
+          hasMore: ((dataObj.page as number) || 1) * ((dataObj.pageSize as number) || 20) < ((dataObj.total as number) || 0),
         },
       };
     }
 
     // Handle old BackendPredictionResponse format (flat data array)
-    if (response.data && Array.isArray(response.data)) {
+    const responseWithData = typedResponse as { data?: unknown[]; currentPage?: number; pageSize?: number; totalItems?: number; totalPages?: number };
+    if (responseWithData.data && Array.isArray(responseWithData.data)) {
       return {
-        predictions: response.data || [],
+        predictions: responseWithData.data as Prediction[],
         pagination: {
-          page: response.currentPage || 1,
-          pageSize: response.pageSize || 20,
-          total: response.totalItems || 0,
-          hasMore: (response.currentPage || 1) < (response.totalPages || 1),
+          page: responseWithData.currentPage || 1,
+          pageSize: responseWithData.pageSize || 20,
+          total: responseWithData.totalItems || 0,
+          hasMore: (responseWithData.currentPage || 1) < (responseWithData.totalPages || 1),
         },
       };
     }

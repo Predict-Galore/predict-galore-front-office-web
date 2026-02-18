@@ -6,7 +6,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Box,
   Typography,
@@ -25,11 +24,7 @@ interface SportsArticleSectionProps {
 
 const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({
   articles,
-  title = 'Sports Articles',
-  showViewMore = false,
-  onViewMore,
 }) => {
-  const router = useRouter();
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -59,7 +54,7 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({
         const expanded = isExpanded(article.id);
         
         // Calculate grid column span based on position and expansion
-        let gridColumn = 'span 1';
+        let gridColumn: string | { xs: string; md: string } = 'span 1';
         if (expanded) {
           // Desktop: expanded card takes remaining space in row
           const positionInRow = index % 4;

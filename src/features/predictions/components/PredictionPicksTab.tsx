@@ -61,8 +61,8 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
       </div>
 
       {picks.map((pickData, index) => {
-        // Cast to Pick type for type safety
-        const pick = pickData as Pick;
+        // Type assertion with proper null checks
+        const pick = pickData as Partial<Pick>;
         
         return (
           <div key={index} className="bg-white rounded-2xl border border-gray-200 shadow overflow-hidden">
@@ -115,7 +115,7 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
                   </div>
                 )}
 
-                {(pick.homeScore || pick.awayScore) && (pick.homeScore > 0 || pick.awayScore > 0) && (
+                {(pick.homeScore || pick.awayScore) && ((pick.homeScore ?? 0) > 0 || (pick.awayScore ?? 0) > 0) && (
                   <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div className="text-xs text-gray-500 mb-1">Predicted Score</div>
                     <div className="text-lg font-semibold text-gray-900">

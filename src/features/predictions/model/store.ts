@@ -30,7 +30,6 @@ interface PredictionState {
 const defaultFilters: PredictionFilter = {
   page: 1,
   pageSize: 20,
-  status: 'Prediction',
 };
 
 export const usePredictionStore = create<PredictionState>((set) => ({

@@ -251,22 +251,22 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Avatar src={meta.homeLogo} sx={{ width: 32, height: 32 }} />
+                      <Avatar src={String(meta.homeLogo || '')} sx={{ width: 32, height: 32 }} />
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {meta.homeTeam}
+                        {String(meta.homeTeam || '')}
                       </Typography>
                     </div>
                     <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                      {meta.homeScore ?? '-'} : {meta.awayScore ?? '-'}
+                      {String(meta.homeScore ?? '-')} : {String(meta.awayScore ?? '-')}
                     </Typography>
                     <div className="flex items-center gap-2">
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {meta.awayTeam}
+                        {String(meta.awayTeam || '')}
                       </Typography>
-                      <Avatar src={meta.awayLogo} sx={{ width: 32, height: 32 }} />
+                      <Avatar src={String(meta.awayLogo || '')} sx={{ width: 32, height: 32 }} />
                     </div>
                   </div>
-                  {meta.league && (
+                  {typeof meta.league === 'string' && meta.league && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <EmojiEvents sx={{ fontSize: 16 }} />
                       <Typography variant="caption">{meta.league}</Typography>
@@ -277,7 +277,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                   <div className="flex items-center gap-2 text-gray-600">
                     <CalendarToday sx={{ fontSize: 16 }} />
                     <Typography variant="body2">
-                      {new Date(meta.kickoffUtc).toLocaleString()}
+                      {new Date(String(meta.kickoffUtc)).toLocaleString()}
                     </Typography>
                   </div>
                 )}
@@ -287,7 +287,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                       Status:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {meta.status}
+                      {String(meta.status)}
                     </Typography>
                   </div>
                 )}
@@ -303,7 +303,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                       Team ID:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {meta.providerTeamId}
+                      {String(meta.providerTeamId)}
                     </Typography>
                   </div>
                 )}
@@ -319,7 +319,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                       Position:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {meta.position}
+                      {String(meta.position)}
                     </Typography>
                   </div>
                 )}
@@ -329,7 +329,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                       Team:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {meta.team}
+                      {String(meta.team)}
                     </Typography>
                   </div>
                 )}
@@ -343,7 +343,7 @@ const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
                   <div className="flex items-center gap-2">
                     <LocationOn sx={{ fontSize: 16, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
-                      {meta.country}
+                      {String(meta.country)}
                     </Typography>
                   </div>
                 )}

@@ -30,16 +30,11 @@ interface SearchResultsProps {
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick }) => {
-  const { query, searchType, setIsLoading } = useSearchStore();
+  const { query, setIsLoading } = useSearchStore();
 
   const { data, isLoading, isError } = useSearchQuery(
-    {
-      query,
-      type: searchType,
-      page: 1,
-      pageSize: 20,
-    },
-    { enabled: !!query && query.trim().length >= 2 }
+    query,
+    { enabled: !!query && query.trim().length >= 2, limit: 20 }
   );
 
   useEffect(() => {

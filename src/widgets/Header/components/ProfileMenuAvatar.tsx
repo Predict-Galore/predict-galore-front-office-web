@@ -200,8 +200,9 @@ const ProfileMenuAvatar: React.FC<ProfileMenuAvatarProps> = ({
   const displayName = (() => {
     if (!user) return 'User';
     if ('name' in user && user.name) return user.name;
-    const first = 'firstName' in user ? (user as Record<string, unknown>).firstName : undefined;
-    const last = 'lastName' in user ? (user as Record<string, unknown>).lastName : undefined;
+    const userObj = user as unknown as Record<string, unknown>;
+    const first = 'firstName' in userObj ? userObj.firstName : undefined;
+    const last = 'lastName' in userObj ? userObj.lastName : undefined;
     const full = `${first || ''} ${last || ''}`.trim();
     return full || 'User';
   })();

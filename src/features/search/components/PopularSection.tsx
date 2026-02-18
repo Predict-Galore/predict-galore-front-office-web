@@ -8,7 +8,6 @@
 import React from 'react';
 import { TrendingUp } from 'lucide-react';
 import { Box, Typography } from '@mui/material';
-import { usePopularItemsQuery } from '../api/hooks';
 
 interface PopularSectionProps {
   country?: string;
@@ -16,9 +15,10 @@ interface PopularSectionProps {
 }
 
 const PopularSection: React.FC<PopularSectionProps> = ({ country = 'Nigeria', className }) => {
-  const { data: popularItems = [], isLoading } = usePopularItemsQuery(country);
+  // TODO: Implement popular items query when API is available
+  const popularItems: Array<{ id: string; name: string }> = [];
 
-  if (isLoading || popularItems.length === 0) {
+  if (popularItems.length === 0) {
     return null;
   }
 

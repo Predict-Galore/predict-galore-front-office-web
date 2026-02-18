@@ -6,7 +6,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { NewsItem } from '../model/types';
 import { Box, Typography, Link } from '@mui/material';
 import dayjs from 'dayjs';
@@ -17,8 +16,7 @@ interface RecentNewsSectionProps {
   title?: string;
 }
 
-const RecentNewsSection: React.FC<RecentNewsSectionProps> = ({ news, title = 'Recent News' }) => {
-  const router = useRouter();
+const RecentNewsSection: React.FC<RecentNewsSectionProps> = ({ news }) => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -48,7 +46,7 @@ const RecentNewsSection: React.FC<RecentNewsSectionProps> = ({ news, title = 'Re
         const expanded = isExpanded(item.id);
         
         // Calculate grid column span based on position and expansion
-        let gridColumn = 'span 1';
+        let gridColumn: string | { xs: string; md: string } = 'span 1';
         if (expanded) {
           // Desktop: expanded card takes remaining space in row
           if (index === 0) gridColumn = { xs: 'span 1', md: 'span 4' }; // First card: full row

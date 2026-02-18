@@ -40,8 +40,8 @@ export class NewsService {
       logger.debug('News API response received', {
         success: response.success,
         hasData: !!response.data,
-        hasItems: !!(response.data?.items),
-        itemsCount: response.data?.items?.length,
+        hasItems: Array.isArray(response.data) ? response.data.length > 0 : !!(response.data && 'items' in response.data && response.data.items),
+        itemsCount: Array.isArray(response.data) ? response.data.length : (response.data && 'items' in response.data ? response.data.items?.length : 0),
         message: response.message
       });
 
