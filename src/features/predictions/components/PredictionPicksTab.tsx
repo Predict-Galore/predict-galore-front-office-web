@@ -1,11 +1,35 @@
 /**
  * Predictions Tab Component
  * Shows comprehensive prediction details including all picks
+ * 
+ * This component displays:
+ * - List of all prediction picks for a match
+ * - Market information and selection details
+ * - Confidence levels and odds
+ * - Additional prediction metadata
  */
 
 'use client';
 
 import React from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  Chip,
+  CircularProgress,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+} from '@mui/material';
+import {
+  SportsSoccer,
+  Info,
+} from '@mui/icons-material';
+
+// ==================== TYPES ====================
 
 interface Pick {
   market: string;
@@ -30,133 +54,243 @@ interface PredictionsTabProps {
   isLoading: boolean;
 }
 
+// ==================== HELPER COMPONENTS ====================
+
+/**
+ * Loading skeleton for picks
+ */
+const PicksSkeleton: React.FC = () => (
+  <Stack spacing={2}>
+    {[1, 2, 3].map((i) => (
+      <Paper key={i} elevation={2} sx={{ p: 3, borderRadius: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <CircularProgress size={20} />
+          <Box sx={{ flex: 1, height: 24, bgcolor: 'grey.200', borderRadius: 1 }} />
+        </Box>
+        <Box sx={{ height: 16, bgcolor: 'grey.100', borderRadius: 1, mb: 1 }} />
+        <Box sx={{ height: 16, width: '60%', bgcolor: 'grey.100', borderRadius: 1 }} />
+      </Paper>
+    ))}
+  </Stack>
+);
+
+/**
+ * Empty state when no picks available
+ */
+const EmptyState: React.FC = () => (
+  <Paper
+    elevation={2}
+    sx={{
+      p: 6,
+      textAlign: 'center',
+      borderRadius: 3,
+      bgcolor: 'grey.50',
+    }}
+  >
+    <Info sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+    <Typography variant="h6" color="text.secondary" gutterBottom>
+      No Predictions Available
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      No prediction details available for this match.
+    </Typography>
+  </Paper>
+);
+
+/**
+ * Detail item component for pick information
+ */
+interface DetailItemProps {
+  label: string;
+  value: string | number;
+}
+
+const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2,
+      bgcolor: 'grey.50',
+      border: '1px solid',
+      borderColor: 'grey.200',
+      borderRadius: 2,
+    }}
+  >
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{
+        textTransform: 'uppercase',
+        fontWeight: 600,
+        letterSpacing: 0.5,
+        display: 'block',
+        mb: 0.5,
+      }}
+    >
+      {label}
+    </Typography>
+    <Typography variant="body1" fontWeight={600} color="text.primary">
+      {value}
+    </Typography>
+  </Paper>
+);
+
+// ==================== MAIN COMPONENT ====================
+
 const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => {
+  // ==================== LOADING STATE ====================
+  
   if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-200 p-4 shadow animate-pulse">
-            <div className="h-6 w-1/3 bg-gray-200 rounded mb-3" />
-            <div className="h-4 w-full bg-gray-200 rounded mb-2" />
-            <div className="h-4 w-2/3 bg-gray-200 rounded" />
-          </div>
-        ))}
-      </div>
-    );
+    return <PicksSkeleton />;
   }
 
+  // ==================== EMPTY STATE ====================
+  
   if (!picks || picks.length === 0) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center shadow">
-        <span className="material-icons text-gray-400 text-5xl mb-2">info</span>
-        <div className="text-gray-600">No prediction details available for this match.</div>
-      </div>
-    );
+    return <EmptyState />;
   }
+
+  // ==================== RENDER PICKS ====================
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-sm text-gray-600 mb-2">
+    <Stack spacing={3}>
+      {/* Picks Count */}
+      <Typography variant="body2" color="text.secondary">
         Showing {picks.length} prediction{picks.length !== 1 ? 's' : ''}
-      </div>
+      </Typography>
 
+      {/* Picks List */}
       {picks.map((pickData, index) => {
         // Type assertion with proper null checks
         const pick = pickData as Partial<Pick>;
-        
+
         return (
-          <div key={index} className="bg-white rounded-2xl border border-gray-200 shadow overflow-hidden">
+          <Card
+            key={index}
+            elevation={2}
+            sx={{
+              borderRadius: 3,
+              overflow: 'hidden',
+              border: '1px solid',
+              borderColor: 'grey.200',
+            }}
+          >
             {/* Pick Header */}
-            <div className="bg-gradient-to-r from-green-50 to-green-100 px-4 py-3 border-b border-green-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="material-icons text-green-700">sports_soccer</span>
-                  <span className="font-semibold text-gray-900">{pick.market || 'N/A'}</span>
-                </div>
-                {pick.confidence && pick.confidence > 0 && (
-                  <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    {pick.confidence}% Confidence
-                  </span>
-                )}
-              </div>
-            </div>
+            <CardHeader
+              avatar={
+                <SportsSoccer sx={{ color: 'success.dark' }} />
+              }
+              title={
+                <Typography variant="h6" fontWeight={600}>
+                  {pick.market || 'N/A'}
+                </Typography>
+              }
+              action={
+                pick.confidence && pick.confidence > 0 ? (
+                  <Chip
+                    label={`${pick.confidence}% Confidence`}
+                    color="success"
+                    size="small"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                    }}
+                  />
+                ) : null
+              }
+              sx={{
+                bgcolor: 'success.50',
+                borderBottom: '1px solid',
+                borderColor: 'success.200',
+              }}
+            />
 
             {/* Pick Content */}
-            <div className="p-4">
-              {/* Selection */}
-              <div className="mb-4">
-                <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Prediction</div>
-                <div className="text-lg font-bold text-gray-900">{pick.selectionLabel || 'N/A'}</div>
+            <CardContent sx={{ p: 3 }}>
+              {/* Main Prediction */}
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    textTransform: 'uppercase',
+                    fontWeight: 600,
+                    letterSpacing: 0.5,
+                    display: 'block',
+                    mb: 0.5,
+                  }}
+                >
+                  Prediction
+                </Typography>
+                <Typography variant="h5" fontWeight={700} gutterBottom>
+                  {pick.selectionLabel || 'N/A'}
+                </Typography>
                 {pick.selectionKey && (
-                  <div className="text-sm text-gray-600 mt-1">Selection: {pick.selectionKey}</div>
+                  <Typography variant="body2" color="text.secondary">
+                    Selection: {pick.selectionKey}
+                  </Typography>
                 )}
-              </div>
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
 
               {/* Additional Details Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: 'repeat(2, 1fr)',
+                    sm: 'repeat(3, 1fr)',
+                  },
+                  gap: 2,
+                }}
+              >
+                {/* Odds */}
                 {pick.odds && pick.odds > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Odds</div>
-                    <div className="text-lg font-semibold text-gray-900">{Number(pick.odds).toFixed(2)}</div>
-                  </div>
+                  <DetailItem
+                    label="Odds"
+                    value={Number(pick.odds).toFixed(2)}
+                  />
                 )}
 
-                {pick.tip && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Tip</div>
-                    <div className="text-sm font-medium text-gray-900">{pick.tip}</div>
-                  </div>
-                )}
+                {/* Tip */}
+                {pick.tip && <DetailItem label="Tip" value={pick.tip} />}
 
+                {/* Recent Form */}
                 {pick.recentForm && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Recent Form</div>
-                    <div className="text-sm font-medium text-gray-900">{pick.recentForm}</div>
-                  </div>
+                  <DetailItem label="Recent Form" value={pick.recentForm} />
                 )}
 
-                {(pick.homeScore || pick.awayScore) && ((pick.homeScore ?? 0) > 0 || (pick.awayScore ?? 0) > 0) && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Predicted Score</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {pick.homeScore || 0} - {pick.awayScore || 0}
-                    </div>
-                  </div>
-                )}
+                {/* Predicted Score */}
+                {(pick.homeScore || pick.awayScore) &&
+                  ((pick.homeScore ?? 0) > 0 || (pick.awayScore ?? 0) > 0) && (
+                    <DetailItem
+                      label="Predicted Score"
+                      value={`${pick.homeScore || 0} - ${pick.awayScore || 0}`}
+                    />
+                  )}
 
+                {/* Tip Goals */}
                 {pick.tipGoals && pick.tipGoals > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Tip Goals</div>
-                    <div className="text-lg font-semibold text-gray-900">{pick.tipGoals}</div>
-                  </div>
+                  <DetailItem label="Tip Goals" value={pick.tipGoals} />
                 )}
 
+                {/* Player Name */}
                 {pick.playerName && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Player</div>
-                    <div className="text-sm font-medium text-gray-900">{pick.playerName}</div>
-                  </div>
+                  <DetailItem label="Player" value={pick.playerName} />
                 )}
 
-                {pick.teamName && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Team</div>
-                    <div className="text-sm font-medium text-gray-900">{pick.teamName}</div>
-                  </div>
-                )}
+                {/* Team Name */}
+                {pick.teamName && <DetailItem label="Team" value={pick.teamName} />}
 
-                {pick.subType && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="text-xs text-gray-500 mb-1">Sub Type</div>
-                    <div className="text-sm font-medium text-gray-900">{pick.subType}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+                {/* Sub Type */}
+                {pick.subType && <DetailItem label="Sub Type" value={pick.subType} />}
+              </Box>
+            </CardContent>
+          </Card>
         );
       })}
-    </div>
+    </Stack>
   );
 };
 

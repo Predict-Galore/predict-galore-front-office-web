@@ -1,14 +1,41 @@
 /**
- * Table Tab Component
- * Shows league standings table
+ * League Standings Tab Component
+ * Shows league table with team standings, form, and qualification indicators
+ * 
+ * This component displays:
+ * - League table with team positions
+ * - Team statistics (played, wins, draws, losses, goals, points)
+ * - Recent form indicators (W/D/L)
+ * - Qualification indicators (Champions League, Europa League, Relegation)
  */
 
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import {
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Avatar,
+  Stack,
+  Chip,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
+import {
+  TableChart,
+} from '@mui/icons-material';
 import { LeagueTableEntry } from '../model/types';
 import { useLeagueTable } from '../api/hooks';
+
+// ==================== TYPES ====================
 
 interface TableTabProps {
   leagueId?: number;
@@ -16,167 +43,346 @@ interface TableTabProps {
   isLoading?: boolean;
 }
 
-const TableTab: React.FC<TableTabProps> = ({ leagueId, tableData: propTableData, isLoading: propIsLoading }) => {
-  // Use the hook to fetch league table data if not provided as props
-  const { 
-    data: hookTableData = [], 
-    isLoading: hookIsLoading 
-  } = useLeagueTable(leagueId ?? null, { 
-    enabled: !!leagueId && !propTableData 
+// Qualification type configuration
+const QUALIFICATION_CONFIG = {
+  'champions-league': {
+    color: '#16a34a', // green
+    label: 'Champions League',
+  },
+  'europa-league': {
+    color: '#2563eb', // blue
+    label: 'Europa League',
+  },
+  'relegation': {
+    color: '#dc2626', // red
+    label: 'Relegation',
+  },
+} as const;
+
+// ==================== HELPER COMPONENTS ====================
+
+/**
+ * Form indicator component showing recent match results
+ */
+interface FormIndicatorProps {
+  form?: string[];
+}
+
+const FormIndicator: React.FC<FormIndicatorProps> = ({ form }) => {
+  if (!form || form.length === 0) return null;
+
+  const getFormColor = (result: string) => {
+    switch (result) {
+      case 'W':
+        return { bgcolor: 'success.main', color: 'white' };
+      case 'D':
+        return { bgcolor: 'grey.500', color: 'white' };
+      case 'L':
+        return { bgcolor: 'error.main', color: 'white' };
+      default:
+        return { bgcolor: 'grey.300', color: 'grey.700' };
+    }
+  };
+
+  return (
+    <Stack direction="row" spacing={0.5}>
+      {form.slice(0, 5).map((result, idx) => (
+        <Chip
+          key={idx}
+          label={result}
+          size="small"
+          sx={{
+            ...getFormColor(result),
+            width: 24,
+            height: 24,
+            fontSize: '0.625rem',
+            fontWeight: 700,
+            '& .MuiChip-label': {
+              px: 0,
+            },
+          }}
+        />
+      ))}
+    </Stack>
+  );
+};
+
+/**
+ * Loading skeleton for table
+ */
+const TableSkeleton: React.FC = () => (
+  <Paper
+    elevation={0}
+    sx={{
+      bgcolor: '#000',
+      borderRadius: 3,
+      p: 3,
+    }}
+  >
+    <Stack spacing={2} alignItems="center">
+      <CircularProgress sx={{ color: 'grey.600' }} />
+      <Typography variant="body2" color="grey.500">
+        Loading league table...
+      </Typography>
+    </Stack>
+  </Paper>
+);
+
+/**
+ * Empty state when no data available
+ */
+const EmptyState: React.FC<{ leagueId?: number }> = ({ leagueId }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      bgcolor: '#000',
+      borderRadius: 3,
+      p: 6,
+      textAlign: 'center',
+    }}
+  >
+    <TableChart sx={{ fontSize: 64, color: 'grey.700', mb: 2 }} />
+    <Typography variant="h6" color="grey.500" gutterBottom>
+      No Table Data Available
+    </Typography>
+    <Typography variant="body2" color="grey.600">
+      League table data is not available at this time.
+    </Typography>
+    {leagueId && (
+      <Typography variant="caption" color="grey.700" sx={{ mt: 1, display: 'block' }}>
+        League ID: {leagueId}
+      </Typography>
+    )}
+  </Paper>
+);
+
+// ==================== MAIN COMPONENT ====================
+
+const TableTab: React.FC<TableTabProps> = ({
+  leagueId,
+  tableData: propTableData,
+  isLoading: propIsLoading,
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Fetch league table data if not provided as props
+  const {
+    data: hookTableData = [],
+    isLoading: hookIsLoading,
+  } = useLeagueTable(leagueId ?? null, {
+    enabled: !!leagueId && !propTableData,
   });
 
   // Use prop data if available, otherwise use hook data
   const tableData = propTableData || hookTableData;
   const isLoading = propIsLoading ?? hookIsLoading;
 
-  // Helper to render form circles
-  const renderForm = (form?: string[]) => {
-    if (!form || form.length === 0) return null;
-    return (
-      <div className="flex gap-1">
-        {form.slice(0, 5).map((result, idx) => (
-          <div
-            key={idx}
-            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-              result === 'W'
-                ? 'bg-green-600 text-white'
-                : result === 'D'
-                ? 'bg-gray-400 text-white'
-                : 'bg-red-600 text-white'
-            }`}
-          >
-            {result}
-          </div>
-        ))}
-      </div>
-    );
-  };
+  // ==================== LOADING STATE ====================
 
   if (isLoading) {
-    return (
-      <div className="bg-black rounded-xl overflow-hidden">
-        <div className="p-4">
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-800 rounded mb-4" />
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-4 mb-3">
-                <div className="w-8 h-4 bg-gray-800 rounded" />
-                <div className="w-8 h-8 bg-gray-800 rounded-full" />
-                <div className="flex-1 h-4 bg-gray-800 rounded" />
-                <div className="w-8 h-4 bg-gray-800 rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <TableSkeleton />;
   }
+
+  // ==================== EMPTY STATE ====================
 
   if (tableData.length === 0) {
-    return (
-      <div className="bg-black rounded-xl p-8 text-center">
-        <span className="material-icons text-gray-600 text-5xl mb-2">table_chart</span>
-        <div className="text-gray-400">League table data is not available.</div>
-        {leagueId && (
-          <div className="text-xs text-gray-600 mt-2">League ID: {leagueId}</div>
-        )}
-      </div>
-    );
+    return <EmptyState leagueId={leagueId} />;
   }
 
+  // ==================== RENDER TABLE ====================
+
   return (
-    <div className="bg-black rounded-xl overflow-hidden">
+    <Paper
+      elevation={0}
+      sx={{
+        bgcolor: '#000',
+        borderRadius: 3,
+        overflow: 'hidden',
+      }}
+    >
       {/* League Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800">
-        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-          <span className="text-xs font-bold text-black">PL</span>
-        </div>
-        <span className="text-white text-sm font-medium">Premier League</span>
-      </div>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          px: 3,
+          py: 2,
+          borderBottom: '1px solid',
+          borderColor: 'grey.900',
+        }}
+      >
+        <Avatar
+          sx={{
+            width: 24,
+            height: 24,
+            bgcolor: 'white',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: 'black',
+          }}
+        >
+          PL
+        </Avatar>
+        <Typography variant="body1" color="white" fontWeight={500}>
+          Premier League
+        </Typography>
+      </Box>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-xs">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="px-3 py-2.5 font-medium text-gray-400 text-left">#</th>
-              <th className="px-3 py-2.5 font-medium text-gray-400 text-left">Team</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">Pl</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">W</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">D</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">L</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">+/-</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">GD</th>
-              <th className="px-2 py-2.5 font-medium text-gray-400 text-center">Pts</th>
-              <th className="px-3 py-2.5 font-medium text-gray-400 text-left">Form</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer>
+        <Table size="small" sx={{ minWidth: isMobile ? 600 : 'auto' }}>
+          <TableHead>
+            <TableRow sx={{ borderBottom: '1px solid', borderColor: 'grey.900' }}>
+              <TableCell sx={{ color: 'grey.500', fontWeight: 500, py: 1.5 }}>#</TableCell>
+              <TableCell sx={{ color: 'grey.500', fontWeight: 500 }}>Team</TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                Pl
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                W
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                D
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                L
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                +/-
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                GD
+              </TableCell>
+              <TableCell align="center" sx={{ color: 'grey.500', fontWeight: 500 }}>
+                Pts
+              </TableCell>
+              <TableCell sx={{ color: 'grey.500', fontWeight: 500 }}>Form</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {tableData.map((entry) => {
-              // Determine qualification color
-              let qualificationColor = '';
-              if (entry.qualification === 'champions-league') {
-                qualificationColor = 'border-l-4 border-l-green-500';
-              } else if (entry.qualification === 'europa-league') {
-                qualificationColor = 'border-l-4 border-l-blue-500';
-              } else if (entry.qualification === 'relegation') {
-                qualificationColor = 'border-l-4 border-l-red-500';
-              }
+              // Get qualification indicator color
+              const qualificationColor =
+                entry.qualification && QUALIFICATION_CONFIG[entry.qualification]
+                  ? QUALIFICATION_CONFIG[entry.qualification].color
+                  : 'transparent';
 
               return (
-                <tr
+                <TableRow
                   key={entry.team.id}
-                  className={`border-b border-gray-900 hover:bg-gray-900/50 transition-colors ${qualificationColor}`}
+                  sx={{
+                    borderBottom: '1px solid',
+                    borderColor: 'grey.900',
+                    borderLeft: `4px solid ${qualificationColor}`,
+                    '&:hover': {
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                    transition: 'background-color 0.2s',
+                  }}
                 >
-                  <td className="px-3 py-3 text-gray-400 font-medium">{entry.position}</td>
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
-                      <Image
+                  {/* Position */}
+                  <TableCell sx={{ color: 'grey.400', fontWeight: 500, py: 2 }}>
+                    {entry.position}
+                  </TableCell>
+
+                  {/* Team */}
+                  <TableCell>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Avatar
                         src={entry.team.logoUrl}
                         alt={entry.team.name}
-                        width={20}
-                        height={20}
-                        className="w-5 h-5 object-contain"
-                        unoptimized
+                        sx={{ width: 20, height: 20 }}
                       />
-                      <span className="text-white text-xs font-medium">{entry.team.shortName || entry.team.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-2 py-3 text-center text-gray-300">{entry.played}</td>
-                  <td className="px-2 py-3 text-center text-gray-300">{entry.wins}</td>
-                  <td className="px-2 py-3 text-center text-gray-300">{entry.draws}</td>
-                  <td className="px-2 py-3 text-center text-gray-300">{entry.losses}</td>
-                  <td className="px-2 py-3 text-center text-gray-300">{entry.goalsFor}-{entry.goalsAgainst}</td>
-                  <td className="px-2 py-3 text-center text-gray-300 font-semibold">
-                    {entry.goalDifference > 0 ? '+' : ''}{entry.goalDifference}
-                  </td>
-                  <td className="px-2 py-3 text-center text-white font-bold">{entry.points}</td>
-                  <td className="px-3 py-3">
-                    {renderForm(entry.form)}
-                  </td>
-                </tr>
+                      <Typography
+                        variant="body2"
+                        color="white"
+                        fontWeight={500}
+                        sx={{ fontSize: '0.75rem' }}
+                      >
+                        {entry.team.shortName || entry.team.name}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+
+                  {/* Played */}
+                  <TableCell align="center" sx={{ color: 'grey.300' }}>
+                    {entry.played}
+                  </TableCell>
+
+                  {/* Wins */}
+                  <TableCell align="center" sx={{ color: 'grey.300' }}>
+                    {entry.wins}
+                  </TableCell>
+
+                  {/* Draws */}
+                  <TableCell align="center" sx={{ color: 'grey.300' }}>
+                    {entry.draws}
+                  </TableCell>
+
+                  {/* Losses */}
+                  <TableCell align="center" sx={{ color: 'grey.300' }}>
+                    {entry.losses}
+                  </TableCell>
+
+                  {/* Goals For/Against */}
+                  <TableCell align="center" sx={{ color: 'grey.300' }}>
+                    {entry.goalsFor}-{entry.goalsAgainst}
+                  </TableCell>
+
+                  {/* Goal Difference */}
+                  <TableCell align="center" sx={{ color: 'grey.300', fontWeight: 600 }}>
+                    {entry.goalDifference > 0 ? '+' : ''}
+                    {entry.goalDifference}
+                  </TableCell>
+
+                  {/* Points */}
+                  <TableCell align="center" sx={{ color: 'white', fontWeight: 700 }}>
+                    {entry.points}
+                  </TableCell>
+
+                  {/* Form */}
+                  <TableCell>
+                    <FormIndicator form={entry.form} />
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 border-t border-gray-800 px-4 py-3">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
-          <span className="text-xs text-gray-400">Champions League</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
-          <span className="text-xs text-gray-400">Europa League</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-          <span className="text-xs text-gray-400">Relegation</span>
-        </div>
-      </div>
-    </div>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 3,
+          flexWrap: 'wrap',
+          borderTop: '1px solid',
+          borderColor: 'grey.900',
+          px: 3,
+          py: 2,
+        }}
+      >
+        {Object.entries(QUALIFICATION_CONFIG).map(([key, config]) => (
+          <Stack key={key} direction="row" spacing={1} alignItems="center">
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                bgcolor: config.color,
+              }}
+            />
+            <Typography variant="caption" color="grey.500" sx={{ fontSize: '0.75rem' }}>
+              {config.label}
+            </Typography>
+          </Stack>
+        ))}
+      </Box>
+    </Paper>
   );
 };
 
