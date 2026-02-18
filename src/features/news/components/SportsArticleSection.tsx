@@ -1,19 +1,36 @@
 /**
  * Sports Article Section Component
- * Displays sports articles in a grid layout with expandable cards
+ * Displays sports articles in a responsive grid layout with expandable cards
+ * 
+ * This component shows:
+ * - Sports articles in a grid layout (1-4 columns based on screen size)
+ * - Expandable cards that show full content when clicked
+ * - Article images, titles, summaries, and metadata
+ * - Category badges and publication dates
+ * - Author information and tags
+ * - Hover effects and smooth transitions
  */
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
   Link,
+  Paper,
+  Chip,
+  Stack,
+  CardMedia,
 } from '@mui/material';
+import {
+  Image as ImageIcon,
+} from '@mui/icons-material';
+import dayjs from 'dayjs';
 import { NewsItem } from '../model/types';
 import { getSafeNewsImageUrl } from '@/shared/utils/imageUtils';
-import dayjs from 'dayjs';
+
+// ==================== TYPES ====================
 
 interface SportsArticleSectionProps {
   articles: NewsItem[];
@@ -22,21 +39,197 @@ interface SportsArticleSectionProps {
   onViewMore?: () => void;
 }
 
-const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({
-  articles,
-}) => {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+// ==================== HELPER COMPONENTS ====================
 
-  const formatDate = (dateString: string) => {
+/**
+ * Article Image Component
+ * Displays article image or fallback placeholder
+ */
+interface ArticleImageProps {
+  imageUrl?: string;
+  title: string;
+}
+
+const ArticleImage: React.FC<ArticleImageProps> = ({ imageUrl, title }) => {
+  if (imageUrl) {
+    return (
+      <CardMedia
+        component="img"
+        image={getSafeNewsImageUrl(imageUrl)}
+        alt={title}
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    );
+  }
+
+  // Fallback placeholder
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        bgcolor: 'grey.100',
+        color: 'text.disabled',
+      }}
+    >
+      <ImageIcon sx={{ fontSize: 48, mb: 1 }} />
+      <Typography variant="body2">No Image</Typography>
+    </Box>
+  );
+};
+
+/**
+ * Article Metadata Component
+ * Displays publication date and category badge
+ */
+interface ArticleMetadataProps {
+  publishedAt: string;
+  category?: string;
+}
+
+const ArticleMetadata: React.FC<ArticleMetadataProps> = ({ publishedAt, category }) => {
+  const formatDate = (dateString: string): string => {
     return dayjs(dateString).format('DD MMMM YYYY');
   };
 
-  const handleToggleExpand = (e: React.MouseEvent, articleId: number) => {
-    e.stopPropagation();
-    setExpandedId(expandedId === articleId ? null : articleId);
-  };
+  return (
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{ mb: 1 }}
+    >
+      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+        {formatDate(publishedAt)}
+      </Typography>
+      {category && (
+        <Chip
+          label={category}
+          size="small"
+          sx={{
+            bgcolor: 'success.main',
+            color: 'white',
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            height: 24,
+          }}
+        />
+      )}
+    </Stack>
+  );
+};
 
-  const isExpanded = (articleId: number) => expandedId === articleId;
+/**
+ * Article Tags Component
+ * Displays article tags as chips
+ */
+interface ArticleTagsProps {
+  tags: string[];
+}
+
+const ArticleTags: React.FC<ArticleTagsProps> = ({ tags }) => (
+  <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
+    {tags.map((tag, idx) => (
+      <Chip
+        key={idx}
+        label={`#${tag}`}
+        size="small"
+        variant="outlined"
+        sx={{
+          bgcolor: 'grey.100',
+          color: 'text.secondary',
+          borderColor: 'grey.300',
+          fontWeight: 500,
+          fontSize: '0.75rem',
+        }}
+      />
+    ))}
+  </Stack>
+);
+
+/**
+ * Article Author Component
+ * Displays author and source information
+ */
+interface ArticleAuthorProps {
+  author?: string;
+  source?: string;
+}
+
+const ArticleAuthor: React.FC<ArticleAuthorProps> = ({ author, source }) => {
+  if (!author && !source) return null;
+
+  return (
+    <Typography
+      variant="caption"
+      color="text.disabled"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        mb: 1.5,
+        fontSize: '0.75rem',
+      }}
+    >
+      {author && <span>By {author}</span>}
+      {author && source && <span>•</span>}
+      {source && <span>{source}</span>}
+    </Typography>
+  );
+};
+
+// ==================== MAIN COMPONENT ====================
+
+const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles }) => {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // ==================== EVENT HANDLERS ====================
+
+  /**
+   * Toggle article expansion
+   */
+  const handleToggleExpand = useCallback(
+    (e: React.MouseEvent, articleId: number) => {
+      e.stopPropagation();
+      setExpandedId((prev) => (prev === articleId ? null : articleId));
+    },
+    []
+  );
+
+  /**
+   * Check if article is expanded
+   */
+  const isExpanded = useCallback(
+    (articleId: number): boolean => expandedId === articleId,
+    [expandedId]
+  );
+
+  /**
+   * Calculate grid column span based on position and expansion state
+   */
+  const getGridColumn = useCallback(
+    (index: number, expanded: boolean): string | { xs: string; md: string } => {
+      if (!expanded) return 'span 1';
+
+      // Desktop: expanded card takes remaining space in row
+      const positionInRow = index % 4;
+      if (positionInRow === 0) return { xs: 'span 1', md: 'span 4' }; // First in row: full row
+      if (positionInRow === 1) return { xs: 'span 1', md: 'span 3' }; // Second in row: 3 columns
+      if (positionInRow === 2) return { xs: 'span 1', md: 'span 2' }; // Third in row: 2 columns
+      return { xs: 'span 1', md: 'span 4' }; // Fourth in row: full next row
+    },
+    []
+  );
+
+  // ==================== RENDER ====================
 
   return (
     <Box
@@ -47,182 +240,118 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({
           md: 'repeat(4, 1fr)',
         },
         gap: 2,
-        alignItems: 'start'
+        alignItems: 'start',
       }}
     >
       {articles.map((article, index) => {
         const expanded = isExpanded(article.id);
-        
-        // Calculate grid column span based on position and expansion
-        let gridColumn: string | { xs: string; md: string } = 'span 1';
-        if (expanded) {
-          // Desktop: expanded card takes remaining space in row
-          const positionInRow = index % 4;
-          if (positionInRow === 0) gridColumn = { xs: 'span 1', md: 'span 4' }; // First in row: full row
-          else if (positionInRow === 1) gridColumn = { xs: 'span 1', md: 'span 3' }; // Second in row: 3 columns
-          else if (positionInRow === 2) gridColumn = { xs: 'span 1', md: 'span 2' }; // Third in row: 2 columns
-          else gridColumn = { xs: 'span 1', md: 'span 4' }; // Fourth in row: full next row
-        }
+        const gridColumn = getGridColumn(index, expanded);
 
         return (
-          <Box
+          <Paper
             key={article.id}
+            elevation={1}
             sx={{
               gridColumn,
               overflow: 'hidden',
               transition: 'all 0.3s ease-in-out',
-              borderRadius: 1,
-              bgcolor: 'background.paper',
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'divider',
-              boxShadow: 1,
               display: 'flex',
               flexDirection: 'column',
-              height: expanded ? 'auto' : { xs: 'auto', md: '480px' }, // Fixed height for consistency
+              height: expanded ? 'auto' : { xs: 'auto', md: '480px' },
               '&:hover': {
-                boxShadow: expanded ? 1 : 3,
+                boxShadow: expanded ? 2 : 4,
               },
             }}
           >
-            {/* Image */}
-            <Box sx={{ 
-              position: 'relative', 
-              width: '100%', 
-              height: expanded ? { xs: 240, md: 400 } : { xs: 200, md: 220 }, // Consistent image height
-              bgcolor: 'grey.100',
-              transition: 'height 0.3s ease-in-out',
-              flexShrink: 0
-            }}>
-              {article.imageUrl ? (
-                <Box
-                  component="img"
-                  src={getSafeNewsImageUrl(article.imageUrl)}
-                  alt={article.title}
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-              ) : (
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  height: '100%',
-                  color: 'text.disabled'
-                }}>
-                  <Typography variant="body2">No Image</Typography>
-                </Box>
-              )}
+            {/* Article Image */}
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                height: expanded ? { xs: 240, md: 400 } : { xs: 200, md: 220 },
+                transition: 'height 0.3s ease-in-out',
+                flexShrink: 0,
+              }}
+            >
+              <ArticleImage imageUrl={article.imageUrl} title={article.title} />
             </Box>
 
-            {/* Content */}
+            {/* Article Content */}
             <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                  {formatDate(article.publishedAt)}
-                </Typography>
-                {article.category && (
-                  <Typography variant="caption" sx={{ 
-                    bgcolor: 'success.main', 
-                    color: 'white', 
-                    px: 1, 
-                    py: 0.5, 
-                    borderRadius: 1,
-                    textTransform: 'uppercase',
-                    fontWeight: 600,
-                    fontSize: '0.75rem'
-                  }}>
-                    {article.category}
-                  </Typography>
-                )}
-              </Box>
+              {/* Metadata */}
+              <ArticleMetadata
+                publishedAt={article.publishedAt}
+                category={article.category}
+              />
 
-              <Typography 
-                variant={expanded ? 'h5' : 'h6'} 
-                sx={{ 
-                  fontWeight: 'semibold', 
-                  mb: 1, 
-                  display: expanded ? 'block' : '-webkit-box', 
-                  WebkitLineClamp: expanded ? 'unset' : 2, 
-                  WebkitBoxOrient: 'vertical', 
+              {/* Title */}
+              <Typography
+                variant={expanded ? 'h5' : 'h6'}
+                sx={{
+                  fontWeight: 600,
+                  display: expanded ? 'block' : '-webkit-box',
+                  WebkitLineClamp: expanded ? 'unset' : 2,
+                  WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
+                  mb: 1,
                   transition: 'font-size 0.3s ease-in-out',
                   fontSize: expanded ? '1.5rem' : '1rem',
                   lineHeight: 1.3,
-                  minHeight: expanded ? 'auto' : '2.6rem' // Consistent title height
+                  minHeight: expanded ? 'auto' : '2.6rem',
                 }}
               >
                 {article.title}
               </Typography>
 
+              {/* Summary */}
               {article.summary && (
-                <Typography 
-                  variant="body2" 
-                  color="text.secondary" 
-                  sx={{ 
-                    display: expanded ? 'block' : '-webkit-box', 
-                    WebkitLineClamp: expanded ? 'unset' : 3, 
-                    WebkitBoxOrient: 'vertical', 
-                    overflow: 'hidden', 
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    display: expanded ? 'block' : '-webkit-box',
+                    WebkitLineClamp: expanded ? 'unset' : 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
                     mb: 1,
                     fontSize: '0.875rem',
                     lineHeight: 1.5,
-                    minHeight: expanded ? 'auto' : '3.9rem', // Consistent summary height (3 lines)
-                    flex: expanded ? 0 : 1
+                    minHeight: expanded ? 'auto' : '3.9rem',
+                    flex: expanded ? 0 : 1,
                   }}
                 >
                   {article.summary}
                 </Typography>
               )}
 
+              {/* Full Content (when expanded) */}
               {expanded && article.content && (
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    color: 'text.primary', 
+                <Typography
+                  variant="body1"
+                  color="text.primary"
+                  sx={{
                     mb: 2,
                     lineHeight: 1.7,
-                    fontSize: '1rem'
+                    fontSize: '1rem',
                   }}
                 >
                   {article.content}
                 </Typography>
               )}
 
+              {/* Tags (when expanded) */}
               {expanded && article.tags && article.tags.length > 0 && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                  {article.tags.map((tag, idx) => (
-                    <Typography 
-                      key={idx}
-                      variant="caption" 
-                      sx={{ 
-                        bgcolor: 'grey.100', 
-                        color: 'text.secondary', 
-                        px: 1.5, 
-                        py: 0.5, 
-                        borderRadius: 1,
-                        fontWeight: 500,
-                        fontSize: '0.75rem'
-                      }}
-                    >
-                      #{tag}
-                    </Typography>
-                  ))}
-                </Box>
+                <ArticleTags tags={article.tags} />
               )}
 
+              {/* Footer */}
               <Box sx={{ mt: 'auto' }}>
-                {(article.author || article.source) && (
-                  <Typography variant="caption" sx={{ color: 'text.disabled', display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, fontSize: '0.75rem' }}>
-                    {article.author && <span>By {article.author}</span>}
-                    {article.author && article.source && <span>•</span>}
-                    {article.source && <span>{article.source}</span>}
-                  </Typography>
-                )}
+                <ArticleAuthor author={article.author} source={article.source} />
 
-                {/* Read More / Read Less Link */}
+                {/* Read More/Less Link */}
                 <Link
                   component="button"
                   variant="body2"
@@ -242,7 +371,7 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({
                 </Link>
               </Box>
             </Box>
-          </Box>
+          </Paper>
         );
       })}
     </Box>
