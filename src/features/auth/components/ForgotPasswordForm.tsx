@@ -23,6 +23,7 @@ import { forgotPasswordSchema, ForgotPasswordFormData } from '../validations/sch
 import { AUTH_CONSTANTS } from '../lib/constants';
 import { useForgotPasswordMutation } from '../api/hooks';
 import { createLogger } from '@/shared/api';
+import { RedirectLoader } from '@/shared/components/ui';
 
 const logger = createLogger('ForgotPasswordForm');
 
@@ -39,6 +40,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
   // ===================================================================
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [submittedEmail, setSubmittedEmail] = React.useState<string>('');
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
 
   // ===================================================================
   // REACT QUERY MUTATION
@@ -80,8 +82,12 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
 
       await submitForgotPassword(cleanFormData, {
         onSuccess: () => {
+          setIsRedirecting(true);
+          
           // Redirect to OTP verification page with email
-          router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+          setTimeout(() => {
+            router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+          }, 500);
           
           if (onSuccess) {
             onSuccess();
@@ -377,6 +383,9 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
           </Button>
         </Box>
       </Box>
+
+      {/* Redirect Loader */}
+      <RedirectLoader show={isRedirecting} message="Sending verification code..." />
     </Box>
   );
 };

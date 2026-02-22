@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Box, Typography, Button, TextField } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { AUTH_CONSTANTS } from '../lib/constants';
+import { RedirectLoader } from '@/shared/components/ui';
 
 interface VerifyOTPFormProps {
   email?: string;
@@ -19,6 +20,7 @@ const VerifyOTPForm: React.FC<VerifyOTPFormProps> = ({ email, onSuccess }) => {
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Focus first input on mount
@@ -97,7 +99,10 @@ const VerifyOTPForm: React.FC<VerifyOTPFormProps> = ({ email, onSuccess }) => {
         onSuccess(otpValue);
       } else {
         // Default behavior: redirect to reset password with token
-        router.push(`${AUTH_CONSTANTS.ROUTES.RESET_PASSWORD}?token=${otpValue}`);
+        setIsRedirecting(true);
+        setTimeout(() => {
+          router.push(`${AUTH_CONSTANTS.ROUTES.RESET_PASSWORD}?token=${otpValue}`);
+        }, 500);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -264,6 +269,9 @@ const VerifyOTPForm: React.FC<VerifyOTPFormProps> = ({ email, onSuccess }) => {
           </Button>
         </Box>
       </Box>
+
+      {/* Redirect Loader */}
+      <RedirectLoader show={isRedirecting} message="Verifying code..." />
     </Box>
   );
 };

@@ -40,3 +40,5 @@ export type {
 } from './Loading/Loading';
 
 export { ComponentDemo } from './demo/ComponentDemo';
+
+export { default as RedirectLoader } from './RedirectLoader';

@@ -12,6 +12,7 @@ import { Eye, EyeOff, Lock, Mail, AlertTriangle } from 'lucide-react';
 import { Box, Typography, Alert } from '@mui/material';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { Input } from '@/shared/components/ui/Input/Input';
+import { RedirectLoader } from '@/shared/components/ui';
 import SocialAuthButtons from './SocialAuthButtons';
 import toast from 'react-hot-toast';
 
@@ -39,6 +40,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [localError, setLocalError] = React.useState<string | null>(null);
   const [loginMethod, setLoginMethod] = React.useState<'phone' | 'email'>('phone');
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
 
   const { mutate: submitLogin, isPending: isLoginSubmitting } = useLoginMutation();
 
@@ -77,6 +79,8 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     submitLogin(formData, {
       onSuccess: () => {
         toast.success('Login successful! Redirecting...');
+        setIsRedirecting(true);
+        
         if (onSuccess) {
           onSuccess();
           return;
@@ -287,6 +291,9 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           background: #fff !important;
         }
       `}</style>
+
+      {/* Redirect Loader */}
+      <RedirectLoader show={isRedirecting} message="Logging you in..." />
     </Box>
   );
 };

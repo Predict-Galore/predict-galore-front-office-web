@@ -33,6 +33,7 @@ import { AUTH_CONSTANTS } from '../lib/constants';
 import { useResetPasswordMutation } from '../api/hooks';
 import { validatePasswordStrength } from '../lib/utils';
 import { createLogger } from '@/shared/api';
+import { RedirectLoader } from '@/shared/components/ui';
 
 const logger = createLogger('ResetPasswordForm');
 
@@ -51,6 +52,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
 
   // ===================================================================
   // TOKEN HANDLING
@@ -154,7 +156,10 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
 
   const handleContinueToLogin = () => {
     setShowSuccessModal(false);
-    router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
+    setIsRedirecting(true);
+    setTimeout(() => {
+      router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
+    }, 300);
   };
 
   // ===================================================================
@@ -573,6 +578,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
 
       {/* Success Modal */}
       <SuccessModal />
+
+      {/* Redirect Loader */}
+      <RedirectLoader show={isRedirecting} message="Redirecting to login..." />
     </Box>
   );
 };
