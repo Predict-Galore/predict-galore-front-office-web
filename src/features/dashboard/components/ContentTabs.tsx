@@ -1,6 +1,10 @@
 /**
  * Content Tabs Component
- * Toggle between Predictions and Live Matches
+ * Toggle between Predictions and Live Matches views
+ * 
+ * @component
+ * @description A segmented control that allows users to switch between
+ * viewing predictions and live matches on the dashboard.
  */
 
 'use client';
@@ -9,13 +13,35 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { Button } from '@/shared/components/ui';
 
+/** Available tab types */
 export type ContentTabType = 'predictions' | 'live-matches';
 
+/**
+ * Props for the ContentTabs component
+ */
 interface ContentTabsProps {
+  /** Currently active tab */
   activeTab: ContentTabType;
+  /** Callback when tab is changed */
   onTabChange: (tab: ContentTabType) => void;
+  /** Optional CSS class name for additional styling */
   className?: string;
 }
+
+/**
+ * ContentTabs Component
+ * 
+ * Provides a toggle interface for switching between predictions and live matches.
+ * The active tab is highlighted with a green background and border.
+ * 
+ * @example
+ * ```tsx
+ * <ContentTabs
+ *   activeTab="predictions"
+ *   onTabChange={(tab) => setActiveTab(tab)}
+ * />
+ * ```
+ */
 
 const ContentTabs: React.FC<ContentTabsProps> = ({ activeTab, onTabChange, className }) => {
   return (

@@ -1,3 +1,12 @@
+/**
+ * Live League Section Component
+ * Displays live matches grouped by league with collapsible functionality
+ * 
+ * @component
+ * @description A collapsible section showing live matches for a specific league.
+ * Each match displays team logos, names, scores, and match status.
+ */
+
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -13,20 +22,44 @@ import {
 } from '@mui/material';
 import type { Match } from '@/features/live-matches/model/types';
 
+/**
+ * Props for the LiveLeagueSection component
+ */
 interface LiveLeagueSectionProps {
+  /** Name of the league */
   leagueName: string;
+  /** Array of matches in this league */
   matches: Match[];
+  /** Optional callback when a match is clicked */
   onMatchClick?: (match: Match) => void;
 }
+
+/**
+ * LiveLeagueSection Component
+ * 
+ * Displays a collapsible section of live matches for a specific league.
+ * Shows match status, team information, and current scores.
+ * 
+ * @example
+ * ```tsx
+ * <LiveLeagueSection
+ *   leagueName="Premier League"
+ *   matches={liveMatches}
+ *   onMatchClick={(match) => router.push(`/match/${match.id}`)}
+ * />
+ * ```
+ */
 
 const LiveLeagueSection: React.FC<LiveLeagueSectionProps> = ({
   leagueName,
   matches,
   onMatchClick,
-  // className,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  /**
+   * Handles match click event
+   */
   const handleClick = useCallback(
     (match: Match) => {
       onMatchClick?.(match);
@@ -34,6 +67,7 @@ const LiveLeagueSection: React.FC<LiveLeagueSectionProps> = ({
     [onMatchClick]
   );
 
+  // Don't render if no matches
   if (!matches || matches.length === 0) return null;
 
   return (

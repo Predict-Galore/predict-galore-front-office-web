@@ -1,6 +1,10 @@
 /**
  * Settings Tab Component
- * Updated to match Figma UI design
+ * Manages user settings including password, 2FA, and notifications
+ * 
+ * @component
+ * @description Provides interface for users to manage their account settings,
+ * change password, enable two-factor authentication, and configure notification preferences.
  */
 
 'use client';
@@ -17,6 +21,9 @@ import {
   Box,
   Stack,
   Switch,
+  Paper,
+  Alert as MuiAlert,
+  AlertTitle,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -33,8 +40,36 @@ import {
   useToggleTwoFactorAuth,
   useNotificationSettings,
 } from '@/features/profile';
-import { Button, Alert } from '@/shared/components/ui';
+import { Button } from '@/shared/components/ui';
 
+/**
+ * Password strength calculation result
+ */
+interface PasswordStrength {
+  strength: number;
+  label: string;
+  color: string;
+}
+
+/**
+ * Notification state for a specific category
+ */
+interface NotificationState {
+  inApp: boolean;
+  push: boolean;
+}
+
+/**
+ * SettingsTab Component
+ * 
+ * Main settings interface for user account management.
+ * Includes password management, 2FA, and notification preferences.
+ * 
+ * @example
+ * ```tsx
+ * <SettingsTab />
+ * ```
+ */
 const SettingsTab: React.FC = () => {
   const { data: notificationSettings } = useNotificationSettings();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePassword();
@@ -50,9 +85,9 @@ const SettingsTab: React.FC = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Notification settings - initialize from backend
-  const [predictionInsights, setPredictionInsights] = useState({ inApp: true, push: false });
-  const [matchUpdates, setMatchUpdates] = useState({ inApp: true, push: false });
-  const [newsAlerts, setNewsAlerts] = useState({ inApp: true, push: false });
+  const [predictionInsights, setPredictionInsights] = useState<NotificationState>({ inApp: true, push: false });
+  const [matchUpdates, setMatchUpdates] = useState<NotificationState>({ inApp: true, push: false });
+  const [newsAlerts, setNewsAlerts] = useState<NotificationState>({ inApp: true, push: false });
 
   // Load notification settings from backend
   useEffect(() => {
@@ -73,7 +108,10 @@ const SettingsTab: React.FC = () => {
     }
   }, []);
 
-  const calculatePasswordStrength = (password: string) => {
+  /**
+   * Calculates password strength based on various criteria
+   */
+  const calculatePasswordStrength = (password: string): PasswordStrength => {
     if (!password) return { strength: 0, label: '', color: '' };
 
     let strength = 0;
@@ -83,15 +121,18 @@ const SettingsTab: React.FC = () => {
     if (/\d/.test(password)) strength++;
     if (/[^a-zA-Z\d]/.test(password)) strength++;
 
-    if (strength <= 2) return { strength: 1, label: 'Weak', color: 'bg-red-500' };
-    if (strength === 3) return { strength: 2, label: 'Fair', color: 'bg-yellow-500' };
-    if (strength === 4) return { strength: 3, label: 'Good', color: 'bg-blue-500' };
-    return { strength: 5, label: 'Very strong', color: 'bg-green-500' };
+    if (strength <= 2) return { strength: 1, label: 'Weak', color: 'error.main' };
+    if (strength === 3) return { strength: 2, label: 'Fair', color: 'warning.main' };
+    if (strength === 4) return { strength: 3, label: 'Good', color: 'info.main' };
+    return { strength: 5, label: 'Very strong', color: 'success.main' };
   };
 
   const passwordStrength = calculatePasswordStrength(newPassword);
   const passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
 
+  /**
+   * Handles password change submission
+   */
   const handleChangePassword = useCallback(() => {
     if (newPassword !== confirmPassword) {
       alert('Passwords do not match');
@@ -115,6 +156,9 @@ const SettingsTab: React.FC = () => {
     );
   }, [oldPassword, newPassword, confirmPassword, changePassword]);
 
+  /**
+   * Handles 2FA toggle
+   */
   const handleToggle2FA = useCallback(
     (enabled: boolean) => {
       setIs2FAEnabled(enabled);
@@ -124,21 +168,32 @@ const SettingsTab: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <Stack spacing={3}>
+      {/* Success Message Banner */}
       {showSuccessMessage && (
-        <Alert
-          variant="success"
+        <MuiAlert
+          severity="success"
           onClose={() => setShowSuccessMessage(false)}
+          sx={{ borderRadius: 2 }}
         >
-          <div className="flex items-center gap-2">
-            <Info className="w-5 h-5" />
-            <span className="font-bold">Password Changed successfully</span>
-          </div>
-        </Alert>
+          <AlertTitle sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Info size={20} />
+            Password Changed successfully
+          </AlertTitle>
+        </MuiAlert>
       )}
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="divide-y divide-gray-200">
+      {/* Settings Options */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'grey.200',
+          overflow: 'hidden',
+        }}
+      >
+        <Stack divider={<Box sx={{ borderBottom: '1px solid', borderColor: 'grey.200' }} />}>
           <RowWithButton
             title="Change Your Password"
             buttonLabel="Change"
@@ -154,18 +209,27 @@ const SettingsTab: React.FC = () => {
             checked={quoteboardEnabled}
             onChange={(val) => setQuoteboardEnabled(val)}
           />
-        </div>
-      </div>
+        </Stack>
+      </Paper>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-gray-900">
+      {/* Notification Settings */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'grey.200',
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'grey.900' }}>
             Notification
-          </h3>
-          <p className="text-sm text-gray-600">
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'grey.600' }}>
             Get notifications to find out what&apos;s going on when you&apos;re not in app. You can
             turn them off anytime.
-          </p>
+          </Typography>
 
           <NotifyGroup
             title="Prediction Insights"
@@ -187,8 +251,8 @@ const SettingsTab: React.FC = () => {
             state={newsAlerts}
             onChange={setNewsAlerts}
           />
-        </div>
-      </div>
+        </Stack>
+      </Paper>
 
       {/* Change Password Dialog */}
       <Dialog
@@ -197,7 +261,7 @@ const SettingsTab: React.FC = () => {
         maxWidth="sm"
         fullWidth
         PaperProps={{
-          className: 'rounded-lg',
+          sx: { borderRadius: 2 },
         }}
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}>
@@ -217,7 +281,7 @@ const SettingsTab: React.FC = () => {
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               InputProps={{
-                startAdornment: <Lock className="text-gray-400 mr-2" />,
+                startAdornment: <Lock size={20} style={{ marginRight: 8, color: '#9ca3af' }} />,
                 endAdornment: (
                   <IconButton
                     onClick={() => setShowPassword((prev) => ({ ...prev, old: !prev.old }))}
@@ -235,7 +299,7 @@ const SettingsTab: React.FC = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               InputProps={{
-                startAdornment: <Lock className="text-gray-400 mr-2" />,
+                startAdornment: <Lock size={20} style={{ marginRight: 8, color: '#9ca3af' }} />,
                 endAdornment: (
                   <IconButton
                     onClick={() => setShowPassword((prev) => ({ ...prev, new: !prev.new }))}
@@ -247,8 +311,8 @@ const SettingsTab: React.FC = () => {
               }}
             />
             {newPassword && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Stack spacing={0.5}>
+                <Stack direction="row" spacing={0.5}>
                   {[1, 2, 3, 4, 5].map((level) => (
                     <Box
                       key={level}
@@ -257,16 +321,16 @@ const SettingsTab: React.FC = () => {
                         flex: 1,
                         borderRadius: 1,
                         bgcolor: level <= passwordStrength.strength
-                          ? passwordStrength.color.replace('bg-', '')
+                          ? passwordStrength.color
                           : 'grey.300',
                       }}
                     />
                   ))}
-                </Box>
-                <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                </Stack>
+                <Typography variant="body2" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                   {passwordStrength.label}
                 </Typography>
-              </Box>
+              </Stack>
             )}
             <TextField
               fullWidth
@@ -276,7 +340,7 @@ const SettingsTab: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               error={!!confirmPassword && !passwordsMatch}
               InputProps={{
-                startAdornment: <Lock className="text-gray-400 mr-2" />,
+                startAdornment: <Lock size={20} style={{ marginRight: 8, color: '#9ca3af' }} />,
                 endAdornment: (
                   <IconButton
                     onClick={() => setShowPassword((prev) => ({ ...prev, confirm: !prev.confirm }))}
@@ -288,12 +352,12 @@ const SettingsTab: React.FC = () => {
               }}
             />
             {confirmPassword && passwordsMatch && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
-                <CheckCircle fontSize="small" />
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', color: 'success.main' }}>
+                <CheckCircle size={16} />
                 <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
                   Password matches
                 </Typography>
-              </Box>
+              </Stack>
             )}
           </Stack>
         </DialogContent>
@@ -309,23 +373,41 @@ const SettingsTab: React.FC = () => {
               !confirmPassword ||
               !passwordsMatch
             }
-            className="normal-case bg-green-600 text-white hover:bg-green-700"
+            sx={{
+              textTransform: 'none',
+              bgcolor: 'success.main',
+              color: 'white',
+              '&:hover': { bgcolor: 'success.dark' },
+            }}
           >
             {isChangingPassword ? 'Changing...' : 'Change Password'}
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Stack>
   );
 };
 
 export default SettingsTab;
 
+/**
+ * Props for RowWithButton component
+ */
 interface RowWithButtonProps {
+  /** Title text to display */
   title: string;
+  /** Button label text */
   buttonLabel: string;
+  /** Click handler for the button */
   onClick: () => void;
 }
+
+/**
+ * RowWithButton Component
+ * 
+ * Displays a row with a title and action button.
+ * Used for settings options that trigger actions.
+ */
 
 const RowWithButton: React.FC<RowWithButtonProps> = ({ title, buttonLabel, onClick }) => (
   <Box
@@ -360,12 +442,24 @@ const RowWithButton: React.FC<RowWithButtonProps> = ({ title, buttonLabel, onCli
   </Box>
 );
 
+/**
+ * Props for RowWithSwitch component
+ */
 interface RowWithSwitchProps {
+  /** Title text to display */
   title: string;
+  /** Current checked state */
   checked: boolean;
+  /** Change handler for the switch */
   onChange: (val: boolean) => void;
 }
 
+/**
+ * RowWithSwitch Component
+ * 
+ * Displays a row with a title and toggle switch.
+ * Used for settings options that can be enabled/disabled.
+ */
 const RowWithSwitch: React.FC<RowWithSwitchProps> = ({ title, checked, onChange }) => (
   <Box
     sx={{
@@ -391,15 +485,35 @@ const RowWithSwitch: React.FC<RowWithSwitchProps> = ({ title, checked, onChange 
   </Box>
 );
 
+/**
+ * Props for NotifyGroup component
+ */
 interface NotifyGroupProps {
+  /** Title of the notification category */
   title: string;
+  /** Description of what notifications are included */
   description: string;
-  state: { inApp: boolean; push: boolean };
-  onChange: (val: { inApp: boolean; push: boolean }) => void;
+  /** Current notification state */
+  state: NotificationState;
+  /** Change handler for notification state */
+  onChange: (val: NotificationState) => void;
 }
 
+/**
+ * NotifyGroup Component
+ * 
+ * Displays a notification category with in-app and push notification toggles.
+ * Groups related notification settings together.
+ */
 const NotifyGroup: React.FC<NotifyGroupProps> = ({ title, description, state, onChange }) => (
-  <Stack spacing={1.5} sx={{ borderBottom: '1px solid #f1f1f1', pb: 2 }}>
+  <Stack 
+    spacing={1.5} 
+    sx={{ 
+      borderBottom: '1px solid', 
+      borderColor: 'grey.100', 
+      pb: 2 
+    }}
+  >
     <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
       {title}
     </Typography>
@@ -421,15 +535,27 @@ const NotifyGroup: React.FC<NotifyGroupProps> = ({ title, description, state, on
   </Stack>
 );
 
+/**
+ * Props for RowToggle component
+ */
 interface RowToggleProps {
+  /** Label text to display */
   label: string;
+  /** Current checked state */
   checked: boolean;
+  /** Change handler for the toggle */
   onChange: (val: boolean) => void;
 }
 
+/**
+ * RowToggle Component
+ * 
+ * Displays a simple row with a label and toggle switch.
+ * Used for individual notification type toggles.
+ */
 const RowToggle: React.FC<RowToggleProps> = ({ label, checked, onChange }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-    <Typography variant="body1" sx={{ fontWeight: 500, color: '#1f2937' }}>
+    <Typography variant="body1" sx={{ fontWeight: 500, color: 'grey.800' }}>
       {label}
     </Typography>
     <Switch

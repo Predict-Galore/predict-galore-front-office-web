@@ -1,6 +1,11 @@
 /**
  * League Section Component
  * Displays matches grouped by league with expandable/collapsible functionality
+ * 
+ * @component
+ * @description A collapsible section showing prediction matches for a specific league.
+ * Each match displays team information, predicted scores, and match status.
+ * Supports locked matches that cannot be accessed without premium.
  */
 
 'use client';
@@ -19,19 +24,43 @@ import {
 import { useRouter } from 'next/navigation';
 import type { Prediction } from '@/features/predictions/model/types';
 
+/**
+ * Props for the LeagueSection component
+ */
 interface LeagueSectionProps {
+  /** Name of the league */
   leagueName: string;
+  /** Optional URL for the league logo */
   leagueLogo?: string;
+  /** Array of prediction matches in this league */
   matches: Prediction[];
+  /** Optional callback when a match is clicked */
   onMatchClick?: (match: Prediction) => void;
 }
+
+/**
+ * LeagueSection Component
+ * 
+ * Displays a collapsible section of prediction matches for a specific league.
+ * Shows match status, team information, and predicted scores.
+ * Locked matches display a lock icon instead of the prediction.
+ * 
+ * @example
+ * ```tsx
+ * <LeagueSection
+ *   leagueName="Premier League"
+ *   leagueLogo="/logos/premier-league.png"
+ *   matches={predictions}
+ *   onMatchClick={(match) => router.push(`/predictions/${match.id}`)}
+ * />
+ * ```
+ */
 
 const LeagueSection: React.FC<LeagueSectionProps> = ({
   leagueName,
   leagueLogo,
   matches,
   onMatchClick,
-  // className,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
@@ -39,6 +68,10 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
   // Only use backend-provided leagueLogo if present (no static/mock logo mapping)
   const displayLogo = leagueLogo;
 
+  /**
+   * Handles match click event
+   * Uses custom callback if provided, otherwise navigates to match detail page
+   */
   const handleMatchClick = useCallback(
     (match: Prediction) => {
       if (onMatchClick) {
@@ -50,7 +83,7 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
     [onMatchClick, router]
   );
 
-
+  // Don't render if no matches
   if (matches.length === 0) {
     return null;
   }

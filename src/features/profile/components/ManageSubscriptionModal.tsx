@@ -1,5 +1,10 @@
 /**
  * Manage Subscription Modal Component
+ * Allows users to view and switch between subscription plans
+ * 
+ * @component
+ * @description Modal dialog for managing subscription plans.
+ * Displays available plans and allows users to subscribe or switch plans.
  */
 
 'use client';
@@ -14,29 +19,62 @@ import {
   IconButton,
   Box,
   Stack,
+  Typography,
 } from '@mui/material';
 import { Close, CheckCircle } from '@mui/icons-material';
-import { cn } from '@/shared/lib/utils';
-import { text } from '@/shared/constants/styles';
 import type { Subscription } from '@/features/profile/model/types';
 
+/**
+ * Subscription plan interface
+ */
 interface Plan {
+  /** Unique plan identifier */
   id: number;
+  /** Display name of the plan */
   name: string;
+  /** Plan code for backend identification */
   planCode: string;
+  /** Plan price amount */
   amount: number;
+  /** Plan duration in days */
   duration: number;
+  /** Whether the plan is currently active */
   isActive: boolean;
 }
 
+/**
+ * Props for the ManageSubscriptionModal component
+ */
 interface ManageSubscriptionModalProps {
+  /** Controls modal visibility */
   open: boolean;
+  /** Callback when modal is closed */
   onClose: () => void;
+  /** Current active subscription */
   currentSubscription?: Subscription | null;
+  /** Available subscription plans */
   plans: Plan[];
+  /** Callback when subscription is changed */
   onSubscriptionChange: () => void;
 }
 
+/**
+ * ManageSubscriptionModal Component
+ * 
+ * Displays available subscription plans and allows users to subscribe or switch.
+ * Shows current active plan with a checkmark indicator.
+ * 
+ * @example
+ * ```tsx
+ * <ManageSubscriptionModal
+ *   open={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   currentSubscription={subscription}
+ *   plans={availablePlans}
+ *   onSubscriptionChange={handleSubscriptionChange}
+ * />
+ * ```
+ */
 const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
   open,
   onClose,
@@ -46,16 +84,23 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
 }) => {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
+  // Normalize plans data structure
   const planList: Plan[] = Array.isArray(plans)
     ? plans
     : plans && typeof plans === 'object'
       ? Object.values(plans as Record<string, Plan>)
       : [];
 
+  /**
+   * Handles plan selection
+   */
   const handlePlanSelect = useCallback((plan: Plan) => {
     setSelectedPlan(plan);
   }, []);
 
+  /**
+   * Handles subscription to selected plan
+   */
   const handleSubscribe = useCallback(() => {
     if (selectedPlan) {
       // TODO: Implement subscription logic
@@ -64,6 +109,9 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
     }
   }, [selectedPlan, onSubscriptionChange]);
 
+  /**
+   * Checks if a plan is currently active
+   */
   const isPlanActive = (plan: Plan) => {
     return (
       currentSubscription?.planCode === plan.planCode && currentSubscription?.status === 'active'
@@ -77,17 +125,23 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        className: 'rounded-lg',
+        sx: { borderRadius: 2 },
       }}
     >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 1.5 }}>
         <Box>
-          <h3 className={cn(text.heading.h5, 'font-bold mb-1')}>Manage your Subscription</h3>
-          <p className={cn(text.body.small, 'text-gray-600')}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+            Manage your Subscription
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'grey.600' }}>
             Switch between our subscription plans
-          </p>
+          </Typography>
         </Box>
-        <IconButton onClick={onClose} size="small" className="text-gray-500 hover:text-gray-700">
+        <IconButton 
+          onClick={onClose} 
+          size="small" 
+          sx={{ color: 'grey.500', '&:hover': { color: 'grey.700' } }}
+        >
           <Close />
         </IconButton>
       </DialogTitle>
@@ -108,54 +162,78 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
               <Box
                 key={plan.id}
                 onClick={() => handlePlanSelect(plan)}
-                className={cn(
-                  'p-4 border-2 rounded-xl cursor-pointer transition-all',
-                  isActive
-                    ? 'border-[#22c55e] bg-[#ecfdf3]'
-                    : 'border-gray-300 bg-white hover:border-gray-300',
-                  selectedPlan?.id === plan.id && !isActive && 'border-[#22c55e] bg-[#ecfdf3]'
-                )}
+                sx={{
+                  p: 2,
+                  border: '2px solid',
+                  borderColor: isActive || selectedPlan?.id === plan.id
+                    ? 'success.main'
+                    : 'grey.300',
+                  bgcolor: isActive || selectedPlan?.id === plan.id
+                    ? 'success.50'
+                    : 'white',
+                  borderRadius: 3,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: isActive ? 'success.main' : 'grey.400',
+                  },
+                }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Stack direction="row" spacing={2} alignItems="flex-start" justifyContent="space-between">
                   <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <h4 className={cn(text.heading.h6, 'font-semibold')}>
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {isYearly ? 'Yearly' : isMonthly ? 'Monthly' : plan.name}
-                      </h4>
-                      {isActive && <CheckCircle className="text-green-600" fontSize="small" />}
-                    </Box>
-                    <p className={cn(text.heading.h5, 'font-bold text-gray-900')}>
+                      </Typography>
+                      {isActive && <CheckCircle sx={{ fontSize: 20, color: 'success.main' }} />}
+                    </Stack>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'grey.900' }}>
                       ${formattedAmount}
-                    </p>
+                    </Typography>
                   </Box>
                   <Button
                     variant={isActive ? 'contained' : 'outlined'}
                     disabled={isActive}
-                    className={cn(
-                      'normal-case',
-                      isActive
-                        ? 'bg-[#19910c] text-white hover:bg-[#19910c]'
-                        : 'border-gray-400 text-gray-800 hover:bg-gray-50'
-                    )}
-                    fullWidth
+                    sx={{
+                      textTransform: 'none',
+                      ...(isActive
+                        ? {
+                            bgcolor: 'success.main',
+                            color: 'white',
+                            '&:hover': { bgcolor: 'success.main' },
+                          }
+                        : {
+                            borderColor: 'grey.400',
+                            color: 'grey.800',
+                            '&:hover': { bgcolor: 'grey.50' },
+                          }),
+                    }}
                   >
                     {isActive ? 'Subscribed' : 'Subscribe'}
                   </Button>
-                </Box>
+                </Stack>
               </Box>
             );
           })}
         </Stack>
       </DialogContent>
-      <DialogActions className="px-6 pb-6">
-        <Button onClick={onClose} className="normal-case text-gray-600">
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button 
+          onClick={onClose} 
+          sx={{ textTransform: 'none', color: 'grey.600' }}
+        >
           Cancel
         </Button>
         {selectedPlan && !isPlanActive(selectedPlan) && (
           <Button
             onClick={handleSubscribe}
             variant="contained"
-            className="normal-case bg-[#19910c] text-white hover:bg-[#15830a]"
+            sx={{
+              textTransform: 'none',
+              bgcolor: 'success.main',
+              color: 'white',
+              '&:hover': { bgcolor: 'success.dark' },
+            }}
           >
             Subscribe
           </Button>

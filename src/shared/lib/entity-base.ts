@@ -440,7 +440,13 @@ export const EntityUtils = {
    * Deep clone an object
    */
   deepClone<T>(obj: T): T {
-    return JSON.parse(JSON.stringify(obj));
+    try {
+      return JSON.parse(JSON.stringify(obj));
+    } catch (error) {
+      console.error('Failed to deep clone object:', error);
+      // Fallback to shallow copy if JSON serialization fails
+      return { ...obj } as T;
+    }
   },
 
   /**

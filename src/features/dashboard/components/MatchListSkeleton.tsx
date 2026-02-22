@@ -1,3 +1,12 @@
+/**
+ * Match List Skeleton Component
+ * Loading skeleton for match lists
+ * 
+ * @component
+ * @description Displays a skeleton loading state for match lists while data is being fetched.
+ * Shows placeholder sections with rows to match the expected layout.
+ */
+
 'use client';
 
 import React from 'react';
@@ -9,11 +18,29 @@ import {
   Divider,
 } from '@mui/material';
 
+/**
+ * Props for the MatchListSkeleton component
+ */
 interface MatchListSkeletonProps {
+  /** Number of league sections to display (default: 2) */
   sections?: number;
+  /** Number of match rows per section (default: 5) */
   rowsPerSection?: number;
+  /** Optional CSS class name for additional styling */
   className?: string;
 }
+
+/**
+ * MatchListSkeleton Component
+ * 
+ * Renders a loading skeleton that mimics the structure of the match list.
+ * Useful for providing visual feedback while match data is being loaded.
+ * 
+ * @example
+ * ```tsx
+ * <MatchListSkeleton sections={3} rowsPerSection={4} />
+ * ```
+ */
 
 const MatchListSkeleton: React.FC<MatchListSkeletonProps> = ({
   sections = 2,

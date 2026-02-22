@@ -119,9 +119,18 @@ class ApiClient {
       throw new ApiError(errorMessage, response.status, response.statusText, errorData);
     }
 
-    // Parse response
+    // Parse response - handle empty responses gracefully
     try {
-      const data = responseText ? JSON.parse(responseText) : null;
+      // If response is empty, return null instead of trying to parse
+      if (!responseText || responseText.trim() === '') {
+        this.logger.info('API request successful (empty response)', {
+          status: response.status,
+          duration,
+        });
+        return null as T;
+      }
+
+      const data = JSON.parse(responseText);
 
       this.logger.info('API request successful', {
         status: response.status,
@@ -130,8 +139,15 @@ class ApiClient {
 
       return data as T;
     } catch (error) {
-      this.logger.error('Failed to parse response', { error, responseText });
-      throw new ApiError('Failed to parse response', response.status, response.statusText);
+      this.logger.error('Failed to parse response', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        responseText: responseText.substring(0, 200), // Log first 200 chars only
+      });
+      throw new ApiError(
+        'Failed to parse response: ' + (error instanceof Error ? error.message : 'Invalid JSON'),
+        response.status,
+        response.statusText
+      );
     }
   }
 

@@ -1,24 +1,52 @@
 /**
  * Search Bar Component
- * Professional implementation following DatePicker pattern
+ * Professional search input with dropdown functionality
+ * 
+ * @component
+ * @description A search input component that displays a dropdown with search results.
+ * Supports keyboard navigation, outside click detection, and clear functionality.
  */
 
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Search, Close } from '@mui/icons-material';
-import { cn } from '@/shared/lib/utils';
+import { Box, InputBase, IconButton, InputAdornment } from '@mui/material';
 import SearchDropdown from './SearchDropdown';
 import type { SearchResult } from '../model/types';
 
+/**
+ * Props for the SearchBar component
+ */
 interface SearchBarProps {
+  /** Callback when search query changes */
   onSearch?: (query: string) => void;
+  /** Callback when a search result is clicked */
   onResultClick?: (result: SearchResult) => void;
+  /** Placeholder text for the input */
   placeholder?: string;
+  /** Visual variant of the search bar */
   variant?: 'default' | 'header';
+  /** Optional CSS class name */
   className?: string;
 }
 
+/**
+ * SearchBar Component
+ * 
+ * Provides a search input with dropdown results.
+ * Automatically opens dropdown when typing or focusing.
+ * Supports keyboard shortcuts and outside click detection.
+ * 
+ * @example
+ * ```tsx
+ * <SearchBar
+ *   onSearch={(query) => console.log(query)}
+ *   onResultClick={(result) => navigate(result.url)}
+ *   placeholder="Search for players, teams..."
+ * />
+ * ```
+ */
 const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
   {
     onSearch,
@@ -37,6 +65,9 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
 
   useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
+  /**
+   * Handles input value changes
+   */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -50,6 +81,9 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
     [onSearch]
   );
 
+  /**
+   * Clears the search input and closes dropdown
+   */
   const handleClear = useCallback(() => {
     setQuery('');
     setIsOpen(false);
@@ -57,10 +91,16 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
     onSearch?.('');
   }, [onSearch]);
 
+  /**
+   * Opens dropdown when input is focused
+   */
   const handleFocus = useCallback(() => {
     setIsOpen(true);
   }, []);
 
+  /**
+   * Handles result click from dropdown
+   */
   const handleResultClick = useCallback((result: SearchResult) => {
     onResultClick?.(result);
     setIsOpen(false);
@@ -106,43 +146,64 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
   }, [isOpen]);
 
   return (
-    <div ref={containerRef} className={cn('relative w-full', className)}>
-      <div className="relative flex items-center">
-        {/* Search Icon */}
-        <div className="absolute left-3 pointer-events-none z-10">
-          <Search className="w-5 h-5 text-gray-400" />
-        </div>
-
-        {/* Input */}
-        <input
-          ref={inputRef}
+    <Box ref={containerRef} sx={{ position: 'relative', width: '100%' }} className={className}>
+      <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <InputBase
+          inputRef={inputRef}
           type="text"
           value={query}
           onChange={handleChange}
           onFocus={handleFocus}
           placeholder={placeholder}
-          className={cn(
-            'w-full pl-10 pr-10 py-2.5 rounded-full',
-            'bg-gray-100 border border-gray-100',
-            'focus:border-gray-200 focus:ring-2 focus:ring-gray-300/40',
-            'text-gray-900 placeholder-gray-400',
-            'transition-all duration-200 focus:outline-none',
-            variant === 'default' && 'rounded-lg border-gray-300 focus:border-green-500 focus:ring-green-500/20 bg-white'
-          )}
+          startAdornment={
+            <InputAdornment position="start">
+              <Search sx={{ color: 'grey.400', fontSize: 20 }} />
+            </InputAdornment>
+          }
+          endAdornment={
+            query && (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleClear}
+                  size="small"
+                  aria-label="Clear search"
+                  sx={{
+                    '&:hover': { bgcolor: 'grey.200' },
+                  }}
+                >
+                  <Close sx={{ fontSize: 16, color: 'grey.400' }} />
+                </IconButton>
+              </InputAdornment>
+            )
+          }
+          sx={{
+            width: '100%',
+            px: 1.5,
+            py: 1.25,
+            borderRadius: variant === 'default' ? 2 : '9999px',
+            bgcolor: variant === 'default' ? 'white' : 'grey.100',
+            border: '1px solid',
+            borderColor: variant === 'default' ? 'grey.300' : 'grey.100',
+            transition: 'all 0.2s',
+            '&:hover': {
+              borderColor: variant === 'default' ? 'grey.400' : 'grey.200',
+            },
+            '&.Mui-focused': {
+              borderColor: variant === 'default' ? 'success.main' : 'grey.200',
+              boxShadow: variant === 'default' 
+                ? '0 0 0 3px rgba(34, 197, 94, 0.1)' 
+                : '0 0 0 3px rgba(0, 0, 0, 0.05)',
+            },
+            '& input': {
+              color: 'grey.900',
+              '&::placeholder': {
+                color: 'grey.400',
+                opacity: 1,
+              },
+            },
+          }}
         />
-
-        {/* Clear Button */}
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-3 p-1 rounded-full hover:bg-gray-200 transition-colors z-10"
-            aria-label="Clear search"
-          >
-            <Close className="w-4 h-4 text-gray-400" />
-          </button>
-        )}
-      </div>
+      </Box>
 
       {/* Search Dropdown */}
       {isOpen && (
@@ -153,7 +214,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((
           onResultClick={handleResultClick}
         />
       )}
-    </div>
+    </Box>
   );
 });
 

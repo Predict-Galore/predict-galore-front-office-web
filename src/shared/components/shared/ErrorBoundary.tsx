@@ -3,7 +3,10 @@
  *
  * Catches JavaScript errors anywhere in the child component tree,
  * logs those errors, and displays a fallback UI instead of crashing.
- * Migrated to use new Tailwind design system components
+ * 
+ * @component
+ * @description React Error Boundary that catches errors in child components
+ * and displays a user-friendly error message with recovery options.
  */
 
 'use client';
@@ -11,26 +14,57 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
 import { Button } from '@/shared/components/ui/Button/Button';
 import { createLogger } from '@/shared/api/logger';
 
 const logger = createLogger('ErrorBoundary');
 
+/**
+ * Props for the ErrorBoundary component
+ */
 interface Props {
+  /** Child components to wrap with error boundary */
   children: ReactNode;
+  /** Custom fallback UI to display on error */
   fallback?: ReactNode;
+  /** Callback when an error is caught */
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  /** Keys that trigger error boundary reset when changed */
   resetKeys?: Array<string | number>;
+  /** Whether to reset error boundary when any prop changes */
   resetOnPropsChange?: boolean;
 }
 
+/**
+ * State for the ErrorBoundary component
+ */
 interface State {
+  /** Whether an error has been caught */
   hasError: boolean;
+  /** The caught error object */
   error: Error | null;
+  /** Additional error information from React */
   errorInfo: ErrorInfo | null;
 }
 
+/**
+ * ErrorBoundary Component
+ * 
+ * Wraps child components and catches any JavaScript errors.
+ * Displays a fallback UI with options to retry or go home.
+ * Logs errors for debugging and monitoring.
+ * 
+ * @example
+ * ```tsx
+ * <ErrorBoundary
+ *   onError={(error) => logToService(error)}
+ *   resetKeys={[userId]}
+ * >
+ *   <YourComponent />
+ * </ErrorBoundary>
+ * ```
+ */
 class ErrorBoundary extends Component<Props, State> {
   private resetTimeoutId: NodeJS.Timeout | null = null;
 
@@ -106,6 +140,9 @@ class ErrorBoundary extends Component<Props, State> {
     }
   }
 
+  /**
+   * Resets the error boundary state to allow retry
+   */
   resetErrorBoundary = () => {
     if (this.resetTimeoutId) {
       clearTimeout(this.resetTimeoutId);
@@ -127,7 +164,7 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      // Default fallback UI using new design system
+      // Default fallback UI using Material-UI
       return (
         <Box
           sx={{
@@ -149,15 +186,15 @@ class ErrorBoundary extends Component<Props, State> {
               textAlign: 'center',
             }}
           >
-            <AlertTriangle
-              className="w-15 h-15"
-              style={{
-                width: '60px',
-                height: '60px',
-                color: '#dc2626',
-                margin: '0 auto 16px',
-              }}
-            />
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+              <AlertTriangle
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  color: '#dc2626',
+                }}
+              />
+            </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
               Something went wrong
@@ -167,12 +204,13 @@ class ErrorBoundary extends Component<Props, State> {
               {this.state.error?.message || 'An unexpected error occurred'}
             </Typography>
 
+            {/* Development error details */}
             {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
               <Box
                 sx={{
                   mt: 3,
                   p: 2,
-                  bgcolor: 'neutral.100',
+                  bgcolor: 'grey.100',
                   borderRadius: 3,
                   textAlign: 'left',
                   maxHeight: 192,
@@ -194,10 +232,11 @@ class ErrorBoundary extends Component<Props, State> {
               </Box>
             )}
 
-            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', mt: 3 }}>
+            {/* Action buttons */}
+            <Stack direction="row" spacing={1.5} justifyContent="center" sx={{ mt: 3 }}>
               <Button
                 variant="primary"
-                leftIcon={<RefreshCw className="w-4 h-4" />}
+                leftIcon={<RefreshCw style={{ width: 16, height: 16 }} />}
                 onClick={this.resetErrorBoundary}
                 sx={{ minWidth: 140 }}
               >
@@ -207,13 +246,13 @@ class ErrorBoundary extends Component<Props, State> {
               <Link href="/" style={{ textDecoration: 'none' }}>
                 <Button
                   variant="outline"
-                  leftIcon={<Home className="w-4 h-4" />}
+                  leftIcon={<Home style={{ width: 16, height: 16 }} />}
                   sx={{ minWidth: 140 }}
                 >
                   Go Home
                 </Button>
               </Link>
-            </Box>
+            </Stack>
           </Box>
         </Box>
       );

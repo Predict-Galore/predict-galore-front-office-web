@@ -1,5 +1,10 @@
 /**
  * Edit Personal Details Modal Component
+ * Allows users to edit their first name, last name, and view email
+ * 
+ * @component
+ * @description Modal dialog for editing user profile information.
+ * Email field is read-only as it cannot be changed.
  */
 
 'use client';
@@ -15,20 +20,39 @@ import {
   IconButton,
   InputAdornment,
   Stack,
+  Typography,
 } from '@mui/material';
 import { Close, Person, Email } from '@mui/icons-material';
 import { useUpdateProfile } from '@/features/profile';
-import { cn } from '@/shared/lib/utils';
-import { text } from '@/shared/constants/styles';
-import { buttonColors } from '@/shared/components';
 import type { ProfileUser } from '@/features/profile/model/types';
 
+/**
+ * Props for the EditPersonalDetailsModal component
+ */
 interface EditPersonalDetailsModalProps {
+  /** Controls modal visibility */
   open: boolean;
+  /** Callback when modal is closed */
   onClose: () => void;
+  /** Current user profile data */
   profile?: ProfileUser;
 }
 
+/**
+ * EditPersonalDetailsModal Component
+ * 
+ * Provides a form for users to update their personal information.
+ * Email is displayed but cannot be edited.
+ * 
+ * @example
+ * ```tsx
+ * <EditPersonalDetailsModal
+ *   open={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   profile={userProfile}
+ * />
+ * ```
+ */
 const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
   open,
   onClose,
@@ -39,6 +63,7 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
   const [email, setEmail] = useState('');
   const { mutate: updateProfile, isPending } = useUpdateProfile();
 
+  // Load profile data when modal opens
   useEffect(() => {
     if (profile) {
       setFirstName(profile.firstName || '');
@@ -47,6 +72,9 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
     }
   }, [profile, open]);
 
+  /**
+   * Handles form submission to update profile
+   */
   const handleSave = useCallback(() => {
     updateProfile(
       {
@@ -68,17 +96,23 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        className: 'rounded-lg',
+        sx: { borderRadius: 2 },
       }}
     >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}>
-        <span className={cn(text.heading.h5, 'font-bold')}>Edit Personal Details</span>
-        <IconButton onClick={onClose} size="small" className="text-gray-500 hover:text-gray-700">
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          Edit Personal Details
+        </Typography>
+        <IconButton 
+          onClick={onClose} 
+          size="small" 
+          sx={{ color: 'grey.500', '&:hover': { color: 'grey.700' } }}
+        >
           <Close />
         </IconButton>
       </DialogTitle>
       <DialogContent sx={{ px: 3, pb: 2 }}>
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
             fullWidth
             label="First name"
@@ -87,11 +121,10 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Person className="text-gray-400" />
+                  <Person sx={{ color: 'grey.400' }} />
                 </InputAdornment>
               ),
             }}
-            className="mb-4"
           />
           <TextField
             fullWidth
@@ -101,11 +134,10 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Person className="text-gray-400" />
+                  <Person sx={{ color: 'grey.400' }} />
                 </InputAdornment>
               ),
             }}
-            className="mb-4"
           />
           <TextField
             fullWidth
@@ -116,7 +148,7 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Email className="text-gray-400" />
+                  <Email sx={{ color: 'grey.400' }} />
                 </InputAdornment>
               ),
             }}
@@ -126,19 +158,23 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button onClick={onClose} className="normal-case text-gray-600" disabled={isPending}>
+        <Button 
+          onClick={onClose} 
+          disabled={isPending}
+          sx={{ textTransform: 'none', color: 'grey.600' }}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSave}
           variant="contained"
           disabled={isPending || !firstName.trim() || !lastName.trim()}
-          className={cn(
-            'normal-case',
-            buttonColors.primary.bg,
-            buttonColors.primary.text,
-            buttonColors.primary.bgHover
-          )}
+          sx={{
+            textTransform: 'none',
+            bgcolor: 'success.main',
+            color: 'white',
+            '&:hover': { bgcolor: 'success.dark' },
+          }}
         >
           {isPending ? 'Saving...' : 'Save Changes'}
         </Button>

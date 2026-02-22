@@ -21,7 +21,13 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T
 
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      
+      // Handle empty or null values
+      if (!item || item.trim() === '') {
+        return initialValue;
+      }
+      
+      return JSON.parse(item);
     } catch (error) {
       logger.warn('Error reading localStorage', {
         key,
@@ -58,13 +64,26 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === key && event.newValue) {
-        setStoredValue(JSON.parse(event.newValue));
+        try {
+          // Handle empty values
+          if (event.newValue.trim() === '') {
+            setStoredValue(initialValue);
+            return;
+          }
+          setStoredValue(JSON.parse(event.newValue));
+        } catch (error) {
+          logger.warn('Error parsing storage event value', {
+            key,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+          setStoredValue(initialValue);
+        }
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [key]);
+  }, [key, initialValue]);
 
   return [storedValue, setValue];
 }

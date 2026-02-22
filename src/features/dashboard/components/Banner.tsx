@@ -1,6 +1,10 @@
 /**
  * Banner Component
- * Displays the responsible betting quote banner
+ * Displays the responsible betting quote banner with share functionality
+ * 
+ * @component
+ * @description A visually striking banner featuring a responsible betting quote
+ * with an abstract gradient background and share functionality.
  */
 
 'use client';
@@ -10,11 +14,30 @@ import { Share } from '@mui/icons-material';
 import { IconButton, Box, Typography } from '@mui/material';
 import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
 
+/**
+ * Props for the Banner component
+ */
 interface BannerProps {
+  /** Optional CSS class name for additional styling */
   className?: string;
 }
 
+/**
+ * Banner Component
+ * 
+ * Displays a prominent banner with a responsible betting quote and share functionality.
+ * Uses the Web Share API when available, with clipboard fallback.
+ * 
+ * @example
+ * ```tsx
+ * <Banner />
+ * ```
+ */
 const Banner: React.FC<BannerProps> = ({ className }) => {
+  /**
+   * Handles sharing the banner quote
+   * Uses native share API if available, otherwise copies to clipboard
+   */
   const handleShare = useCallback(() => {
     if (navigator.share) {
       navigator

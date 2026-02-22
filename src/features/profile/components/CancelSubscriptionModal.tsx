@@ -1,22 +1,48 @@
 /**
  * Cancel Subscription Modal Component
+ * Confirmation dialog for subscription cancellation
+ * 
+ * @component
+ * @description Displays a confirmation dialog when users attempt to cancel their subscription.
+ * Warns users about losing access to premium features.
  */
 
 'use client';
 
 import React from 'react';
-import { Dialog, DialogContent, DialogActions, Button, Box } from '@mui/material';
+import { Dialog, DialogContent, DialogActions, Button, Box, Typography, Stack } from '@mui/material';
 import { Cancel } from '@mui/icons-material';
-import { cn } from '@/shared/lib/utils';
-import { text } from '@/shared/constants/styles';
 
+/**
+ * Props for the CancelSubscriptionModal component
+ */
 interface CancelSubscriptionModalProps {
+  /** Controls modal visibility */
   open: boolean;
+  /** Callback when modal is closed */
   onClose: () => void;
+  /** Callback when cancellation is confirmed */
   onConfirm: () => void;
+  /** Whether the cancellation is in progress */
   isPending?: boolean;
 }
 
+/**
+ * CancelSubscriptionModal Component
+ * 
+ * Shows a confirmation dialog before canceling a subscription.
+ * Displays warning icon and explains what will be lost.
+ * 
+ * @example
+ * ```tsx
+ * <CancelSubscriptionModal
+ *   open={showModal}
+ *   onClose={() => setShowModal(false)}
+ *   onConfirm={handleCancelSubscription}
+ *   isPending={isCancelling}
+ * />
+ * ```
+ */
 const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = ({
   open,
   onClose,
@@ -30,56 +56,69 @@ const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = ({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        className: 'rounded-lg',
+        sx: { borderRadius: 2 },
       }}
     >
       <DialogContent sx={{ px: 3, pb: 2, pt: 3 }}>
-        <Box className="flex flex-col items-center text-center">
-          {/* Icon */}
-          <Box sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                bgcolor: 'error.100',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Cancel sx={{ fontSize: 32, color: 'error.main' }} />
-            </Box>
+        <Stack spacing={2} alignItems="center" sx={{ textAlign: 'center' }}>
+          {/* Warning Icon */}
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              bgcolor: 'error.100',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Cancel sx={{ fontSize: 32, color: 'error.main' }} />
           </Box>
 
           {/* Title */}
-          <h3 className={cn(text.heading.h5, 'font-bold mb-3')}>Cancel Subscription</h3>
+          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            Cancel Subscription
+          </Typography>
 
           {/* Message */}
-          <p className={cn(text.body.medium, 'text-gray-700')}>
+          <Typography variant="body1" sx={{ color: 'grey.700' }}>
             Are you sure you want to cancel your access to unlimited match predictions, expert
             player and club insights?
-          </p>
-        </Box>
+          </Typography>
+        </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
         <Button
           onClick={onClose}
           variant="outlined"
-          className="normal-case border-gray-400 text-gray-900 hover:bg-gray-50"
           disabled={isPending}
           fullWidth
-          sx={{ borderWidth: 2, borderRadius: 1.5, py: 1.2 }}
+          sx={{
+            textTransform: 'none',
+            borderColor: 'grey.400',
+            color: 'grey.900',
+            borderWidth: 2,
+            borderRadius: 1.5,
+            py: 1.2,
+            '&:hover': { bgcolor: 'grey.50', borderColor: 'grey.500', borderWidth: 2 },
+          }}
         >
           No, cancel
         </Button>
         <Button
           onClick={onConfirm}
           variant="contained"
-          className="normal-case bg-red-600 text-white hover:bg-red-700"
           disabled={isPending}
           fullWidth
-          sx={{ borderRadius: 1.5, py: 1.2 }}
+          sx={{
+            textTransform: 'none',
+            bgcolor: 'error.main',
+            color: 'white',
+            borderRadius: 1.5,
+            py: 1.2,
+            '&:hover': { bgcolor: 'error.dark' },
+          }}
         >
           {isPending ? 'Cancelling...' : 'Yes, cancel'}
         </Button>
