@@ -1,6 +1,6 @@
 /**
  * Reset Password Form Component
- * Migrated to feature architecture
+ * Updated to match UI design
  */
 
 'use client';
@@ -13,18 +13,17 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Paper,
-  Fade,
   Snackbar,
   InputAdornment,
   IconButton,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import {
   Visibility,
   VisibilityOff,
   Lock,
-  Error as ErrorIcon,
-  ArrowBack,
+  CheckCircle,
 } from '@mui/icons-material';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,7 +50,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
   // ===================================================================
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
 
   // ===================================================================
   // TOKEN HANDLING
@@ -60,28 +59,23 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
   const isTokenValid = urlToken.length > 0;
 
   // ===================================================================
-  // REACT QUERY MUTATION - Reset Password Submission Logic
+  // REACT QUERY MUTATION
   // ===================================================================
   const {
     mutate: submitResetPassword,
     isPending: isResetPasswordSubmitting,
     isError: resetPasswordHasSubmissionError,
     error: resetPasswordSubmissionError,
-    isSuccess: isResetPasswordSuccessful,
     reset: resetPasswordResetMutation,
   } = useResetPasswordMutation();
 
   // ===================================================================
-  // REACT HOOK FORM - Form State & Validation
+  // REACT HOOK FORM
   // ===================================================================
   const {
     control,
     handleSubmit,
-    formState: {
-      isValid: isFormValid,
-      errors: formValidationErrors,
-      isSubmitting: isReactHookFormSubmitting,
-    },
+    formState: { isValid: isFormValid },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -89,18 +83,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
       password: '',
       confirmPassword: '',
     },
-    mode: 'onBlur',
+    mode: 'onChange',
   });
-
-  // ===================================================================
-  // FORM VALIDATION HELPER
-  // ===================================================================
-  const formHasAnyValidationError = Object.keys(formValidationErrors).length > 0;
 
   // ===================================================================
   // FORM WATCHERS
   // ===================================================================
   const password = useWatch({ control, name: 'password' });
+  const confirmPassword = useWatch({ control, name: 'confirmPassword' });
 
   // ===================================================================
   // PASSWORD STRENGTH CALCULATION
@@ -109,17 +99,19 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
     return password ? validatePasswordStrength(password) : null;
   }, [password]);
 
+  const confirmPasswordStrength = React.useMemo(() => {
+    return confirmPassword ? validatePasswordStrength(confirmPassword) : null;
+  }, [confirmPassword]);
+
   // ===================================================================
   // FORM SUBMISSION HANDLER
   // ===================================================================
   const handleFormSubmission = async (formData: ResetPasswordFormData) => {
     try {
-      // Ensure we have a valid token
       if (!isTokenValid) {
         throw new Error('Invalid reset token');
       }
 
-      // Submit reset password request
       await submitResetPassword(
         {
           ...formData,
@@ -127,27 +119,24 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
         },
         {
           onSuccess: () => {
-            setIsSubmitted(true);
+            setShowSuccessModal(true);
 
-            // Redirect after successful reset
+            // Redirect after delay
             setTimeout(() => {
               if (onSuccess) {
                 onSuccess();
               } else {
-                router.push(`${AUTH_CONSTANTS.ROUTES.LOGIN}?reset=success`);
+                router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
               }
-            }, 2000);
+            }, 3000);
           },
         }
       );
     } catch (error) {
-      // Log error with context
       logger.error('Reset password submission error', {
         error,
         timestamp: new Date().toISOString(),
       });
-
-      // Re-throw for React Query UI handling
       throw error;
     }
   };
@@ -155,14 +144,6 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
   // ===================================================================
   // HANDLERS
   // ===================================================================
-  const handleRequestNewReset = () => {
-    router.push(AUTH_CONSTANTS.ROUTES.FORGOT_PASSWORD);
-  };
-
-  const handleBackToLogin = () => {
-    router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -171,175 +152,168 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
     setShowConfirmPassword((prev) => !prev);
   };
 
+  const handleContinueToLogin = () => {
+    setShowSuccessModal(false);
+    router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
+  };
+
+  // ===================================================================
+  // SUCCESS MODAL
+  // ===================================================================
+  const SuccessModal = () => (
+    <Dialog
+      open={showSuccessModal}
+      onClose={handleContinueToLogin}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '16px',
+          p: 2,
+        },
+      }}
+    >
+      <DialogContent sx={{ textAlign: 'center', py: 4 }}>
+        {/* Success Icon */}
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            backgroundColor: '#42A605',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 24px',
+          }}
+        >
+          <CheckCircle sx={{ fontSize: 48, color: 'white' }} />
+        </Box>
+
+        {/* Success Title */}
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: '#1a1a1a',
+            mb: 2,
+          }}
+        >
+          Password Reset Successful
+        </Typography>
+
+        {/* Success Message */}
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#667085',
+            mb: 4,
+            lineHeight: 1.6,
+          }}
+        >
+          Your password has been successfully updated. You can now use your new password to log in
+          securely
+        </Typography>
+
+        {/* Continue Button */}
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleContinueToLogin}
+          sx={{
+            height: '56px',
+            backgroundColor: '#42A605',
+            color: 'white',
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: '#368005',
+            },
+          }}
+        >
+          Continue to login
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+
   // ===================================================================
   // INVALID TOKEN SCREEN
   // ===================================================================
   if (!isTokenValid) {
     return (
-      <Paper sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, boxShadow: 3 }}>
-        <Box>
-          {/* Error Header */}
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'grey.900', mb: 2 }}>
-            Invalid Reset Link
+      <Box>
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: { xs: '2rem', sm: '2.5rem' },
+            fontWeight: 700,
+            color: '#1a1a1a',
+            mb: 2,
+          }}
+        >
+          Invalid Reset Link
+        </Typography>
+
+        <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>
+          <Typography variant="body2">
+            The password reset link is invalid or has expired. Please request a new password reset
+            link.
           </Typography>
+        </Alert>
 
-          {/* Error Message */}
-          <Alert
-            severity="error"
-            sx={{ mb: 3, '& .MuiAlert-message': { width: '100%' } }}
-          >
-            <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
-              Reset Link Issue
-            </Typography>
-            <Typography variant="body2">
-              The password reset link is invalid or has expired. Please request a new password reset
-              link.
-            </Typography>
-          </Alert>
-
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleRequestNewReset}
-              sx={{
-                height: '48px',
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                color: 'white',
-                borderRadius: '12px',
-                textTransform: 'none',
-                fontSize: '16px',
-                fontWeight: 600,
-                '&:hover': {
-                  backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-                  boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-                },
-              }}
-            >
-              Request New Reset Link
-            </Button>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<ArrowBack />}
-              onClick={handleBackToLogin}
-              sx={{
-                height: '48px',
-                borderRadius: '12px',
-                textTransform: 'none',
-                fontSize: '16px',
-                borderColor: '#e5e7eb',
-                color: '#6b7280',
-                '&:hover': {
-                  backgroundColor: '#f9fafb',
-                  borderColor: '#d1d5db',
-                },
-              }}
-            >
-              Back to Login
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-    );
-  }
-
-  // ===================================================================
-  // SUCCESS SCREEN
-  // ===================================================================
-  if (isSubmitted || isResetPasswordSuccessful) {
-    return (
-      <Paper sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, boxShadow: 3 }}>
-        <Box>
-          {/* Success Header */}
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'grey.900', mb: 2 }}>
-            Password Reset Successful!
-          </Typography>
-
-          {/* Success Message */}
-          <Alert
-            severity="success"
-            sx={{ mb: 3, '& .MuiAlert-message': { width: '100%' } }}
-          >
-            <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
-              Your password has been successfully updated
-            </Typography>
-            <Typography variant="body2">
-              You will be redirected to the login page shortly. Please use your new password to sign
-              in.
-            </Typography>
-          </Alert>
-
-          {/* Action Buttons */}
-          <Box>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleBackToLogin}
-              sx={{
-                height: '48px',
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                color: 'white',
-                borderRadius: '12px',
-                textTransform: 'none',
-                fontSize: '16px',
-                fontWeight: 600,
-                '&:hover': {
-                  backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-                  boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-                },
-              }}
-            >
-              Go to Login
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={() => router.push(AUTH_CONSTANTS.ROUTES.FORGOT_PASSWORD)}
+          sx={{
+            height: '56px',
+            backgroundColor: '#42A605',
+            color: 'white',
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: '#368005',
+            },
+          }}
+        >
+          Request New Reset Link
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <Paper className="p-6 md:p-8 rounded-2xl shadow-lg">
-      {/* Form Header */}
-      <Typography variant="h5" className="font-bold text-gray-900 mb-2">
-        Reset Your Password
+    <Box>
+      {/* Header */}
+      <Typography
+        variant="h1"
+        sx={{
+          fontSize: { xs: '2rem', sm: '2.5rem' },
+          fontWeight: 700,
+          color: '#1a1a1a',
+          mb: 2,
+        }}
+      >
+        Reset Password
       </Typography>
 
-      <Typography variant="body2" className="text-gray-600 mb-6">
-        Enter your new password below. Make sure it&apos;s strong and different from previous
-        passwords.
+      <Typography
+        variant="body1"
+        sx={{
+          color: '#667085',
+          fontSize: '1rem',
+          mb: 4,
+        }}
+      >
+        Create a new password to login with
       </Typography>
 
-      {/* ===================================================================
-          VALIDATION ERROR SUMMARY
-      =================================================================== */}
-      {formHasAnyValidationError && (
-        <Box sx={{ mb: 2 }}>
-          <Alert severity="warning" icon={<ErrorIcon />}>
-            <Typography variant="body2" fontWeight="medium">
-              Please fix the following errors:
-            </Typography>
-            <Box component="ul" sx={{ mt: 0.5, ml: 2, pl: 1, '& li': { fontSize: '0.875rem' } }}>
-              {Object.entries(formValidationErrors)
-                .map(([fieldName, error]) => {
-                  if (fieldName === 'token') return null; // Don't show token errors to user
-                  return (
-                    <Box component="li" key={fieldName}>
-                      {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}: {error.message}
-                    </Box>
-                  );
-                })
-                .filter(Boolean)}
-            </Box>
-          </Alert>
-        </Box>
-      )}
-
-      {/* ===================================================================
-          ERROR MESSAGE
-      =================================================================== */}
+      {/* Error Snackbar */}
       {resetPasswordHasSubmissionError && (
         <Snackbar
           open={resetPasswordHasSubmissionError}
@@ -360,10 +334,8 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
         </Snackbar>
       )}
 
-      {/* ===================================================================
-          RESET PASSWORD FORM
-      =================================================================== */}
-      <form onSubmit={handleSubmit(handleFormSubmission)} className="space-y-4">
+      {/* Form */}
+      <Box component="form" onSubmit={handleSubmit(handleFormSubmission)}>
         {/* Hidden token field */}
         <Controller
           name="token"
@@ -371,8 +343,20 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
           render={({ field }) => <input type="hidden" {...field} value={urlToken} />}
         />
 
-        {/* PASSWORD FIELD */}
-        <Box sx={{ mb: 4 }}>
+        {/* New Password Field */}
+        <Box sx={{ mb: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#1a1a1a',
+              fontSize: '14px',
+              fontWeight: 500,
+              mb: 1,
+            }}
+          >
+            New Password
+          </Typography>
+
           <Controller
             name="password"
             control={control}
@@ -380,18 +364,15 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
               <TextField
                 {...field}
                 fullWidth
-                label="New Password"
                 type={showPassword ? 'text' : 'password'}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
                 disabled={isResetPasswordSubmitting}
-                required
-                className="bg-white"
-                placeholder="Enter your new password"
+                placeholder="Set a password"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock className="text-gray-400" />
+                      <Lock sx={{ color: '#9ca3af', fontSize: 20 }} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -400,12 +381,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
                         onClick={togglePasswordVisibility}
                         edge="end"
                         size="small"
-                        sx={{
-                          color: '#6b7280',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                          },
-                        }}
+                        sx={{ color: '#9ca3af' }}
                       >
                         {showPassword ? (
                           <VisibilityOff fontSize="small" />
@@ -420,13 +396,28 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     height: '56px',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    fontSize: '16px',
+                    backgroundColor: '#ffffff',
+                    '& fieldset': {
+                      borderColor: '#e5e7eb',
                     },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    '&:hover fieldset': {
+                      borderColor: '#42A605',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#42A605',
                       borderWidth: '2px',
                     },
+                    '&.Mui-error fieldset': {
+                      borderColor: '#ef4444',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '16px',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    marginLeft: 0,
+                    marginTop: '8px',
                   },
                 }}
               />
@@ -434,8 +425,35 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
           />
         </Box>
 
-        {/* CONFIRM PASSWORD FIELD */}
-        <Box sx={{ mb: 4 }}>
+        {/* Password Strength Indicator */}
+        {passwordStrength && (
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#667085',
+                fontSize: '12px',
+              }}
+            >
+              Password strength
+            </Typography>
+          </Box>
+        )}
+
+        {/* Confirm Password Field */}
+        <Box sx={{ mb: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#1a1a1a',
+              fontSize: '14px',
+              fontWeight: 500,
+              mb: 1,
+            }}
+          >
+            Confirm Password
+          </Typography>
+
           <Controller
             name="confirmPassword"
             control={control}
@@ -443,18 +461,15 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
               <TextField
                 {...field}
                 fullWidth
-                label="Confirm New Password"
                 type={showConfirmPassword ? 'text' : 'password'}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
                 disabled={isResetPasswordSubmitting}
-                required
-                className="bg-white"
-                placeholder="Confirm your new password"
+                placeholder="Confirm new password"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock className="text-gray-400" />
+                      <Lock sx={{ color: '#9ca3af', fontSize: 20 }} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -463,12 +478,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
                         onClick={toggleConfirmPasswordVisibility}
                         edge="end"
                         size="small"
-                        sx={{
-                          color: '#6b7280',
-                          '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                          },
-                        }}
+                        sx={{ color: '#9ca3af' }}
                       >
                         {showConfirmPassword ? (
                           <VisibilityOff fontSize="small" />
@@ -483,13 +493,28 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     height: '56px',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    fontSize: '16px',
+                    backgroundColor: '#ffffff',
+                    '& fieldset': {
+                      borderColor: '#e5e7eb',
                     },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    '&:hover fieldset': {
+                      borderColor: '#42A605',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#42A605',
                       borderWidth: '2px',
                     },
+                    '&.Mui-error fieldset': {
+                      borderColor: '#ef4444',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '16px',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    marginLeft: 0,
+                    marginTop: '8px',
                   },
                 }}
               />
@@ -497,126 +522,58 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token: propToken,
           />
         </Box>
 
-        {/* PASSWORD STRENGTH INDICATOR */}
-        {passwordStrength && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-              Password Strength
+        {/* Confirm Password Strength Indicator */}
+        {confirmPasswordStrength && (
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#667085',
+                fontSize: '12px',
+              }}
+            >
+              Password strength
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-              {[0, 1, 2, 3, 4].map((index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    height: 8,
-                    flex: 1,
-                    borderRadius: 1,
-                    transition: 'background-color 0.3s',
-                    bgcolor:
-                      index < Object.values(passwordStrength.meetsRequirements).filter(Boolean).length
-                        ? passwordStrength.isValid
-                          ? 'success.main'
-                          : 'warning.main'
-                        : 'grey.300',
-                  }}
-                />
-              ))}
-            </Box>
-            <Typography variant="caption" color="text.secondary">
-              Password strength: {passwordStrength.score}% -{' '}
-              <Typography
-                component="span"
-                variant="caption"
-                sx={{ color: passwordStrength.isValid ? 'success.main' : 'warning.main' }}
-              >
-                {passwordStrength.isValid ? 'Strong' : 'Needs improvement'}
-              </Typography>
-            </Typography>
-            {passwordStrength.feedback.length > 0 && (
-              <Box>
-                <Typography variant="caption" sx={{ color: 'warning.main', display: 'block', mt: 0.5 }}>
-                  {passwordStrength.feedback.join(', ')}
-                </Typography>
-              </Box>
-            )}
           </Box>
         )}
 
-        {/* ===================================================================
-            SUBMIT BUTTON
-        =================================================================== */}
-        <Box>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            disabled={
-              isResetPasswordSubmitting ||
-              !isFormValid ||
-              isReactHookFormSubmitting ||
-              !isTokenValid
-            }
-            startIcon={
-              isResetPasswordSubmitting ? <CircularProgress size={20} color="inherit" /> : null
-            }
-            sx={{
-              height: '56px',
-              backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-              color: 'white',
-              borderRadius: '12px',
-              textTransform: 'none',
-              fontSize: '16px',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-                boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-              },
-              '&.Mui-disabled': {
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_LIGHT,
-                color: '#ffffff',
-              },
-            }}
-          >
-            {isResetPasswordSubmitting ? 'Resetting Password...' : 'Reset Password'}
-          </Button>
-        </Box>
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={!isFormValid || isResetPasswordSubmitting}
+          sx={{
+            height: '56px',
+            backgroundColor: '#42A605',
+            color: 'white',
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: '#368005',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#9ca3af',
+              color: '#ffffff',
+            },
+          }}
+        >
+          {isResetPasswordSubmitting ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={20} color="inherit" />
+              <span>Updating...</span>
+            </Box>
+          ) : (
+            'Update password'
+          )}
+        </Button>
+      </Box>
 
-        {/* ===================================================================
-            FORM STATUS INDICATOR
-        =================================================================== */}
-        <Fade in={isResetPasswordSubmitting}>
-          <Typography variant="caption" className="text-gray-500 text-center block">
-            {isResetPasswordSubmitting ? 'Updating your password...' : ''}
-          </Typography>
-        </Fade>
-
-        {/* ===================================================================
-            BACK TO LOGIN BUTTON
-        =================================================================== */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button
-            variant="text"
-            onClick={handleBackToLogin}
-            startIcon={<ArrowBack />}
-            disabled={isResetPasswordSubmitting}
-            sx={{
-              color: '#6b7280',
-              textTransform: 'none',
-              fontSize: '14px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: '#374151',
-              },
-            }}
-          >
-            Back to Login
-          </Button>
-        </Box>
-      </form>
-    </Paper>
+      {/* Success Modal */}
+      <SuccessModal />
+    </Box>
   );
 };
 
