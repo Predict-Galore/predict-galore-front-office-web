@@ -1,6 +1,6 @@
 /**
  * Forgot Password Form Component
- * Migrated to feature architecture
+ * Updated to match UI design
  */
 
 'use client';
@@ -13,12 +13,9 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Paper,
-  Fade,
   Snackbar,
-  InputAdornment,
 } from '@mui/material';
-import { Email, ArrowBack, Error as ErrorIcon } from '@mui/icons-material';
+import { ArrowBack } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -26,7 +23,6 @@ import { forgotPasswordSchema, ForgotPasswordFormData } from '../validations/sch
 import { AUTH_CONSTANTS } from '../lib/constants';
 import { useForgotPasswordMutation } from '../api/hooks';
 import { createLogger } from '@/shared/api';
-import { cn } from '@/shared/lib/utils';
 
 const logger = createLogger('ForgotPasswordForm');
 
@@ -45,7 +41,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
   const [submittedEmail, setSubmittedEmail] = React.useState<string>('');
 
   // ===================================================================
-  // REACT QUERY MUTATION - Forgot Password Submission Logic
+  // REACT QUERY MUTATION
   // ===================================================================
   const {
     mutate: submitForgotPassword,
@@ -57,62 +53,44 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
   } = useForgotPasswordMutation();
 
   // ===================================================================
-  // REACT HOOK FORM - Form State & Validation
+  // REACT HOOK FORM
   // ===================================================================
   const {
     control,
     handleSubmit,
-    formState: {
-      isValid: isFormValid,
-      errors: formValidationErrors,
-      isSubmitting: isReactHookFormSubmitting,
-    },
+    formState: { isValid: isFormValid },
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
-    mode: 'onBlur',
+    mode: 'onChange',
   });
-
-  // ===================================================================
-  // FORM VALIDATION HELPER
-  // ===================================================================
-  const formHasAnyValidationError = Object.keys(formValidationErrors).length > 0;
 
   // ===================================================================
   // FORM SUBMISSION HANDLER
   // ===================================================================
   const handleFormSubmission = async (formData: ForgotPasswordFormData) => {
     try {
-      // Clean email data
       const cleanFormData = {
         email: formData.email.toLowerCase().trim(),
       };
 
-      // Store the submitted email for display
       setSubmittedEmail(formData.email);
 
-      // Submit forgot password request
       await submitForgotPassword(cleanFormData, {
         onSuccess: () => {
-          // Show success state after successful submission
           setIsSubmitted(true);
-
-          // Call onSuccess callback if provided
           if (onSuccess) {
             onSuccess();
           }
         },
       });
     } catch (error) {
-      // Log error with context
       logger.error('Forgot password submission error', {
         error,
         timestamp: new Date().toISOString(),
       });
-
-      // Re-throw for React Query UI handling
       throw error;
     }
   };
@@ -139,151 +117,127 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
   // ===================================================================
   if (isSubmitted || isPasswordResetSuccessful) {
     return (
-      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: { xs: 2, md: 4 }, boxShadow: 3, width: '100%' }}>
-        <Box>
-          {/* Success Header */}
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 'bold', color: 'text.primary', mb: 2, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
-          >
-            Check Your Email
-          </Typography>
+      <Box>
+        {/* Header */}
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: { xs: '2rem', sm: '2.5rem' },
+            fontWeight: 700,
+            color: '#1a1a1a',
+            mb: 2,
+          }}
+        >
+          Check Your Email
+        </Typography>
 
-          {/* Success Message */}
-          <Alert
-            severity="success"
-            className="mb-6"
+        <Typography
+          variant="body1"
+          sx={{
+            color: '#667085',
+            fontSize: '1rem',
+            mb: 4,
+          }}
+        >
+          We&apos;ve sent password reset instructions to your email
+        </Typography>
+
+        {/* Success Message */}
+        <Alert
+          severity="success"
+          sx={{
+            mb: 4,
+            borderRadius: '12px',
+            '& .MuiAlert-message': {
+              width: '100%',
+            },
+          }}
+        >
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+            Password Reset Instructions Sent
+          </Typography>
+          <Typography variant="body2">
+            If an account exists with <strong>{submittedEmail}</strong>, you will receive password
+            reset instructions shortly.
+          </Typography>
+        </Alert>
+
+        {/* Action Buttons */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleResetForm}
             sx={{
-              '& .MuiAlert-message': {
-                width: '100%',
+              height: '56px',
+              backgroundColor: '#42A605',
+              color: 'white',
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontSize: '16px',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: '#368005',
               },
             }}
           >
-            <Typography variant="body1" className="font-medium mb-2">
-              Password Reset Instructions Sent
-            </Typography>
-            <Typography variant="body2">
-              If an account exists with <strong>{submittedEmail || 'this email'}</strong>, you will
-              receive password reset instructions shortly.
-            </Typography>
-          </Alert>
+            Send Another Reset Link
+          </Button>
 
-          {/* Additional Instructions */}
-          <Box className="space-y-3 mb-6">
-            <Typography variant="body2" className="text-gray-600">
-              <strong>What to do next:</strong>
-            </Typography>
-            <ul className="space-y-2 ml-4">
-              <li className="flex items-start">
-                <span className="text-green-600 mr-2">✓</span>
-                <Typography variant="body2" className="text-gray-600">
-                  Check your email inbox (and spam/junk folder)
-                </Typography>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 mr-2">✓</span>
-                <Typography variant="body2" className="text-gray-600">
-                  Click the reset link in the email
-                </Typography>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 mr-2">✓</span>
-                <Typography variant="body2" className="text-gray-600">
-                  Create a new password for your account
-                </Typography>
-              </li>
-            </ul>
-          </Box>
-
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Button
-                fullWidth
-                variant="contained"
-                onClick={handleResetForm}
-                sx={{
-                  height: { xs: '48px', sm: '56px' },
-                  backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-                  color: 'white',
-                  borderRadius: { xs: '10px', sm: '12px' },
-                  textTransform: 'none',
-                  fontSize: { xs: '14px', sm: '16px' },
-                  fontWeight: 600,
-                  '&:hover': {
-                    backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-                    boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-                  },
-                }}
-              >
-                Send Another Reset Link
-              </Button>
-            </Box>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<ArrowBack />}
-              onClick={handleBackToLogin}
-              sx={{
-                height: { xs: '48px', sm: '56px' },
-                borderRadius: { xs: '10px', sm: '12px' },
-                textTransform: 'none',
-                fontSize: { xs: '14px', sm: '16px' },
-                borderColor: '#e5e7eb',
-                color: '#6b7280',
-                '&:hover': {
-                  backgroundColor: '#f9fafb',
-                  borderColor: '#d1d5db',
-                },
-              }}
-            >
-              Back to Login
-            </Button>
-          </Box>
-      </Paper>
+          <Button
+            fullWidth
+            variant="text"
+            startIcon={<ArrowBack />}
+            onClick={handleBackToLogin}
+            sx={{
+              height: '56px',
+              color: '#667085',
+              textTransform: 'none',
+              fontSize: '16px',
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: 'transparent',
+                color: '#1a1a1a',
+              },
+            }}
+          >
+            Back to Login
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
+  // ===================================================================
+  // MAIN FORM
+  // ===================================================================
   return (
-    <Paper className="p-6 md:p-8 rounded-2xl shadow-lg">
-      {/* Form Header */}
+    <Box>
+      {/* Header */}
       <Typography
-        variant="h5"
-        className={cn('font-bold text-gray-900 mb-2', 'text-xl sm:text-2xl')}
+        variant="h1"
+        sx={{
+          fontSize: { xs: '2rem', sm: '2.5rem' },
+          fontWeight: 700,
+          color: '#1a1a1a',
+          mb: 2,
+        }}
       >
-        Reset Your Password
+        Forgot Password
       </Typography>
 
       <Typography
-        variant="body2"
-        className={cn('text-gray-600 mb-4 sm:mb-6', 'text-sm sm:text-base')}
+        variant="body1"
+        sx={{
+          color: '#667085',
+          fontSize: '1rem',
+          mb: 4,
+        }}
       >
-        Enter your email address and we&apos;ll send you instructions to reset your password.
+        Enter your registered email address to reset your password
       </Typography>
 
-      {/* ===================================================================
-          VALIDATION ERROR SUMMARY
-      =================================================================== */}
-      {formHasAnyValidationError && (
-        <Box sx={{ mb: 2 }}>
-          <Alert severity="warning" icon={<ErrorIcon />}>
-            <Typography variant="body2" fontWeight="medium">
-              Please fix the following errors:
-            </Typography>
-            <Box component="ul" sx={{ mt: 0.5, ml: 2, pl: 1, '& li': { fontSize: '0.875rem' } }}>
-              {Object.entries(formValidationErrors).map(([fieldName, error]) => (
-                <Box component="li" key={fieldName}>
-                  {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}: {error.message}
-                </Box>
-              ))}
-            </Box>
-          </Alert>
-        </Box>
-      )}
-
-      {/* ===================================================================
-          ERROR MESSAGE
-      =================================================================== */}
+      {/* Error Snackbar */}
       {passwordResetHasSubmissionError && (
         <Snackbar
           open={passwordResetHasSubmissionError}
@@ -304,16 +258,22 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
         </Snackbar>
       )}
 
-      {/* ===================================================================
-          FORGOT PASSWORD FORM
-      =================================================================== */}
-      <Box
-        component="form"
-        onSubmit={handleSubmit(handleFormSubmission)}
-        className={cn('space-y-3 sm:space-y-4 md:space-y-5', 'w-full')}
-      >
-        {/* EMAIL FIELD */}
-        <Box sx={{ mb: 4 }}>
+      {/* Form */}
+      <Box component="form" onSubmit={handleSubmit(handleFormSubmission)}>
+        {/* Email Field */}
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#1a1a1a',
+              fontSize: '14px',
+              fontWeight: 500,
+              mb: 1,
+            }}
+          >
+            Email address
+          </Typography>
+
           <Controller
             name="email"
             control={control}
@@ -321,36 +281,37 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
               <TextField
                 {...field}
                 fullWidth
-                label="Email Address"
                 type="email"
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
                 disabled={isPasswordResetSubmitting}
-                required
-                className="bg-white"
-                placeholder="Enter your registered email address"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email className="text-gray-400" />
-                    </InputAdornment>
-                  ),
-                }}
+                placeholder="Enter your email address"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: { xs: '10px', sm: '12px' },
-                    height: { xs: '48px', sm: '56px' },
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    borderRadius: '12px',
+                    height: '56px',
+                    fontSize: '16px',
+                    backgroundColor: '#ffffff',
+                    '& fieldset': {
+                      borderColor: '#e5e7eb',
                     },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: AUTH_CONSTANTS.COLORS.PRIMARY,
+                    '&:hover fieldset': {
+                      borderColor: '#42A605',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#42A605',
                       borderWidth: '2px',
                     },
+                    '&.Mui-error fieldset': {
+                      borderColor: '#ef4444',
+                    },
                   },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  '& .MuiInputBase-input': {
+                    padding: '16px',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    marginLeft: 0,
+                    marginTop: '8px',
                   },
                 }}
               />
@@ -358,68 +319,55 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
           />
         </Box>
 
-        {/* ===================================================================
-            SUBMIT BUTTON
-        =================================================================== */}
-        <Box>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            disabled={isPasswordResetSubmitting || !isFormValid || isReactHookFormSubmitting}
-            startIcon={
-              isPasswordResetSubmitting ? <CircularProgress size={20} color="inherit" /> : null
-            }
-            sx={{
-              height: '56px',
-              backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY,
-              color: 'white',
-              borderRadius: '12px',
-              textTransform: 'none',
-              fontSize: '16px',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_DARK,
-                boxShadow: AUTH_CONSTANTS.STYLES.BUTTON_SHADOW,
-              },
-              '&.Mui-disabled': {
-                backgroundColor: AUTH_CONSTANTS.COLORS.PRIMARY_LIGHT,
-                color: '#ffffff',
-              },
-            }}
-          >
-            {isPasswordResetSubmitting ? 'Sending Instructions...' : 'Send Reset Instructions'}
-          </Button>
-        </Box>
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isPasswordResetSubmitting || !isFormValid}
+          sx={{
+            height: '56px',
+            backgroundColor: '#42A605',
+            color: 'white',
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontSize: '16px',
+            fontWeight: 600,
+            mb: 2,
+            '&:hover': {
+              backgroundColor: '#368005',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#9ca3af',
+              color: '#ffffff',
+            },
+          }}
+        >
+          {isPasswordResetSubmitting ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={20} color="inherit" />
+              <span>Sending...</span>
+            </Box>
+          ) : (
+            'Continue'
+          )}
+        </Button>
 
-        {/* ===================================================================
-            FORM STATUS INDICATOR
-        =================================================================== */}
-        <Fade in={isPasswordResetSubmitting}>
-          <Typography variant="caption" className="text-gray-500 text-center block">
-            {isPasswordResetSubmitting ? 'Sending reset instructions...' : ''}
-          </Typography>
-        </Fade>
-
-        {/* ===================================================================
-            BACK TO LOGIN BUTTON
-        =================================================================== */}
-        <Box className="flex justify-end mt-4">
+        {/* Back to Login Link */}
+        <Box sx={{ textAlign: 'center' }}>
           <Button
             variant="text"
             onClick={handleBackToLogin}
-            startIcon={<ArrowBack />}
             disabled={isPasswordResetSubmitting}
             sx={{
-              color: '#6b7280',
+              color: '#667085',
               textTransform: 'none',
               fontSize: '14px',
               fontWeight: 500,
               '&:hover': {
                 backgroundColor: 'transparent',
-                color: '#374151',
+                color: '#1a1a1a',
+                textDecoration: 'underline',
               },
             }}
           >
@@ -427,7 +375,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
           </Button>
         </Box>
       </Box>
-    </Paper>
+    </Box>
   );
 };
 
