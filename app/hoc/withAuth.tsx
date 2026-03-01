@@ -4,7 +4,7 @@
 import { useEffect, ComponentType } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CircularProgress, Box, Typography } from '@mui/material';
-import { useAuth } from '@/features/auth';
+import { useAuth } from '@/features/auth/api/hooks';
 
 /**
  * Simplified HOC to protect pages that require authentication

@@ -1,179 +1,208 @@
 /**
  * Notification Dropdown Component
- * Matches the design system: clean white card, green dot icons, dividers
+ * Professional read-state handling with unread-first ordering.
  */
 
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Typography,
-  CircularProgress,
+  Badge,
   Box,
-  useMediaQuery,
-  useTheme,
+  Button,
   Chip,
+  CircularProgress,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  Popover,
+  Stack,
+  Typography,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
-import { cn } from '@/shared/lib/utils';
-import { useNotificationsQuery, type NotificationItem } from '@/features/notifications/api/hooks';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import {
+  useMarkAllNotificationsAsRead,
+  useMarkNotificationAsRead,
+  useNotificationsQuery,
+  type NotificationItem,
+} from '@/features/notifications/api/hooks';
 
 interface NotificationDropdownProps {
   onNotificationClick?: (notification: NotificationItem) => void;
 }
 
-const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
-  onNotificationClick,
-}) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isOpen, setIsOpen] = useState(false);
+const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificationClick }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
-  // Fetch notifications
-  const {
-    data: notificationsData,
-    isLoading,
-    error,
-  } = useNotificationsQuery({ page: 1, pageSize: 20 });
+  const { data: notifications = [], isLoading, error } = useNotificationsQuery({
+    page: 1,
+    pageSize: 20,
+  });
+  const { mutate: markNotificationAsRead, isPending: isMarkingOne } = useMarkNotificationAsRead();
+  const { mutate: markAllNotificationsAsRead, isPending: isMarkingAll } =
+    useMarkAllNotificationsAsRead();
 
-  const notifications: NotificationItem[] = notificationsData || [];
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const isOpen = Boolean(anchorEl);
+  const unreadCount = notifications.filter((notification) => !notification.isRead).length;
 
-  const handleToggle = useCallback(() => {
-    setIsOpen((prev) => !prev);
-  }, []);
-
-  const handleNotificationClick = useCallback(
-    (notification: NotificationItem) => {
-      // Show detail view in dropdown instead of navigating
-      setSelectedNotification(notification);
-    },
-    []
+  const sortedNotifications = useMemo(
+    () =>
+      [...notifications].sort((a, b) => {
+        if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      }),
+    [notifications]
   );
 
-  const handleBackToList = useCallback(() => {
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
     setSelectedNotification(null);
-  }, []);
+    setExpandedIds([]);
+  };
 
-  const handleViewFullDetails = useCallback(() => {
+  const handleShowDetail = (notification: NotificationItem) => {
+    if (!notification.isRead) {
+      markNotificationAsRead(notification.id);
+      setSelectedNotification({ ...notification, isRead: true });
+      return;
+    }
+
+    setSelectedNotification(notification);
+  };
+
+  const handleBackToList = () => {
+    setSelectedNotification(null);
+  };
+
+  const handleToggleExpand = (notificationId: string) => {
+    setExpandedIds((prev) =>
+      prev.includes(notificationId)
+        ? prev.filter((id) => id !== notificationId)
+        : [...prev, notificationId]
+    );
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllNotificationsAsRead();
     if (selectedNotification) {
-      onNotificationClick?.(selectedNotification);
-      setIsOpen(false);
+      setSelectedNotification({ ...selectedNotification, isRead: true });
     }
-  }, [selectedNotification, onNotificationClick]);
+  };
 
-  // Close on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isOpen &&
-        dropdownRef.current &&
-        buttonRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+  const handleViewFullDetails = () => {
+    if (selectedNotification && onNotificationClick) {
+      onNotificationClick(selectedNotification);
+      handleClose();
     }
+  };
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
-    };
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString();
+  };
+
+  const getIcon = (type: NotificationItem['type']) => {
+    const iconProps = { sx: { fontSize: 48 } };
+
+    switch (type) {
+      case 'success':
+        return <CheckCircleIcon {...iconProps} color="success" />;
+      case 'warning':
+        return <WarningIcon {...iconProps} color="warning" />;
+      case 'error':
+        return <ErrorIcon {...iconProps} color="error" />;
+      default:
+        return <InfoIcon {...iconProps} color="info" />;
     }
+  };
 
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
+  const renderNotificationItem = (notification: NotificationItem) => {
+    const isExpanded = expandedIds.includes(notification.id);
+    const isLongMessage = notification.message.length > 100;
 
-  // ==================== RENDER HELPERS ====================
-
-  const renderLoading = () => (
-    <div className="flex justify-center py-10">
-      <CircularProgress size={28} sx={{ color: 'grey.400' }} />
-    </div>
-  );
-
-  const renderError = () => (
-    <div className="flex flex-col items-center py-10 px-6">
-      <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1.5 }} />
-      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-        Failed to Load
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-        Unable to load notifications
-      </Typography>
-    </div>
-  );
-
-  const renderEmpty = () => (
-    <div className="flex flex-col items-center py-10 px-6">
-      <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1.5 }} />
-      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-        No Notifications Yet
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-        Check back later for the latest updates
-      </Typography>
-    </div>
-  );
-
-  const renderNotifications = () => (
-    <div>
-      {notifications.map((notification: NotificationItem, index: number) => (
-        <div key={notification.id}>
-          <div
-            onClick={() => handleNotificationClick(notification)}
-            className="flex items-start gap-3 px-5 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
+    return (
+      <Box key={notification.id}>
+        <ListItem
+          sx={{
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            py: 2,
+            px: 3,
+            '&:hover': { bgcolor: 'grey.50' },
+          }}
+        >
+          <Box
+            onClick={() => handleShowDetail(notification)}
+            sx={{ width: '100%', cursor: 'pointer', display: 'flex', gap: 2 }}
           >
-            {/* Green circle icon */}
-            <div className="shrink-0 mt-1.5">
-              <div className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center">
-                <NotificationsNoneIcon sx={{ fontSize: 10, color: 'common.white' }} />
-              </div>
-            </div>
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                bgcolor: notification.isRead ? 'grey.300' : 'success.main',
+                flexShrink: 0,
+                mt: 0.5,
+              }}
+            />
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 700, lineHeight: 1.4, mb: 0.25 }}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 1,
+                  mb: 0.5,
+                }}
               >
-                {notification.title}
+                <Typography variant="body2" fontWeight={700}>
+                  {notification.title}
+                </Typography>
+                <Chip
+                  label={notification.isRead ? 'Read' : 'Unread'}
+                  size="small"
+                  color={notification.isRead ? 'default' : 'error'}
+                  sx={{ height: 22, fontSize: '0.6875rem', fontWeight: 700 }}
+                />
+              </Box>
+
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                {formatTime(notification.timestamp)}
               </Typography>
+
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{
                   display: '-webkit-box',
-                  WebkitLineClamp: 2,
+                  WebkitLineClamp: isExpanded ? 'unset' : 2,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                   lineHeight: 1.5,
@@ -181,242 +210,202 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               >
                 {notification.message}
               </Typography>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          {/* Divider (not after last item) */}
-          {index < notifications.length - 1 && (
-            <div className="mx-5 border-b border-gray-100" />
+          {isLongMessage && (
+            <Button
+              size="small"
+              onClick={() => handleToggleExpand(notification.id)}
+              sx={{
+                ml: 4,
+                mt: 1,
+                textTransform: 'none',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: 'success.main',
+                '&:hover': { bgcolor: 'success.50' },
+              }}
+            >
+              {isExpanded ? 'Read less' : 'Read more'}
+            </Button>
           )}
-        </div>
-      ))}
-    </div>
-  );
-
-  const getNotificationIcon = (type: NotificationItem['type']) => {
-    switch (type) {
-      case 'success':
-        return <CheckCircleIcon sx={{ fontSize: 48, color: 'success.main' }} />;
-      case 'warning':
-        return <WarningIcon sx={{ fontSize: 48, color: 'warning.main' }} />;
-      case 'error':
-        return <ErrorIcon sx={{ fontSize: 48, color: 'error.main' }} />;
-      default:
-        return <InfoIcon sx={{ fontSize: 48, color: 'info.main' }} />;
-    }
-  };
-
-  const getNotificationColor = (type: NotificationItem['type']) => {
-    switch (type) {
-      case 'success':
-        return { bg: 'success.50', border: 'success.200', text: 'success.dark' };
-      case 'warning':
-        return { bg: 'warning.50', border: 'warning.200', text: 'warning.dark' };
-      case 'error':
-        return { bg: 'error.50', border: 'error.200', text: 'error.dark' };
-      default:
-        return { bg: 'info.50', border: 'info.200', text: 'info.dark' };
-    }
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-    
-    return date.toLocaleDateString();
+        </ListItem>
+        <Divider />
+      </Box>
+    );
   };
 
   const renderDetailView = () => {
     if (!selectedNotification) return null;
 
-    const colors = getNotificationColor(selectedNotification.type);
-
     return (
-      <div className="p-5">
-        {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={handleBackToList}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowBackIcon sx={{ fontSize: 20 }} />
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              Back to notifications
-            </Typography>
-          </button>
-        </div>
+      <Box sx={{ p: 3,  maxWidth: '100%' }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackToList}
+          sx={{ mb: 3, textTransform: 'none' }}
+        >
+          Back to notifications
+        </Button>
 
-        {/* Icon and Type Badge */}
-        <div className="flex flex-col items-center mb-4">
-          {getNotificationIcon(selectedNotification.type)}
-          <Box
-            sx={{
-              mt: 2,
-              px: 2,
-              py: 0.5,
-              borderRadius: 1,
-              bgcolor: colors.bg,
-              border: '1px solid',
-              borderColor: colors.border,
-            }}
-          >
-            <Typography variant="caption" sx={{ color: colors.text, fontWeight: 600, textTransform: 'capitalize' }}>
-              {selectedNotification.type}
-            </Typography>
-          </Box>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          {getIcon(selectedNotification.type)}
+        </Box>
 
-        {/* Title */}
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
+        <Typography variant="h6" fontWeight={700} textAlign="center" gutterBottom>
           {selectedNotification.title}
         </Typography>
 
-        {/* Message */}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
           {selectedNotification.message}
         </Typography>
 
-        {/* Timestamp */}
-        <div className="flex items-center justify-center gap-2 mb-4 text-gray-500">
-          <AccessTimeIcon sx={{ fontSize: 16 }} />
-          <Typography variant="caption">
-            {formatTimestamp(selectedNotification.timestamp)}
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+          <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+          <Typography variant="caption" color="text.secondary">
+            {formatTime(selectedNotification.timestamp)}
           </Typography>
-        </div>
+        </Stack>
 
-        {/* Read Status */}
-        {!selectedNotification.isRead && (
-          <div className="flex items-center justify-center mb-4">
-            <Chip
-              label="Unread"
-              size="small"
-              sx={{
-                bgcolor: 'error.50',
-                color: 'error.dark',
-                fontWeight: 600,
-                fontSize: '0.75rem',
-              }}
-            />
-          </div>
-        )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Chip
+            label={selectedNotification.isRead ? 'Read' : 'Unread'}
+            size="small"
+            color={selectedNotification.isRead ? 'default' : 'error'}
+            sx={{ fontWeight: 700 }}
+          />
+        </Box>
 
-        {/* Action Buttons */}
-        <div className="space-y-2">
+        <Stack spacing={1.5}>
           {selectedNotification.actionUrl && (
-            <button
-              onClick={handleViewFullDetails}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-            >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                View Full Details
-              </Typography>
-              <OpenInNewIcon sx={{ fontSize: 18 }} />
-            </button>
+            <Button variant="contained" color="success" fullWidth onClick={handleViewFullDetails}>
+              View Full Details
+            </Button>
           )}
-          
-          <button
-            onClick={handleBackToList}
-            className="w-full px-4 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors"
-          >
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Close
-            </Typography>
-          </button>
-        </div>
-      </div>
+
+          <Button variant="outlined" fullWidth onClick={handleBackToList}>
+            Close
+          </Button>
+        </Stack>
+      </Box>
     );
   };
 
-  const renderContent = () => {
-    // Show detail view if a notification is selected
-    if (selectedNotification) return renderDetailView();
-    
-    if (isLoading) return renderLoading();
-    if (error) return renderError();
-    if (notifications.length === 0) return renderEmpty();
-    return renderNotifications();
+  const renderNotificationList = () => {
+    if (isLoading) {
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (error) {
+      return (
+        <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
+          <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+            Failed to Load
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Unable to load notifications
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (sortedNotifications.length === 0) {
+      return (
+        <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
+          <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+            No Notifications Yet
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Check back later for updates
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <List
+        sx={{
+          p: 0,
+          maxHeight: 420,
+          overflow: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
+        {sortedNotifications.map(renderNotificationItem)}
+      </List>
+    );
   };
 
-  // ==================== MAIN RENDER ====================
-
   return (
-    <div className="relative">
-      {/* Bell Button */}
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={handleToggle}
-        className={cn(
-          'relative flex items-center justify-center p-2 rounded-full',
-          'hover:bg-gray-100 transition-colors',
-          'focus:outline-none focus:ring-2 focus:ring-green-500/20'
-        )}
-        aria-label="Notifications"
+    <>
+      <IconButton onClick={handleOpen} color="inherit">
+        <Badge badgeContent={unreadCount} color="error">
+          {unreadCount > 0 ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+        </Badge>
+      </IconButton>
+
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              width: 620,
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              borderRadius: 2,
+            },
+          },
+        }}
       >
-        {unreadCount > 0 ? (
-          <NotificationsIcon className="w-6 h-6 text-gray-700" />
-        ) : (
-          <NotificationsNoneIcon className="w-6 h-6 text-gray-700" />
-        )}
-
-        {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </div>
-        )}
-      </button>
-
-      {/* Dropdown */}
-      {isOpen && (
-        <div
-          ref={dropdownRef}
-          className={cn(
-            'top-full mt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200',
-            isMobile
-              ? 'fixed left-4 right-4 top-[72px] w-auto'
-              : 'absolute right-0 w-[380px]'
-          )}
-          onClick={(e) => e.stopPropagation()}
+        <Box
+          sx={{
+            px: 3,
+            py: 2,
+            borderBottom: 1,
+            borderColor: 'divider',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
         >
-          <div
-            className={cn(
-              'bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden',
-              isMobile && 'max-h-[85vh]'
-            )}
-          >
-            {/* Header */}
-            <div className="px-5 pt-4 pb-3">
-              <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.05rem' }}>
-                Notifications
-              </Typography>
-            </div>
-
-            {/* Scrollable content */}
-            <Box
+          <Typography variant="h6" fontWeight={700}>
+            Notifications
+          </Typography>
+          {!selectedNotification && (
+            <Button
+              size="small"
+              onClick={handleMarkAllAsRead}
+              disabled={unreadCount === 0 || isMarkingAll || isMarkingOne}
               sx={{
-                maxHeight: isMobile ? '65vh' : 420,
-                overflowY: 'auto',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                '&::-webkit-scrollbar': { display: 'none' },
+                textTransform: 'none',
+                fontWeight: 600,
+                color: 'success.main',
+                '&:disabled': { color: 'text.disabled' },
               }}
             >
-              {renderContent()}
-            </Box>
-          </div>
-        </div>
-      )}
-    </div>
+              Mark all as read
+            </Button>
+          )}
+        </Box>
+
+        {selectedNotification ? renderDetailView() : renderNotificationList()}
+      </Popover>
+    </>
   );
 };
 

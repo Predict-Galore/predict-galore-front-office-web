@@ -42,3 +42,5 @@ export type {
 export { ComponentDemo } from './demo/ComponentDemo';
 
 export { default as RedirectLoader } from './RedirectLoader';
+
+export { default as PageLoadingOverlay } from './PageLoadingOverlay';

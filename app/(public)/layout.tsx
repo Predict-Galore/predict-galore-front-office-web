@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 // Lazy load heavy components to improve initial load time
 // We keep `ssr: true` but avoid showing custom gradient placeholders;
-// the route segment `app/(public)/loading.tsx` already shows a global loader.
+// page-level loading is handled by `app/loading.tsx`.
 const Header = dynamic(() => import('./components/Header'), {
   ssr: true,
   loading: () => null,

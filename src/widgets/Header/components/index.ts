@@ -4,5 +4,5 @@
 
 export { default as NotificationButton } from './NotificationButton';
 export { default as NotificationDropdown } from './NotificationDropdown';
-export { default as ProfileMenuAvatar } from './ProfileMenuAvatar';
 export { default as ProfileDropdown } from './ProfileDropdown';
+export { default as SearchBar } from './SearchBar';

@@ -20,6 +20,20 @@ export interface Subscription {
   currency: string;
 }
 
+export interface SubscriptionPlan {
+  id: number;
+  name: string;
+  planCode: string;
+  amount: number;
+  durationDays: number;
+  autoRenewDefault: boolean;
+  isActie: boolean;
+  description?: string;
+  currency?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Transaction {
   id: string;
   date: string;

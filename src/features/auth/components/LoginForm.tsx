@@ -24,9 +24,9 @@ import { AUTH_CONSTANTS } from '../lib/constants';
 const logger = createLogger('LoginForm');
 
 /** Allow redirect only to same-origin app paths (no external or protocol-relative) */
-function getSafeRedirectTarget(callbackUrl: string | null): string {
-  if (!callbackUrl || typeof callbackUrl !== 'string') return AUTH_CONSTANTS.ROUTES.DASHBOARD;
-  const trimmed = callbackUrl.trim();
+function getSafeRedirectTarget(targetUrl: string | null): string {
+  if (!targetUrl || typeof targetUrl !== 'string') return AUTH_CONSTANTS.ROUTES.DASHBOARD;
+  const trimmed = targetUrl.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('//')) {
     return AUTH_CONSTANTS.ROUTES.DASHBOARD;
   }
@@ -36,7 +36,9 @@ function getSafeRedirectTarget(callbackUrl: string | null): string {
 const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl');
   const callbackUrl = searchParams.get('callbackUrl');
+  const redirectTarget = returnUrl || callbackUrl;
   const [showPassword, setShowPassword] = React.useState(false);
   const [localError, setLocalError] = React.useState<string | null>(null);
   const [loginMethod, setLoginMethod] = React.useState<'phone' | 'email'>('phone');
@@ -85,7 +87,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           onSuccess();
           return;
         }
-        const target = getSafeRedirectTarget(callbackUrl);
+        const target = getSafeRedirectTarget(redirectTarget);
         // Short delay so cookie is committed before navigation
         setTimeout(() => {
           router.replace(target);

@@ -12,25 +12,51 @@ import type {
 } from '../model/types';
 
 export class ProfileTransformer {
+  private static isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+  }
+
+  private static getProfilePayload(input: unknown): Record<string, unknown> {
+    if (!this.isRecord(input)) return {};
+
+    const root = this.isRecord(input.data) ? input.data : input;
+    const userNode = this.isRecord(root.user) ? root.user : root;
+    const basicDetails = this.isRecord(userNode.basicDetails) ? userNode.basicDetails : null;
+
+    return basicDetails ? { ...userNode, ...basicDetails } : userNode;
+  }
+
+  private static normalizeRole(role: unknown): ProfileUser['role'] {
+    if (typeof role !== 'string') return 'user';
+
+    const normalized = role.toLowerCase();
+    if (normalized === 'admin' || normalized === 'user' || normalized === 'guest') {
+      return normalized;
+    }
+
+    return 'user';
+  }
+
   /**
    * Transform API response to domain model
    */
-  static transformProfileUser(
-    user: ProfileUser | (Partial<ProfileUser> & Record<string, unknown>)
-  ): ProfileUser {
+  static transformProfileUser(user: unknown): ProfileUser {
+    const payload = this.getProfilePayload(user);
+    const roleFromRoles = Array.isArray(payload.roles) ? payload.roles[0] : undefined;
+
     return {
-      id: String(user.id ?? ''),
-      email: String(user.email ?? ''),
-      firstName: String(user.firstName ?? ''),
-      lastName: String(user.lastName ?? ''),
-      role: (user.role as ProfileUser['role']) ?? 'user',
-      isEmailVerified: Boolean(user.isEmailVerified),
-      phoneNumber: user.phoneNumber ? String(user.phoneNumber) : undefined,
-      countryCode: user.countryCode ? String(user.countryCode) : undefined,
-      avatar: user.avatar ? String(user.avatar) : undefined,
-      userTypeId: user.userTypeId ? Number(user.userTypeId) : undefined,
-      createdAt: String(user.createdAt ?? ''),
-      updatedAt: String(user.updatedAt ?? ''),
+      id: String(payload.id ?? ''),
+      email: String(payload.email ?? ''),
+      firstName: String(payload.firstName ?? ''),
+      lastName: String(payload.lastName ?? ''),
+      role: this.normalizeRole(payload.role ?? roleFromRoles),
+      isEmailVerified: Boolean(payload.isEmailVerified),
+      phoneNumber: payload.phoneNumber ? String(payload.phoneNumber) : undefined,
+      countryCode: payload.countryCode ? String(payload.countryCode) : undefined,
+      avatar: payload.avatar ? String(payload.avatar) : undefined,
+      userTypeId: payload.userTypeId ? Number(payload.userTypeId) : undefined,
+      createdAt: String(payload.createdAt ?? ''),
+      updatedAt: String(payload.updatedAt ?? ''),
     };
   }
 

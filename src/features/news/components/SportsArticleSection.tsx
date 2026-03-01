@@ -1,23 +1,15 @@
 /**
  * Sports Article Section Component
  * Displays sports articles in a responsive grid layout with expandable cards
- * 
- * This component shows:
- * - Sports articles in a grid layout (1-4 columns based on screen size)
- * - Expandable cards that show full content when clicked
- * - Article images, titles, summaries, and metadata
- * - Category badges and publication dates
- * - Author information and tags
- * - Hover effects and smooth transitions
  */
 
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import {
   Box,
+  Button,
   Typography,
-  Link,
   Paper,
   Chip,
   Stack,
@@ -37,6 +29,7 @@ interface SportsArticleSectionProps {
   title?: string;
   showViewMore?: boolean;
   onViewMore?: () => void;
+  onReadMore?: (article: NewsItem) => void;
 }
 
 // ==================== HELPER COMPONENTS ====================
@@ -128,34 +121,6 @@ const ArticleMetadata: React.FC<ArticleMetadataProps> = ({ publishedAt, category
 };
 
 /**
- * Article Tags Component
- * Displays article tags as chips
- */
-interface ArticleTagsProps {
-  tags: string[];
-}
-
-const ArticleTags: React.FC<ArticleTagsProps> = ({ tags }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
-    {tags.map((tag, idx) => (
-      <Chip
-        key={idx}
-        label={`#${tag}`}
-        size="small"
-        variant="outlined"
-        sx={{
-          bgcolor: 'grey.100',
-          color: 'text.secondary',
-          borderColor: 'grey.300',
-          fontWeight: 500,
-          fontSize: '0.75rem',
-        }}
-      />
-    ))}
-  </Stack>
-);
-
-/**
  * Article Author Component
  * Displays author and source information
  */
@@ -188,47 +153,7 @@ const ArticleAuthor: React.FC<ArticleAuthorProps> = ({ author, source }) => {
 
 // ==================== MAIN COMPONENT ====================
 
-const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles }) => {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-
-  // ==================== EVENT HANDLERS ====================
-
-  /**
-   * Toggle article expansion
-   */
-  const handleToggleExpand = useCallback(
-    (e: React.MouseEvent, articleId: number) => {
-      e.stopPropagation();
-      setExpandedId((prev) => (prev === articleId ? null : articleId));
-    },
-    []
-  );
-
-  /**
-   * Check if article is expanded
-   */
-  const isExpanded = useCallback(
-    (articleId: number): boolean => expandedId === articleId,
-    [expandedId]
-  );
-
-  /**
-   * Calculate grid column span based on position and expansion state
-   */
-  const getGridColumn = useCallback(
-    (index: number, expanded: boolean): string | { xs: string; md: string } => {
-      if (!expanded) return 'span 1';
-
-      // Desktop: expanded card takes remaining space in row
-      const positionInRow = index % 4;
-      if (positionInRow === 0) return { xs: 'span 1', md: 'span 4' }; // First in row: full row
-      if (positionInRow === 1) return { xs: 'span 1', md: 'span 3' }; // Second in row: 3 columns
-      if (positionInRow === 2) return { xs: 'span 1', md: 'span 2' }; // Third in row: 2 columns
-      return { xs: 'span 1', md: 'span 4' }; // Fourth in row: full next row
-    },
-    []
-  );
-
+const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles, onReadMore }) => {
   // ==================== RENDER ====================
 
   return (
@@ -237,143 +162,111 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles })
         display: 'grid',
         gridTemplateColumns: {
           xs: '1fr',
-          md: 'repeat(4, 1fr)',
+          md: 'repeat(2, minmax(0, 1fr))',
+          xl: 'repeat(3, minmax(0, 1fr))',
         },
-        gap: 2,
+        gap: 2.5,
         alignItems: 'start',
       }}
     >
-      {articles.map((article, index) => {
-        const expanded = isExpanded(article.id);
-        const gridColumn = getGridColumn(index, expanded);
-
-        return (
-          <Paper
-            key={article.id}
-            elevation={1}
+      {articles.map((article) => (
+        <Paper
+          key={article.id}
+          elevation={1}
+          sx={{
+            overflow: 'hidden',
+            transition: 'all 0.25s ease-in-out',
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+            display: 'flex',
+            flexDirection: 'column',
+            '&:hover': {
+              boxShadow: 4,
+              transform: 'translateY(-2px)',
+            },
+          }}
+        >
+          {/* Article Image */}
+          <Box
             sx={{
-              gridColumn,
-              overflow: 'hidden',
-              transition: 'all 0.3s ease-in-out',
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              display: 'flex',
-              flexDirection: 'column',
-              height: expanded ? 'auto' : { xs: 'auto', md: '480px' },
-              '&:hover': {
-                boxShadow: expanded ? 2 : 4,
-              },
+              position: 'relative',
+              width: '100%',
+              height: { xs: 220, md: 280 },
+              flexShrink: 0,
             }}
           >
-            {/* Article Image */}
-            <Box
+            <ArticleImage imageUrl={article.imageUrl} title={article.title} />
+          </Box>
+
+          {/* Article Content */}
+          <Box sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* Metadata */}
+            <ArticleMetadata publishedAt={article.publishedAt} category={article.category} />
+
+            {/* Title */}
+            <Typography
+              variant="h6"
               sx={{
-                position: 'relative',
-                width: '100%',
-                height: expanded ? { xs: 240, md: 400 } : { xs: 200, md: 220 },
-                transition: 'height 0.3s ease-in-out',
-                flexShrink: 0,
+                fontWeight: 700,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                mb: 1.25,
+                lineHeight: 1.3,
               }}
             >
-              <ArticleImage imageUrl={article.imageUrl} title={article.title} />
-            </Box>
+              {article.title}
+            </Typography>
 
-            {/* Article Content */}
-            <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {/* Metadata */}
-              <ArticleMetadata
-                publishedAt={article.publishedAt}
-                category={article.category}
-              />
+            {/* Summary */}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                display: '-webkit-box',
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                fontSize: '0.9rem',
+                lineHeight: 1.6,
+              }}
+            >
+              {article.summary || article.content?.slice(0, 200) || 'No summary available.'}
+            </Typography>
 
-              {/* Title */}
-              <Typography
-                variant={expanded ? 'h5' : 'h6'}
+            {/* Footer */}
+            <Box sx={{ mt: 'auto', pt: 2 }}>
+              <ArticleAuthor author={article.author} source={article.source} />
+
+              {/* View Details Button */}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => onReadMore?.(article)}
                 sx={{
-                  fontWeight: 600,
-                  display: expanded ? 'block' : '-webkit-box',
-                  WebkitLineClamp: expanded ? 'unset' : 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  mb: 1,
-                  transition: 'font-size 0.3s ease-in-out',
-                  fontSize: expanded ? '1.5rem' : '1rem',
-                  lineHeight: 1.3,
-                  minHeight: expanded ? 'auto' : '2.6rem',
+                  borderColor: 'success.main',
+                  color: 'success.main',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  fontSize: '0.9rem',
+                  borderRadius: 1,
+                  px: 2,
+                  py: 0.75,
+                  minWidth: 140,
+                  '&:hover': {
+                    borderColor: 'success.dark',
+                    bgcolor: 'success.50',
+                  },
                 }}
               >
-                {article.title}
-              </Typography>
-
-              {/* Summary */}
-              {article.summary && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    display: expanded ? 'block' : '-webkit-box',
-                    WebkitLineClamp: expanded ? 'unset' : 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    mb: 1,
-                    fontSize: '0.875rem',
-                    lineHeight: 1.5,
-                    minHeight: expanded ? 'auto' : '3.9rem',
-                    flex: expanded ? 0 : 1,
-                  }}
-                >
-                  {article.summary}
-                </Typography>
-              )}
-
-              {/* Full Content (when expanded) */}
-              {expanded && article.content && (
-                <Typography
-                  variant="body1"
-                  color="text.primary"
-                  sx={{
-                    mb: 2,
-                    lineHeight: 1.7,
-                    fontSize: '1rem',
-                  }}
-                >
-                  {article.content}
-                </Typography>
-              )}
-
-              {/* Tags (when expanded) */}
-              {expanded && article.tags && article.tags.length > 0 && (
-                <ArticleTags tags={article.tags} />
-              )}
-
-              {/* Footer */}
-              <Box sx={{ mt: 'auto' }}>
-                <ArticleAuthor author={article.author} source={article.source} />
-
-                {/* Read More/Less Link */}
-                <Link
-                  component="button"
-                  variant="body2"
-                  onClick={(e) => handleToggleExpand(e, article.id)}
-                  sx={{
-                    color: 'primary.main',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                    },
-                  }}
-                >
-                  {expanded ? 'Read less' : 'Read more'}
-                </Link>
-              </Box>
+                View details
+              </Button>
             </Box>
-          </Paper>
-        );
-      })}
+          </Box>
+        </Paper>
+      ))}
     </Box>
   );
 };

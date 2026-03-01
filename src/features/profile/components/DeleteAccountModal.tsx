@@ -141,8 +141,11 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ open, onClose }
         className: 'rounded-lg',
       }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+      <DialogTitle
+        component="div"
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}
+      >
+        <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
           Delete Account
         </Typography>
         <IconButton

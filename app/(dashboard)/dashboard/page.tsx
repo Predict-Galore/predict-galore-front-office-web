@@ -1,266 +1,347 @@
-// app/(dashboard)/dashboard/page.tsx
+/**
+ * Dashboard Page
+ * Main dashboard showing predictions and live matches
+ */
+
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Container, Stack, Box, Paper } from '@mui/material';
+import { Container, Stack, Box } from '@mui/material';
 import { SportTabs } from '@/shared/components/shared';
-import { useSports, usePredictions } from '@/features/predictions';
-import { useLiveScoresQuery } from '@/features/live-matches';
-import { useNews, useFeaturedNews } from '@/features/news';
+import { useSports, usePredictions } from '@/features/predictions/api/hooks';
+import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
 import Banner from '@/features/dashboard/components/Banner';
 import ContentTabs from '@/features/dashboard/components/ContentTabs';
-import LeagueSection from '@/features/dashboard/components/LeagueSection';
+import PredictionsSection from '@/features/predictions/components/PredictionsList';
+import SelectedPredictionView from '@/features/predictions/components/SelectedPredictionView';
 import LiveLeagueSection from '@/features/dashboard/components/LiveLeagueSection';
+import SelectedLiveMatchView from '@/features/live-matches/components/SelectedLiveMatchView';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
-import { DashboardNewsSidebar } from '@/shared/components/shared';
-import { getFriendlyErrorMessage } from '@/shared/lib/errors';
-import { EmptyState, ErrorState } from '@/shared/components/shared';
-import type { Sport } from '@/features/predictions/model/types';
-import type { Prediction } from '@/features/predictions/model/types';
-import type { NewsItem } from '@/features/news/model/types';
-import type { Match } from '@/features/live-matches/model/types';
-import withAuth from '../../hoc/withAuth';
+import { EmptyState, ErrorState, LoadingState } from '@/shared/components/shared';
 import PremiumModal from '@/features/dashboard/components/PremiumModal';
+import withAuth from '../../hoc/withAuth';
+import type { Sport, Prediction } from '@/features/predictions/model/types';
+import type { Match } from '@/features/live-matches/model/types';
 
-type ContentTabType = 'predictions' | 'live-matches';
+type TabType = 'predictions' | 'live-matches';
 
+/**
+ * Main Dashboard Page Component
+ */
 const DashboardPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<ContentTabType>('predictions');
-  const [activeSport, setActiveSport] = useState<Sport | null>(null);
-  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
-  // Fetch sports data
-  const {
-    data: sports = [],
-    isLoading: isSportsLoading,
-    isError: isSportsError,
-    error: sportsError,
-    refetch: refetchSports,
+  // UI State
+  const [activeTab, setActiveTab] = useState<TabType>('predictions');
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedPredictionId, setSelectedPredictionId] = useState<number | null>(null);
+  const [selectedLiveMatch, setSelectedLiveMatch] = useState<Match | null>(null);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
+
+  // Fetch sports list
+  const { 
+    data: sports = [], 
+    isLoading: loadingSports, 
+    isError: sportsError 
   } = useSports();
 
-  const activeSportName = useMemo(
-    () => activeSport?.name || sports?.[0]?.name || 'this sport',
-    [activeSport?.name, sports]
-  );
+  // Get selected sport ID
+  const sportId = selectedSport?.id || sports[0]?.id;
 
-  // Get the active sport ID from the API sports data
-  const activeSportId = useMemo(() => {
-    if (!activeSport || !sports || sports.length === 0) {
-      return sports[0]?.id;
-    }
-    // Find the sport in API data that matches the active sport name
-    const matchingSport = sports.find(s =>
-      s.name?.toLowerCase() === activeSport.name?.toLowerCase()
-    );
-    return matchingSport?.id || sports[0]?.id;
-  }, [activeSport, sports]);
-
-  // Fetch predictions
+  // Fetch predictions for selected sport
   const {
     data: predictionsData,
-    isLoading: isPredictionsLoading,
-    isFetching: isPredictionsFetching,
-    isError: isPredictionsError,
-    error: predictionsError,
+    isLoading: loadingPredictions,
+    isFetching: isFetchingPredictions,
+    isError: predictionsError,
     refetch: refetchPredictions,
   } = usePredictions(
-    {
-      sportId: activeSportId,
-      pageSize: 20,
-    },
-    { enabled: !!activeSportId }
+    { sportId, pageSize: 20 },
+    { enabled: !!sportId }
   );
 
-  // Fetch live scores
-  const liveSportFilter = useMemo(() => {
-    const name = activeSport?.name?.trim().toLowerCase();
-    if (!name) return undefined;
-    // Backend transformer currently tags live matches as `soccer`
-    if (name === 'football') return 'soccer';
-    return name;
-  }, [activeSport?.name]);
+  // Get sport name for live matches API (convert 'football' to 'soccer')
+  const liveSportName = selectedSport?.name?.toLowerCase() === 'football' 
+    ? 'soccer' 
+    : selectedSport?.name?.toLowerCase();
 
+  // Fetch live matches for selected sport
   const {
-    data: liveScoresData,
-    isLoading: isLiveScoresLoading,
-    isFetching: isLiveScoresFetching,
-    isError: isLiveScoresError,
-    error: liveScoresError,
-    refetch: refetchLiveScores,
+    data: liveMatchesData,
+    isLoading: loadingLiveMatches,
+    isFetching: isFetchingLiveMatches,
+    isError: liveMatchesError,
+    refetch: refetchLiveMatches,
   } = useLiveScoresQuery(
-    liveSportFilter ? { sport: liveSportFilter } : undefined,
-    { enabled: activeTab === 'live-matches' && !!liveSportFilter }
+    liveSportName ? { sport: liveSportName } : undefined,
+    { enabled: activeTab === 'live-matches' && !!liveSportName }
+  );
+  const {
+    data: detailedLiveMatch,
+    isLoading: isDetailedLiveMatchLoading,
+    isError: isDetailedLiveMatchError,
+    refetch: refetchDetailedLiveMatch,
+  } = useDetailedLiveMatchQuery(
+    selectedLiveMatch ? String(selectedLiveMatch.id) : null,
+    { enabled: !!selectedLiveMatch }
   );
 
-  // Fetch featured news without sport filter - backend returns by category
-  const {
-    featuredNews,
-    isLoading: isFeaturedNewsLoading,
-    isFetching: isFeaturedNewsFetching,
-    isError: isFeaturedNewsError,
-    refetch: refetchFeaturedNews,
-  } = useFeaturedNews(1);
-
-  // Fetch news without sport filter - backend returns by category
-  const {
-    data: newsData,
-    isLoading: isNewsLoading,
-    isFetching: isNewsFetching,
-    isError: isNewsError,
-    refetch: refetchNews,
-  } = useNews({ 
-    pageSize: 8,
-  });
-
-  // Set default sport
+  // Set default sport when sports load
   useEffect(() => {
-    if (!activeSport && sports.length > 0) {
-      setActiveSport(sports[0]);
+    if (!selectedSport && sports.length > 0) {
+      setSelectedSport(sports[0]);
     }
-  }, [activeSport, sports]);
+  }, [selectedSport, sports]);
 
-  // Handle sport change
-  const handleSportChange = useCallback((sport: Sport) => {
-    setActiveSport(sport);
-  }, []);
+  /**
+   * Handle sport selection
+   */
+  const handleSportChange = (sport: Sport) => {
+    setIsTabSwitching(true);
+    setSelectedSport(sport);
+    setSelectedPredictionId(null);
+    setSelectedLiveMatch(null);
+  };
 
-  // Handle prediction selection
-  const handlePredictionSelect = useCallback(
-    (prediction: Prediction) => {
-      // Locked predictions should trigger premium modal
-      if (prediction.status === 'Locked') {
-        setIsPremiumModalOpen(true);
-        return;
-      }
-      router.push(`/dashboard/predictions/${prediction.id}`);
-    },
-    [router]
-  );
+  const handleTabChange = (tab: TabType) => {
+    if (tab === activeTab) return;
+    setIsTabSwitching(true);
+    setActiveTab(tab);
+    setSelectedPredictionId(null);
+    setSelectedLiveMatch(null);
+  };
 
-  const handleClosePremiumModal = useCallback(() => {
-    setIsPremiumModalOpen(false);
-  }, []);
+  useEffect(() => {
+    if (!isTabSwitching) return;
 
-  const sportsErrorMessage = useMemo(
-    () => (isSportsError ? getFriendlyErrorMessage(sportsError) : ''),
-    [isSportsError, sportsError]
-  );
+    const isBusy =
+      activeTab === 'predictions'
+        ? loadingPredictions || isFetchingPredictions
+        : loadingLiveMatches || isFetchingLiveMatches;
 
-  const predictionsErrorMessage = useMemo(
-    () =>
-      isPredictionsError
-        ? getFriendlyErrorMessage(predictionsError, 'Unable to load predictions right now.')
-        : '',
-    [isPredictionsError, predictionsError]
-  );
+    if (isBusy) return;
 
-  const liveScoresErrorMessage = useMemo(
-    () =>
-      isLiveScoresError
-        ? getFriendlyErrorMessage(liveScoresError, 'Unable to load live matches right now.')
-        : '',
-    [isLiveScoresError, liveScoresError]
-  );
+    const timeoutId = window.setTimeout(() => {
+      setIsTabSwitching(false);
+    }, 180);
 
-  const predictionsSource = useMemo<Prediction[]>(() => {
-    return predictionsData?.predictions || [];
-  }, [predictionsData]);
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    activeTab,
+    isTabSwitching,
+    isFetchingLiveMatches,
+    isFetchingPredictions,
+    loadingLiveMatches,
+    loadingPredictions,
+  ]);
 
-  // Group predictions by league
-  const predictionsByLeague = useMemo(() => {
-    if (!predictionsSource.length) return {};
-    const grouped: Record<string, Prediction[]> = {};
-    predictionsSource.forEach((prediction) => {
-      const leagueName = prediction.competition || 'Other';
-      if (!grouped[leagueName]) {
-        grouped[leagueName] = [];
-      }
-      grouped[leagueName].push(prediction);
-    });
+  /**
+   * Handle prediction click
+   */
+  const handlePredictionClick = (prediction: Prediction) => {
+    // Show premium modal for locked predictions
+    if (prediction.status === 'Locked') {
+      setShowPremiumModal(true);
+      return;
+    }
 
-    return grouped;
-  }, [predictionsSource]);
+    setSelectedPredictionId(prediction.id);
+  };
 
-  const hasPredictions = predictionsSource.length > 0;
-  const showPredictionsError = isPredictionsError && !hasPredictions;
+  /**
+   * Handle live match click
+   */
+  const handleLiveMatchClick = (match: Match) => {
+    setSelectedLiveMatch(match);
+  };
 
-  // Group live scores by competition
-  const liveScoresByCompetition = useMemo(() => {
-    const source = liveScoresData;
-
-    if (!source?.sections) return {};
-
+  /**
+   * Group live matches by competition
+   */
+  const groupLiveMatchesByCompetition = () => {
+    if (!liveMatchesData?.sections) return {};
+    
     const grouped: Record<string, Match[]> = {};
-    source.sections.forEach((section) => {
+    
+    liveMatchesData.sections.forEach((section) => {
       section.matches.forEach((match) => {
-        const competitionName = match.competition || section.title || 'Other';
-        if (!grouped[competitionName]) {
-          grouped[competitionName] = [];
+        const competition = match.competition || section.title || 'Other';
+        if (!grouped[competition]) {
+          grouped[competition] = [];
         }
-        grouped[competitionName].push(match);
+        grouped[competition].push(match);
       });
     });
-
+    
     return grouped;
-  }, [liveScoresData]);
+  };
 
-  const hasLiveMatches = Object.keys(liveScoresByCompetition).length > 0;
-  const showLiveError = isLiveScoresError && !hasLiveMatches;
+  // Get predictions list
+  const predictions = predictionsData?.predictions || [];
 
-  const handleNewsRetry = useCallback(() => {
-    refetchFeaturedNews();
-    refetchNews();
-  }, [refetchFeaturedNews, refetchNews]);
+  // Get live matches list
+  const liveMatchesByCompetition = groupLiveMatchesByCompetition();
 
-  const newsItems: NewsItem[] =
-    (newsData as { items: NewsItem[] } | undefined)?.items ?? [];
+  // Get sport name for display
+  const sportName = selectedSport?.name || 'this sport';
 
-  // Loading state
-  if (isSportsError) {
+  /**
+   * Render predictions tab content
+   */
+  const renderPredictions = () => {
+    if (isTabSwitching) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    if (selectedPredictionId) {
+      return <SelectedPredictionView predictionId={selectedPredictionId} onBack={() => setSelectedPredictionId(null)} />;
+    }
+
+    // Loading state
+    if (loadingPredictions) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Error state
+    if (predictionsError) {
+      return (
+        <ErrorState
+          title={`Unable to load predictions for ${sportName}`}
+          error="Predictions are temporarily unavailable"
+          onRetry={refetchPredictions}
+        />
+      );
+    }
+
+    // Empty state
+    if (predictions.length === 0) {
+      return (
+        <EmptyState
+          title={`No predictions available for ${sportName}`}
+          description="Check back later for new predictions"
+        />
+      );
+    }
+
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <PredictionsSection
+        predictions={predictions}
+        isLoading={loadingPredictions}
+        selectedSport={sportName}
+        onPredictionClick={handlePredictionClick}
+      />
+    );
+  };
+
+  /**
+   * Render live matches tab content
+   */
+  const renderLiveMatches = () => {
+    if (isTabSwitching) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    if (selectedLiveMatch) {
+      if (isDetailedLiveMatchLoading || !detailedLiveMatch) {
+        return <LoadingState message="Loading match details..." subMessage="Please wait" />;
+      }
+
+      if (isDetailedLiveMatchError) {
+        return (
+          <ErrorState
+            title="Unable to load match details"
+            error="Failed to load detailed match information"
+            onRetry={refetchDetailedLiveMatch}
+            onBack={() => setSelectedLiveMatch(null)}
+          />
+        );
+      }
+
+      return (
+        <SelectedLiveMatchView
+          match={selectedLiveMatch}
+          detailedLiveMatch={detailedLiveMatch}
+          onBack={() => setSelectedLiveMatch(null)}
+        />
+      );
+    }
+
+    // Loading state
+    if (loadingLiveMatches) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Error state
+    if (liveMatchesError) {
+      return (
+        <ErrorState
+          title={`Unable to load live matches for ${sportName}`}
+          error="Live matches are temporarily unavailable"
+          onRetry={refetchLiveMatches}
+        />
+      );
+    }
+
+    // Empty state
+    if (Object.keys(liveMatchesByCompetition).length === 0) {
+      return (
+        <EmptyState
+          title={`No live matches for ${sportName}`}
+          description="Check back when matches are in progress"
+        />
+      );
+    }
+
+    // Render live matches grouped by competition
+    return (
+      <>
+        {Object.entries(liveMatchesByCompetition).map(([competition, matches]) => (
+          <LiveLeagueSection
+            key={competition}
+            leagueName={competition}
+            matches={matches}
+            onMatchClick={handleLiveMatchClick}
+          />
+        ))}
+      </>
+    );
+  };
+
+  // Show error if sports failed to load
+  if (sportsError) {
+    return (
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <ErrorState
           title="Unable to load sports"
-          error={sportsErrorMessage}
-          onRetry={() => refetchSports()}
+          error="Failed to load sports data"
+          onRetry={() => window.location.reload()}
         />
       </Container>
     );
   }
 
-  // Initial load only: keep it page-level; afterwards we use per-section loading
-  if (isSportsLoading && sports.length === 0) {
+  // Show loading skeleton on initial load
+  if (loadingSports && sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <Stack spacing={3}>
-          <Paper sx={{ height: { xs: 120, sm: 150, md: 180 }, bgcolor: 'grey.100' }} />
-          <Paper sx={{ height: 40, bgcolor: 'grey.100' }} />
-          <Paper sx={{ height: 40, bgcolor: 'grey.100' }} />
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-              gap: 2,
-            }}
-          >
-            <Box>
-              <MatchListSkeleton sections={2} rowsPerSection={5} />
-            </Box>
-            <Paper sx={{ height: { xs: 300, sm: 400, md: 520 }, bgcolor: 'grey.100' }} />
-          </Box>
+          <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <MatchListSkeleton sections={2} rowsPerSection={5} />
         </Stack>
       </Container>
     );
   }
 
-  if (!sports.length) {
+  // Show empty state if no sports available
+  if (sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <EmptyState
           title="No sports available"
-          description="We could not load sports from the server. Please try again later."
+          description="Sports data is not available at the moment"
         />
       </Container>
     );
@@ -269,127 +350,39 @@ const DashboardPage: React.FC = () => {
   return (
     <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
       <Stack spacing={3}>
+        {/* Banner */}
         <Banner className="h-[150px] sm:h-[170px] md:h-[190px]" />
 
+        {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={activeSport}
+          selectedSport={selectedSport}
           onSelectSport={handleSportChange}
-          isLoading={isSportsLoading}
+          isLoading={loadingSports}
         />
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-            gap: 3,
-            alignItems: 'flex-start',
-          }}
-        >
-          <Paper elevation={0} sx={{ p: { xs: 1, md: 0 } }}>
-            <Stack spacing={2}>
-              <ContentTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-              {activeTab === 'predictions' ? (
-                // Show skeleton when initially loading or when switching sports with no cached data
-                isPredictionsLoading && !hasPredictions ? (
-                  <MatchListSkeleton sections={2} rowsPerSection={5} />
-                ) : showPredictionsError ? (
-                  <ErrorState
-                    title={`Unable to load predictions for ${activeSportName}`}
-                    error={predictionsErrorMessage || `Predictions for ${activeSportName} are temporarily unavailable.`}
-                    onRetry={() => refetchPredictions()}
-                  />
-                ) : Object.keys(predictionsByLeague).length > 0 ? (
-                  <>
-                    {Object.entries(predictionsByLeague).map(([leagueName, predictions]) => (
-                      <LeagueSection
-                        key={leagueName}
-                        leagueName={leagueName}
-                        matches={predictions}
-                        onMatchClick={handlePredictionSelect}
-                      />
-                    ))}
-                  </>
-                ) : isPredictionsFetching ? (
-                  // Show skeleton while fetching new sport data
-                  <MatchListSkeleton sections={2} rowsPerSection={5} />
-                ) : (
-                  <EmptyState
-                    title={`No predictions available for ${activeSportName}`}
-                    description={`We don't have predictions for ${activeSportName} right now. Please try again later.`}
-                  />
-                )
-              ) : isLiveScoresLoading && !hasLiveMatches ? (
-                <MatchListSkeleton sections={2} rowsPerSection={5} />
-              ) : showLiveError ? (
-                <ErrorState
-                  title={`Unable to load live matches for ${activeSportName}`}
-                  error={liveScoresErrorMessage || `Live matches for ${activeSportName} are temporarily unavailable.`}
-                  onRetry={() => refetchLiveScores()}
-                />
-              ) : Object.keys(liveScoresByCompetition).length > 0 ? (
-                <>
-                  {isLiveScoresFetching ? (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: 'neutral.200',
-                        bgcolor: 'neutral.50',
-                        color: 'text.secondary',
-                        fontSize: '0.875rem',
-                      }}
-                    >
-                      Updating live matches for {activeSportName}…
-                    </Paper>
-                  ) : null}
-
-                  {Object.entries(liveScoresByCompetition).map(([competitionName, matches]) => (
-                    <LiveLeagueSection
-                      key={competitionName}
-                      leagueName={competitionName}
-                      matches={matches}
-                      onMatchClick={(m) => router.push(`/dashboard/live-matches/${m.id}`)}
-                    />
-                  ))}
-                </>
-              ) : (
-                <EmptyState
-                  title={`No live matches available for ${activeSportName}`}
-                  description={`Live matches for ${activeSportName} are currently unavailable. Please try again later.`}
-                />
-              )}
-            </Stack>
-          </Paper>
-
-          <Stack spacing={1.5}>
-            <DashboardNewsSidebar
-              topNews={featuredNews}
-              laligaNews={newsItems.slice(0, 8)}
-              isLoading={
-                (isNewsLoading && !newsItems.length) ||
-                (isFeaturedNewsLoading && !featuredNews?.length) ||
-                isNewsFetching ||
-                isFeaturedNewsFetching
-              }
-              isError={isNewsError || isFeaturedNewsError}
-              onRetry={handleNewsRetry}
+        {/* Content Area */}
+        <Box>
+          <Stack spacing={2}>
+            {/* Content Tabs (Predictions / Live Matches) */}
+            <ContentTabs 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange} 
             />
+
+            {/* Tab Content */}
+            {activeTab === 'predictions' ? renderPredictions() : renderLiveMatches()}
           </Stack>
         </Box>
       </Stack>
 
-      {isPremiumModalOpen && (
-        <PremiumModal
-          open={isPremiumModalOpen}
-          onClose={handleClosePremiumModal}
-          onGetPremium={() => router.push('/dashboard/profile?tab=subscriptions')}
-          limit={5}
-        />
-      )}
+      {/* Premium Modal */}
+      <PremiumModal
+        open={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        onGetPremium={() => router.push('/dashboard/profile?tab=subscriptions')}
+        limit={5}
+      />
     </Container>
   );
 };

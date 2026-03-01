@@ -54,6 +54,7 @@ export interface Prediction {
   picksCount?: number;
   accuracy?: number;
   match?: string; // For simplified format: "Team A vs Team B"
+  datePostedUtc?: string;
 }
 
 export interface PredictionFilter {

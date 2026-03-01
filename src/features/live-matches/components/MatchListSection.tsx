@@ -210,7 +210,7 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({
       sx={{
         mb: 2,
         overflow: 'hidden',
-        borderRadius: 3,
+        borderRadius: 0,
         border: '1px solid',
         borderColor: 'grey.200',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',

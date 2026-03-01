@@ -6,9 +6,6 @@
  * Sets up global providers, metadata, and base structure.
  */
 import type { Metadata, Viewport } from 'next';
-
-// Prevent static prerender so client Providers (context) run in a valid React tree
-export const dynamic = 'force-dynamic';
 import { Inter } from 'next/font/google';
 import Providers from '../src/providers/index';
 

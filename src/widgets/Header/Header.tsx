@@ -6,15 +6,17 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppBar, Toolbar, Box, useMediaQuery } from '@mui/material';
 import BrandLogo from './components/BrandLogo';
 import DatePickerComponent from './components/DatePicker';
-import { NotificationButton, ProfileMenuAvatar } from './components';
-import { SearchBar } from '@/features/search';
-import { NotificationService } from '@/features/notifications';
+import SearchBar from './components/SearchBar';
+import { NotificationButton, ProfileDropdown } from './components';
+import { NotificationService } from '@/features/notifications/api/service';
 import type { SearchResult } from '@/features/search/model/types';
 import { useHeaderNavigation } from './useHeaderNavigation';
+import { useAuthStore } from '@/features/auth/model/store';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -36,10 +38,12 @@ const Header: React.FC<HeaderProps> = ({
   user,
   isAuthenticated = false
 }) => {
+  const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const queryClient = useQueryClient();
   const navigateSearchResult = useHeaderNavigation();
+  const { logout } = useAuthStore();
 
   // Prefetch notifications on mount
   useEffect(() => {
@@ -74,6 +78,19 @@ const Header: React.FC<HeaderProps> = ({
     [navigateSearchResult]
   );
 
+  const handleProfileClick = useCallback(() => {
+    router.push('/dashboard/profile?tab=profile-details');
+  }, [router]);
+
+  const handleSettingsClick = useCallback(() => {
+    router.push('/dashboard/profile?tab=settings');
+  }, [router]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    router.push('/login');
+  }, [logout, router]);
+
   return (
     <AppBar
       position="sticky"
@@ -81,6 +98,7 @@ const Header: React.FC<HeaderProps> = ({
       elevation={0}
       sx={{
         width: '100%',
+        minHeight: { xs: 88, md: 120 },
         borderBottom: '1px solid',
         borderColor: 'divider',
         backgroundColor: 'common.white',
@@ -89,10 +107,11 @@ const Header: React.FC<HeaderProps> = ({
     >
       <Toolbar
         sx={{
-          minHeight: 72,
+          minHeight: { xs: 88, md: 120 },
           px: { xs: 1.5, sm: 2, md: 3, lg: 4 },
           gap: 3,
           justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         {/* Left Side - Brand Logo */}
@@ -130,11 +149,15 @@ const Header: React.FC<HeaderProps> = ({
             />
             
             <NotificationButton />
-            
-            <ProfileMenuAvatar 
-              user={user} 
-              isAuthenticated={isAuthenticated} 
-            />
+
+            {isAuthenticated ? (
+              <ProfileDropdown
+                user={user}
+                onProfileClick={handleProfileClick}
+                onSettingsClick={handleSettingsClick}
+                onLogout={handleLogout}
+              />
+            ) : null}
           </Box>
         </Box>
       </Toolbar>

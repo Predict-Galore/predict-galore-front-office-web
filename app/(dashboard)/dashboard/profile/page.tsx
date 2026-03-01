@@ -35,10 +35,11 @@ const ProfilePage: React.FC = () => {
 
   const handleTabChange = useCallback(
     (_event: React.SyntheticEvent, newValue: ProfileTab) => {
+      if (newValue === activeTab) return;
       setActiveTab(newValue);
       router.replace(`/dashboard/profile?tab=${newValue}`, { scroll: false });
     },
-    [router]
+    [activeTab, router]
   );
 
   const handleBack = useCallback(() => {

@@ -1,7 +1,7 @@
 /**
  * Banner Component
  * Displays the responsible betting quote banner with share functionality
- * 
+ *
  * @component
  * @description A visually striking banner featuring a responsible betting quote
  * with an abstract gradient background and share functionality.
@@ -22,17 +22,6 @@ interface BannerProps {
   className?: string;
 }
 
-/**
- * Banner Component
- * 
- * Displays a prominent banner with a responsible betting quote and share functionality.
- * Uses the Web Share API when available, with clipboard fallback.
- * 
- * @example
- * ```tsx
- * <Banner />
- * ```
- */
 const Banner: React.FC<BannerProps> = ({ className }) => {
   /**
    * Handles sharing the banner quote
@@ -61,7 +50,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       sx={{
         position: 'relative',
         width: '100%',
-        // borderRadius: 3,
+        borderRadius: 1,
         overflow: 'hidden',
         // Base green panel - using theme green-950
         bgcolor: 'green.950', // #0a2916 from Figma
@@ -73,10 +62,26 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       }}
     >
       {/* Inner darkening overlay for contrast */}
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, bgcolor: 'rgba(0,0,0,0.1)' }} />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bgcolor: 'rgba(0,0,0,0.1)',
+        }}
+      />
 
       {/* Content */}
-      <Box sx={{ position: 'relative', zIndex: 10, px: { xs: 3, sm: 4, md: 5 }, py: { xs: 3, sm: 3.5, md: 4 } }}>
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 10,
+          px: { xs: 3, sm: 4, md: 5 },
+          py: { xs: 3, sm: 3.5, md: 4 },
+        }}
+      >
         <Typography
           sx={{
             color: 'common.white',
@@ -100,7 +105,15 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       </Box>
 
       {/* Share Button */}
-      <Box sx={{ position: 'absolute', right: 2, top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          right: 2,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 10,
+        }}
+      >
         <IconButton
           onClick={handleShare}
           sx={{

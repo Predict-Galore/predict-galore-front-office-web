@@ -3,7 +3,7 @@
  * Mock implementation for development
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface NotificationItem {
   id: string;
@@ -22,7 +22,7 @@ interface NotificationsQueryParams {
 }
 
 // Mock notifications data
-const mockNotifications: NotificationItem[] = [
+let mockNotificationStore: NotificationItem[] = [
   {
     id: '1',
     type: 'success',
@@ -67,7 +67,7 @@ export const useNotificationsQuery = (params: NotificationsQueryParams) => {
       // Return paginated results
       const start = (params.page - 1) * params.pageSize;
       const end = start + params.pageSize;
-      return mockNotifications.slice(start, end);
+      return mockNotificationStore.slice(start, end);
     },
     staleTime: 30000, // 30 seconds
   });
@@ -80,9 +80,77 @@ export const useUnreadCount = () => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      const unreadCount = mockNotifications.filter(n => !n.isRead).length;
+      const unreadCount = mockNotificationStore.filter(n => !n.isRead).length;
       return { unreadCount };
     },
     staleTime: 30000, // 30 seconds
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      mockNotificationStore = mockNotificationStore.map((notification) =>
+        notification.id === id ? { ...notification, isRead: true } : notification
+      );
+      return id;
+    },
+    onSuccess: (updatedId) => {
+      queryClient.setQueriesData(
+        { queryKey: ['notifications'] },
+        (oldData: NotificationItem[] | { unreadCount: number } | undefined) => {
+          if (!oldData) return oldData;
+
+          if (Array.isArray(oldData)) {
+            return oldData.map((notification) =>
+              notification.id === updatedId ? { ...notification, isRead: true } : notification
+            );
+          }
+
+          if ('unreadCount' in oldData) {
+            return {
+              unreadCount: Math.max(0, oldData.unreadCount - 1),
+            };
+          }
+
+          return oldData;
+        }
+      );
+    },
+  });
+};
+
+export const useMarkAllNotificationsAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 160));
+      mockNotificationStore = mockNotificationStore.map((notification) => ({
+        ...notification,
+        isRead: true,
+      }));
+    },
+    onSuccess: () => {
+      queryClient.setQueriesData(
+        { queryKey: ['notifications'] },
+        (oldData: NotificationItem[] | { unreadCount: number } | undefined) => {
+          if (!oldData) return oldData;
+
+          if (Array.isArray(oldData)) {
+            return oldData.map((notification) => ({ ...notification, isRead: true }));
+          }
+
+          if ('unreadCount' in oldData) {
+            return { unreadCount: 0 };
+          }
+
+          return oldData;
+        }
+      );
+    },
   });
 };

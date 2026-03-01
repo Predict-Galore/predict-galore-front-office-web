@@ -7,8 +7,8 @@
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { SelectedLiveMatchView } from '@/features/live-matches/components';
-import { useDetailedLiveMatchQuery, useLiveScoresQuery } from '@/features/live-matches';
+import SelectedLiveMatchView from '@/features/live-matches/components/SelectedLiveMatchView';
+import { useDetailedLiveMatchQuery, useLiveScoresQuery } from '@/features/live-matches/api/hooks';
 import { LoadingState, ErrorState } from '@/shared/components/shared';
 import { Container } from '@mui/material';
 

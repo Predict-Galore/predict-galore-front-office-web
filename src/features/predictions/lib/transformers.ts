@@ -66,6 +66,8 @@ export class PredictionTransformer {
         if (item.match && typeof item.match === 'string') {
           const [homeTeamName, awayTeamName] = item.match.split(' vs ').map((s: string) => s.trim());
           
+          const datePostedUtc = String(item.datePostedUtc || item.dateTime || '');
+
           return {
             id: item.id,
             homeTeam: {
@@ -82,13 +84,15 @@ export class PredictionTransformer {
             },
             predictedScore: '0-0',
             status: item.status || 'Prediction',
-            startTime: item.datePostedUtc || item.dateTime || new Date().toISOString(),
+            startTime: datePostedUtc,
             competition: 'N/A',
             sportId: 0,
             leagueId: 0,
             confidence: item.accuracy || 0,
             picksCount: item.picksCount,
             accuracy: item.accuracy,
+            match: item.match,
+            datePostedUtc,
           } as Prediction;
         }
         

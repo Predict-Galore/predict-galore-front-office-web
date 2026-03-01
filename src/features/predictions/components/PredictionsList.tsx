@@ -1,18 +1,17 @@
 /**
- * Predictions Section Component
- * Pixel-perfect league accordion list with match rows
+ * Predictions List Component
+ * Renders only backend-provided prediction list fields.
  */
 
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import dayjs from 'dayjs';
-import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
-import LockOutlined from '@mui/icons-material/LockOutlined';
-import { Box, Typography, IconButton, Paper, Stack, Divider, Avatar } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { Box, Chip, Paper, Stack, Typography, Avatar, Divider } from '@mui/material';
+import { AccessTime } from '@mui/icons-material';
+import { ErrorState, LoadingState } from '@/shared/components/shared';
 import { Prediction } from '../model/types';
-import { LoadingState, ErrorState } from '@/shared/components/shared';
 
 export interface PredictionsListProps {
   predictions: Prediction[];
@@ -20,7 +19,27 @@ export interface PredictionsListProps {
   error?: string;
   selectedSport: string;
   onRetry?: () => void;
+  onPredictionClick?: (prediction: Prediction) => void;
 }
+
+const getStatusConfig = (status?: string) => {
+  const normalized = String(status || '').toLowerCase();
+
+  if (normalized === 'ft' || normalized === 'expired') {
+    return { label: 'FT', bgcolor: 'success.light', color: 'success.dark' };
+  }
+  if (normalized === 'ht') {
+    return { label: 'HT', bgcolor: 'grey.200', color: 'grey.700' };
+  }
+  if (normalized === 'et') {
+    return { label: 'ET', bgcolor: 'error.light', color: 'error.dark' };
+  }
+  if (normalized === 'live') {
+    return { label: 'LIVE_ICON', bgcolor: 'primary.light', color: 'primary.dark' };
+  }
+
+  return { label: 'Vs', bgcolor: 'grey.100', color: 'text.primary' };
+};
 
 export const PredictionsList: React.FC<PredictionsListProps> = ({
   predictions,
@@ -28,30 +47,27 @@ export const PredictionsList: React.FC<PredictionsListProps> = ({
   error,
   selectedSport,
   onRetry,
+  onPredictionClick,
 }) => {
   const router = useRouter();
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const groupedPredictions = useMemo(() => {
-    const groups = new Map<string, Prediction[]>();
-    predictions.forEach((p) => {
-      const key = p.competition || 'League';
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(p);
-    });
-    return Array.from(groups.entries());
-  }, [predictions]);
-
-  const formatDateTime = useCallback((date: string) => {
-    const d = dayjs(date);
-    return d.isValid() ? d.format('MM/DD/YY • HH:mm [EST]') : date;
+  const formatDate = useCallback((datePostedUtc?: string) => {
+    if (!datePostedUtc) return 'N/A';
+    const date = dayjs(datePostedUtc);
+    return date.isValid() ? date.format('MMM D, YYYY h:mm A') : datePostedUtc;
   }, []);
 
-  const formatStadium = (stadium?: string) => stadium || '—';
+  const handleRowClick = useCallback(
+    (prediction: Prediction) => {
+      if (onPredictionClick) {
+        onPredictionClick(prediction);
+        return;
+      }
 
-  const toggleLeague = (league: string) => {
-    setExpanded((prev) => ({ ...prev, [league]: !prev[league] }));
-  };
+      router.push(`/dashboard/predictions/${prediction.id}`);
+    },
+    [onPredictionClick, router]
+  );
 
   if (isLoading) {
     return <LoadingState variant="skeleton" />;
@@ -61,15 +77,7 @@ export const PredictionsList: React.FC<PredictionsListProps> = ({
     return (
       <Paper
         elevation={0}
-        sx={{
-          bgcolor: 'white',
-          border: '1px solid',
-          borderColor: 'grey.200',
-          borderRadius: 4,
-          p: 3,
-          textAlign: 'center',
-          boxShadow: 1,
-        }}
+        sx={{ border: '1px solid', borderColor: 'grey.200', borderRadius: 0, p: 3 }}
       >
         <ErrorState error={error} title="Error loading predictions" onRetry={onRetry} />
       </Paper>
@@ -80,276 +88,155 @@ export const PredictionsList: React.FC<PredictionsListProps> = ({
     return (
       <Paper
         elevation={0}
-        sx={{
-          bgcolor: 'white',
-          border: '1px solid',
-          borderColor: 'grey.200',
-          borderRadius: 4,
-          p: 3,
-          textAlign: 'center',
-          boxShadow: 1,
-        }}
+        sx={{ border: '1px solid', borderColor: 'grey.200', borderRadius: 0, p: 3 }}
       >
         <Typography variant="h6">No predictions available for {selectedSport}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Try selecting a different sport
-        </Typography>
       </Paper>
     );
   }
 
   return (
-    <Stack spacing={2}>
-      {groupedPredictions.map(([league, leaguePredictions]) => {
-        const isOpen = expanded[league] ?? true;
-        return (
-          <Paper
-            key={league}
-            elevation={0}
+    <Paper
+      elevation={0}
+      sx={{ border: '1px solid', borderColor: 'grey.200', borderRadius: 3, overflow: 'hidden' }}
+    >
+      <Box>
+        {predictions.map((prediction, index) => {
+          const status = getStatusConfig(prediction.status);
+          const hasScore = Boolean(prediction.predictedScore && prediction.predictedScore !== 'N/A');
+
+          return (
+            <Box
+              key={prediction.id}
+            onClick={() => handleRowClick(prediction)}
             sx={{
-              bgcolor: 'white',
-              border: '1px solid',
-              borderColor: 'grey.200',
-              borderRadius: 3,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-              overflow: 'hidden',
+              px: { xs: 2, sm: 3 },
+              py: 2.25,
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'grey.50' },
             }}
           >
-            <IconButton
-              onClick={() => toggleLeague(league)}
-              sx={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                px: { xs: 2.5, sm: 3 },
-                py: 2,
-                borderRadius: 0,
-                '&:hover': {
-                  bgcolor: 'grey.50',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box
+            {index > 0 && <Divider sx={{ mb: 2.25, mt: -2.25 }} />}
+
+            <Stack spacing={4} sx={{ width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '44px 1fr',
+                  alignItems: 'center',
+                  gap: 1.5,
+                }}
+              >
+                <Chip
+                  label={status.label === 'LIVE_ICON' ? <AccessTime sx={{ fontSize: 16 }} /> : status.label}
+                  size="small"
                   sx={{
                     width: 32,
                     height: 32,
-                    borderRadius: '50%',
-                    bgcolor: 'grey.100',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'grey.700' }}>
-                    PL
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: { xs: '1rem', sm: '1.125rem' },
+                    fontSize: '0.6875rem',
                     fontWeight: 'bold',
-                    color: 'grey.900',
+                    bgcolor: status.bgcolor,
+                    color: status.color,
+                    '& .MuiChip-label': {
+                      px: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    },
+                  }}
+                />
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto 1fr',
+                    alignItems: 'center',
+                    gap: 1,
+                    minWidth: 0,
+                    mb: 4 
                   }}
                 >
-                  {league}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 0, }}>
+                    <Avatar src={prediction.homeTeam?.logoUrl} alt={prediction.homeTeam?.name || 'Home Team'} sx={{ width: 28, height: 28 }} />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 0.5,
+                        color: 'text.secondary',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.8,
+                        maxWidth: 140,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        textAlign: 'center',
+                        fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+                      }}
+                    >
+                      {prediction.homeTeam?.shortName || prediction.homeTeam?.name || 'Home'}
+                    </Typography>
+                  </Box>
+
+                  <Typography
+                    sx={{
+                      px: 1.5,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      fontWeight: 700,
+                      color: 'text.primary',
+                      textAlign: 'center',
+                      minWidth: 72,
+                    }}
+                  >
+                    {hasScore ? prediction.predictedScore : 'Vs'}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 0 }}>
+                    <Avatar src={prediction.awayTeam?.logoUrl} alt={prediction.awayTeam?.name || 'Away Team'} sx={{ width: 28, height: 28 }} />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 0.5,
+                        color: 'text.secondary',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.8,
+                        maxWidth: 140,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        textAlign: 'center',
+                        fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+                      }}
+                    >
+                      {prediction.awayTeam?.shortName || prediction.awayTeam?.name || 'Away'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2,   }}>
+                <Typography variant="body2" color="text.secondary">
+                  Picks:{' '}
+                  <Box component="span" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                    {prediction.picksCount ?? 0}
+                  </Box>
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Accuracy:{' '}
+                  <Box component="span" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                    {prediction.accuracy ?? 0}%
+                  </Box>
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Posted:{' '}
+                  <Box component="span" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                    {formatDate(prediction.datePostedUtc || prediction.startTime)}
+                  </Box>
                 </Typography>
               </Box>
-              <KeyboardArrowUp
-                sx={{
-                  fontSize: 24,
-                  color: 'grey.600',
-                  transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)',
-                  transition: 'transform 0.2s',
-                }}
-              />
-            </IconButton>
-
-            {isOpen && (
-              <Box>
-                {leaguePredictions.map((match, index) => {
-                  const isLocked = match.status === 'Locked' || !match.predictedScore;
-                  return (
-                    <React.Fragment key={match.id}>
-                      <Box
-                        sx={{
-                          px: { xs: 2.5, sm: 3 },
-                          py: { xs: 2.5, sm: 3 },
-                          cursor: isLocked ? 'default' : 'pointer',
-                          '&:hover': {
-                            bgcolor: isLocked ? 'transparent' : 'grey.50',
-                          },
-                          transition: 'background-color 0.2s',
-                        }}
-                        onClick={() => {
-                          if (!isLocked) {
-                            router.push(`/dashboard/predictions/${match.id}`);
-                          }
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            mb: 2,
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            color="primary.main"
-                            sx={{
-                              fontWeight: 500,
-                              fontSize: { xs: '0.8125rem', sm: '0.875rem' },
-                            }}
-                          >
-                            {formatStadium(match.stadium)}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            color="primary.main"
-                            sx={{
-                              fontWeight: 500,
-                              fontSize: { xs: '0.8125rem', sm: '0.875rem' },
-                            }}
-                          >
-                            {match.startTime ? formatDateTime(match.startTime) : 'Date TBD'}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto 1fr',
-                            alignItems: 'center',
-                            gap: { xs: 2, sm: 3 },
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              gap: 1,
-                            }}
-                          >
-                            <Avatar
-                              src={match.homeTeam.logoUrl}
-                              alt={match.homeTeam.name}
-                              sx={{ width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 } }}
-                            />
-                            <Typography
-                              variant="body2"
-                              color="text.primary"
-                              sx={{
-                                textTransform: 'uppercase',
-                                fontSize: { xs: '0.6875rem', sm: '0.75rem' },
-                                fontWeight: 600,
-                                textAlign: 'center',
-                                letterSpacing: '0.02em',
-                              }}
-                            >
-                              {match.homeTeam.shortName || match.homeTeam.name}
-                            </Typography>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              textAlign: 'center',
-                              minWidth: { xs: 80, sm: 90 },
-                            }}
-                          >
-                            {isLocked ? (
-                              <Box
-                                sx={{
-                                  width: { xs: 40, sm: 48 },
-                                  height: { xs: 40, sm: 48 },
-                                  borderRadius: '50%',
-                                  border: '2px solid',
-                                  borderColor: 'grey.300',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: 'grey.400',
-                                }}
-                              >
-                                <LockOutlined sx={{ fontSize: { xs: 18, sm: 20 } }} />
-                              </Box>
-                            ) : (
-                              <Typography
-                                variant="h4"
-                                sx={{
-                                  fontSize: { xs: '1.75rem', sm: '2.125rem' },
-                                  fontWeight: 'bold',
-                                  color: 'grey.900',
-                                  lineHeight: 1,
-                                  letterSpacing: '-0.02em',
-                                }}
-                              >
-                                {match.predictedScore}
-                              </Typography>
-                            )}
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{
-                                mt: 0.75,
-                                textTransform: 'capitalize',
-                                fontSize: { xs: '0.6875rem', sm: '0.75rem' },
-                                fontWeight: 500,
-                              }}
-                            >
-                              Prediction
-                            </Typography>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              gap: 1,
-                            }}
-                          >
-                            <Avatar
-                              src={match.awayTeam.logoUrl}
-                              alt={match.awayTeam.name}
-                              sx={{ width: { xs: 44, sm: 52 }, height: { xs: 44, sm: 52 } }}
-                            />
-                            <Typography
-                              variant="body2"
-                              color="text.primary"
-                              sx={{
-                                textTransform: 'uppercase',
-                                fontSize: { xs: '0.6875rem', sm: '0.75rem' },
-                                fontWeight: 600,
-                                textAlign: 'center',
-                                letterSpacing: '0.02em',
-                              }}
-                            >
-                              {match.awayTeam.shortName || match.awayTeam.name}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                      {index < leaguePredictions.length - 1 && (
-                        <Divider sx={{ mx: { xs: 2.5, sm: 3 } }} />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </Box>
-            )}
-          </Paper>
-        );
-      })}
-    </Stack>
+            </Stack>
+          </Box>
+          );
+        })}
+      </Box>
+    </Paper>
   );
 };
 

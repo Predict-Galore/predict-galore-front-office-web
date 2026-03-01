@@ -1,351 +1,284 @@
-// app/(dashboard)/dashboard/live-matches/page.tsx
+/**
+ * Live Matches Page
+ * Shows all live matches for selected sport
+ */
+
 'use client';
 
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import { Typography, Box, Container, Stack, Paper } from '@mui/material';
-import { SportsSoccer } from '@mui/icons-material';
-
-// Components - Using migrated feature components
+import React, { useState, useEffect } from 'react';
+import { Container, Stack, Box, Typography } from '@mui/material';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import { SportTabs } from '@/shared/components/shared';
-import { MatchListSection, SelectedLiveMatchView } from '@/features/live-matches';
-import { LoadingState, ErrorState, ErrorBoundary, DashboardNewsSidebar } from '@/shared/components/shared';
-import { getFriendlyErrorMessage } from '@/shared/lib/errors';
+import MatchListSection from '@/features/live-matches/components/MatchListSection';
+import SelectedLiveMatchView from '@/features/live-matches/components/SelectedLiveMatchView';
+import { ErrorState, LoadingState } from '@/shared/components/shared';
 import Banner from '@/features/dashboard/components/Banner';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
-
-// Hooks - Using feature hooks
-import { useAuth } from '@/features/auth';
-import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches';
-import { useNews, useFeaturedNews } from '@/features/news';
-import { useSports } from '@/features/predictions';
-import { createLogger } from '@/shared/api/logger';
-
-const logger = createLogger('LiveMatchesPage');
-
-// Store - Using feature stores
+import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
+import { useSports } from '@/features/predictions/api/hooks';
 import {
   useLiveMatchesStore,
   useSelectedLiveMatch,
-  useDetailedLiveMatch,
-} from '@/features/live-matches';
-
-// Types - Using migrated feature types
+} from '@/features/live-matches/model/store';
+import withAuth from '../../../hoc/withAuth';
 import type { Match } from '@/features/live-matches/model/types';
 import type { Sport } from '@/features/predictions/model/types';
-import withAuth from '../../../hoc/withAuth';
 
+/**
+ * Live Matches Page Component
+ */
 const LiveMatchesPage: React.FC = () => {
-  // Get auth state using feature hooks
-  const { user, isAuthenticated } = useAuth();
-  const [activeSport, setActiveSport] = useState<Sport | null>(null);
+  // UI State
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
 
-  // Get sports data from API
-  const { data: sportsData = [], isLoading: sportsLoading } = useSports();
+  // Store actions and state
+  const { selectLiveMatch, clearSelectedLiveMatch } = useLiveMatchesStore();
+  const selectedMatch = useSelectedLiveMatch();
 
-  // Log auth info for debugging
-  useEffect(() => {
-    logger.debug('Live matches page auth info', {
-      userEmail: user?.email,
-      userRole: user?.role,
-      isAuthenticated,
-    });
-  }, [user, isAuthenticated]);
-
-  // ==================== STORE STATE ====================
+  // Fetch sports list
   const {
-    selectLiveMatch,
-    clearSelectedLiveMatch,
-  } = useLiveMatchesStore();
+    data: sports = [],
+    isLoading: loadingSports,
+    isError: sportsError,
+  } = useSports();
 
-  const selectedLiveMatch = useSelectedLiveMatch();
-  const detailedLiveMatch = useDetailedLiveMatch();
+  // Get sport name for live matches API (convert 'football' to 'soccer')
+  const liveSportName = selectedSport?.name?.toLowerCase() === 'football'
+    ? 'soccer'
+    : selectedSport?.name?.toLowerCase();
 
-  const activeSportName = useMemo(
-    () => activeSport?.name || sportsData?.[0]?.name || 'this sport',
-    [activeSport?.name, sportsData]
-  );
-
-  // Get the active sport ID from the API sports data
-  // Set default sport
-  useEffect(() => {
-    if (!activeSport && sportsData.length > 0) {
-      setActiveSport(sportsData[0]);
-    }
-  }, [activeSport, sportsData]);
-
-  // ==================== QUERIES ====================
-  // Live scores query with sport filter
-  const liveSportFilter = useMemo(() => {
-    const name = activeSport?.name?.trim().toLowerCase();
-    if (!name) return undefined;
-    // Backend transformer currently tags live matches as `soccer`
-    if (name === 'football') return 'soccer';
-    return name;
-  }, [activeSport?.name]);
-
+  // Fetch live matches for selected sport
   const {
-    data: liveScoresData,
-    isLoading: isLiveScoresLoading,
-    isFetching: isLiveScoresFetching,
-    isError: isLiveScoresError,
-    error: liveScoresError,
-    refetch: refetchLiveScores,
+    data: liveMatchesData,
+    isLoading: loadingMatches,
+    isFetching: isFetchingMatches,
+    isError: matchesError,
+    refetch: refetchMatches,
   } = useLiveScoresQuery(
-    liveSportFilter ? { sport: liveSportFilter } : undefined,
-    { enabled: !!liveSportFilter }
+    liveSportName ? { sport: liveSportName } : undefined,
+    { enabled: !!liveSportName }
   );
 
-  // Detailed live match query
+  // Fetch detailed match data when a match is selected
   const {
-    data: detailedLiveMatchData,
-    isError: isDetailedMatchError,
-    error: detailedMatchError,
-    refetch: refetchDetailedMatch,
-  } = useDetailedLiveMatchQuery(selectedLiveMatch?.id || null);
+    data: detailedMatchData,
+    isLoading: isDetailedLoading,
+    isError: detailedError,
+    refetch: refetchDetailed,
+  } = useDetailedLiveMatchQuery(selectedMatch?.id || null);
 
-  // Fetch featured news without sport filter - backend returns by category
-  const {
-    featuredNews,
-    isLoading: isFeaturedNewsLoading,
-    isFetching: isFeaturedNewsFetching,
-    isError: isFeaturedNewsError,
-    refetch: refetchFeaturedNews,
-  } = useFeaturedNews(1);
+  // Set default sport when sports load
+  useEffect(() => {
+    if (!selectedSport && sports.length > 0) {
+      setSelectedSport(sports[0]);
+    }
+  }, [selectedSport, sports]);
 
-  // Fetch news without sport filter - backend returns by category
-  const {
-    data: newsData,
-    isLoading: isNewsLoading,
-    isFetching: isNewsFetching,
-    isError: isNewsError,
-    refetch: refetchNews,
-  } = useNews({ 
-    pageSize: 8,
-  });
+  /**
+   * Handle sport selection
+   */
+  const handleSportChange = (sport: Sport) => {
+    setIsTabSwitching(true);
+    setSelectedSport(sport);
+    clearSelectedLiveMatch(); // Clear selected match when changing sports
+  };
 
-  // ==================== SPORTS FOR TABS ====================
-  // Handle sport change
-  const handleSportChange = useCallback((sport: Sport) => {
-    setActiveSport(sport);
-    clearSelectedLiveMatch(); // Clear selection when changing sports
-  }, [clearSelectedLiveMatch]);
+  useEffect(() => {
+    if (!isTabSwitching) return;
+    if (loadingMatches || isFetchingMatches) return;
 
-  // ==================== EVENT HANDLERS ====================
-  const handleSelectMatch = useCallback(
-    (match: Match) => {
-      selectLiveMatch(match);
-    },
-    [selectLiveMatch]
-  );
+    const timeoutId = window.setTimeout(() => {
+      setIsTabSwitching(false);
+    }, 180);
 
-  const handleBack = useCallback(() => {
+    return () => window.clearTimeout(timeoutId);
+  }, [isFetchingMatches, isTabSwitching, loadingMatches]);
+
+  /**
+   * Handle match selection
+   */
+  const handleMatchClick = (match: Match) => {
+    selectLiveMatch(match);
+  };
+
+  /**
+   * Handle back from match detail
+   */
+  const handleBack = () => {
     clearSelectedLiveMatch();
-  }, [clearSelectedLiveMatch]);
+  };
 
-  const handleRetry = useCallback(() => {
-    if (selectedLiveMatch) {
-      refetchDetailedMatch();
-    } else {
-      refetchLiveScores();
-    }
-  }, [selectedLiveMatch, refetchDetailedMatch, refetchLiveScores]);
-
-  const handleNewsRetry = useCallback(() => {
-    refetchFeaturedNews();
-    refetchNews();
-  }, [refetchFeaturedNews, refetchNews]);
-
-  // ==================== EFFECTS ====================
-  // Sync detailed live match data
-  useEffect(() => {
-    if (detailedLiveMatchData && selectedLiveMatch) {
-      // setDetailedLiveMatch(detailedLiveMatchData);
-    }
-  }, [detailedLiveMatchData, selectedLiveMatch]);
-
-  // Handle detailed match fetch error
-  useEffect(() => {
-    if (selectedLiveMatch && isDetailedMatchError) {
-      const errorMessage = detailedMatchError instanceof Error ? detailedMatchError.message : 'Unknown error';
-      
-      // Don't log expected "not implemented" errors as errors, just as debug info
-      if (errorMessage.includes('not yet implemented') || errorMessage.includes('not implemented')) {
-        logger.debug('Detailed match endpoint not available', {
-          matchId: selectedLiveMatch.id,
-          error: errorMessage,
-        });
-      } else {
-        logger.error('Failed to load detailed match', {
-          error: errorMessage,
-        });
-      }
-    }
-  }, [selectedLiveMatch, isDetailedMatchError, detailedMatchError]);
-
-  // ==================== DATA TRANSFORMATIONS ====================
-  // Safely extract news items
-  const newsItems = useMemo(() => {
-    if (!newsData) return [];
-    if (Array.isArray(newsData.items)) return newsData.items;
-    // Handle different possible data structures
-    const dataAsRecord = newsData as Record<string, unknown>;
-    if (Array.isArray(dataAsRecord.data)) return dataAsRecord.data as typeof newsData.items;
-    return [];
-  }, [newsData]);
-
-  // Group live scores by competition
-  const liveScoresByCompetition = useMemo(() => {
-    const source = liveScoresData;
-
-    if (!source?.sections) return {};
+  /**
+   * Group live matches by competition
+   */
+  const groupMatchesByCompetition = () => {
+    if (!liveMatchesData?.sections) return {};
 
     const grouped: Record<string, Match[]> = {};
-    source.sections.forEach((section) => {
+
+    liveMatchesData.sections.forEach((section) => {
       section.matches.forEach((match) => {
-        const competitionName = match.competition || section.title || 'Other';
-        if (!grouped[competitionName]) {
-          grouped[competitionName] = [];
+        const competition = match.competition || section.title || 'Other';
+        if (!grouped[competition]) {
+          grouped[competition] = [];
         }
-        grouped[competitionName].push(match);
+        grouped[competition].push(match);
       });
     });
 
     return grouped;
-  }, [liveScoresData]);
+  };
 
-  const hasLiveMatches = Object.keys(liveScoresByCompetition).length > 0;
-  const showLiveError = isLiveScoresError && !hasLiveMatches;
+  const matchesByCompetition = groupMatchesByCompetition();
+  const hasMatches = Object.keys(matchesByCompetition).length > 0;
+  const sportName = selectedSport?.name || 'this sport';
 
-  // ==================== STATE MANAGEMENT ====================
-  const sportsErrorMessage = useMemo(
-    () => (isLiveScoresError ? getFriendlyErrorMessage(liveScoresError) : ''),
-    [isLiveScoresError, liveScoresError]
-  );
+  /**
+   * Render match detail view
+   */
+  const renderMatchDetail = () => {
+    if (!selectedMatch) return null;
 
-  const liveMatchesErrorMessage = useMemo(
-    () =>
-      isLiveScoresError
-        ? getFriendlyErrorMessage(liveScoresError, 'Unable to load live matches right now.')
-        : '',
-    [isLiveScoresError, liveScoresError]
-  );
+    // Error loading detailed match
+    if (detailedError) {
+      return (
+        <ErrorState
+          title="Unable to load match details"
+          error="Failed to load detailed match information"
+          onRetry={refetchDetailed}
+          onBack={handleBack}
+        />
+      );
+    }
 
-  // ==================== RENDER LOGIC ====================
-  // Loading state
-  if (isLiveScoresError && !sportsData.length) {
+    // Loading detailed match
+    if (isDetailedLoading || !detailedMatchData) {
+      return (
+        <LoadingState variant="skeleton" />
+      );
+    }
+
+    // Show detailed match view
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <SelectedLiveMatchView
+        match={selectedMatch}
+        detailedLiveMatch={detailedMatchData}
+        onBack={handleBack}
+      />
+    );
+  };
+
+  /**
+   * Render live matches list
+   */
+  const renderMatchesList = () => {
+    if (isTabSwitching) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Loading state
+    if (loadingMatches && !hasMatches) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Error state
+    if (matchesError && !hasMatches) {
+      return (
+        <ErrorState
+          title={`Unable to load live matches for ${sportName}`}
+          error="Live matches are temporarily unavailable"
+          onRetry={refetchMatches}
+        />
+      );
+    }
+
+    // Empty state
+    if (!hasMatches) {
+      return (
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: 2,
+            p: 4,
+            textAlign: 'center',
+          }}
+        >
+          <SportsSoccerIcon sx={{ fontSize: 56, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            No live matches for {sportName}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Check back when matches are in progress
+          </Typography>
+        </Box>
+      );
+    }
+
+    // Render matches grouped by competition
+    return (
+      <Stack spacing={2}>
+        {Object.entries(matchesByCompetition).map(([competition, matches]) => (
+          <MatchListSection
+            key={competition}
+            competition={{ id: competition, name: competition, matches }}
+            onSelectMatch={handleMatchClick}
+          />
+        ))}
+      </Stack>
+    );
+  };
+
+  // Show error if sports failed to load
+  if (sportsError) {
+    return (
+      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <ErrorState
           title="Unable to load sports"
-          error={sportsErrorMessage}
-          onRetry={() => refetchLiveScores()}
+          error="Failed to load sports data"
+          onRetry={() => window.location.reload()}
         />
       </Container>
     );
   }
 
-  // Initial load only: keep it page-level; afterwards we use per-section loading
-  if (sportsLoading && sportsData.length === 0) {
+  // Show loading skeleton on initial load
+  if (loadingSports && sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <Stack spacing={3}>
-          <Paper sx={{ height: { xs: 120, sm: 150, md: 180 }, bgcolor: 'grey.100' }} />
-          <Paper sx={{ height: 40, bgcolor: 'grey.100' }} />
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-              gap: 2,
-            }}
-          >
-            <Box>
-              <MatchListSkeleton sections={2} rowsPerSection={5} />
-            </Box>
-            <Paper sx={{ height: { xs: 300, sm: 400, md: 520 }, bgcolor: 'grey.100' }} />
-          </Box>
+          <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <MatchListSkeleton sections={2} rowsPerSection={5} />
         </Stack>
       </Container>
     );
   }
 
-  if (!sportsData.length) {
+  // Show empty state if no sports available
+  if (sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <Box
           sx={{
             bgcolor: 'background.paper',
-            border: '1px solid',
+            border: 1,
             borderColor: 'divider',
             borderRadius: 2,
-            p: 3,
+            p: 4,
             textAlign: 'center',
           }}
         >
-          <SportsSoccer color="disabled" sx={{ fontSize: { xs: 40, sm: 56 }, mb: 1.5 }} />
-          <Typography variant="body1" sx={{ mb: 0.5, fontWeight: 600 }}>
+          <SportsSoccerIcon sx={{ fontSize: 56, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" fontWeight={600} gutterBottom>
             No sports available
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            We could not load sports from the server. Please try again later.
+            Sports data is not available at the moment
           </Typography>
         </Box>
-      </Container>
-    );
-  }
-
-  // Show detailed live match view if a match is selected
-  if (selectedLiveMatch) {
-    if (isDetailedMatchError) {
-      const errorMessage = detailedMatchError instanceof Error ? detailedMatchError.message : 'Unknown error';
-      
-      // Handle "not implemented" errors more gracefully
-      if (errorMessage.includes('not yet implemented') || errorMessage.includes('not implemented')) {
-        return (
-          <Container maxWidth="lg" sx={{ py: 4 }}>
-            <ErrorState
-              title="Match details coming soon"
-              error="Detailed match information is not available yet. This feature is currently under development."
-              onBack={handleBack}
-            />
-          </Container>
-        );
-      }
-      
-      return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <ErrorState
-            error="Failed to load match details"
-            onRetry={handleRetry}
-            onBack={handleBack}
-          />
-        </Container>
-      );
-    }
-
-    if (!detailedLiveMatch) {
-      return (
-        <Container
-          maxWidth={false}
-          sx={{ maxWidth: 1400, mx: 'auto', py: { xs: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
-        >
-          <LoadingState
-            message="Loading match details..."
-            subMessage="Please wait while we fetch the match information"
-          />
-        </Container>
-      );
-    }
-
-    return (
-      <Container
-        maxWidth={false}
-        sx={{ maxWidth: 1400, mx: 'auto', py: { xs: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
-      >
-        <SelectedLiveMatchView
-          match={selectedLiveMatch}
-          detailedLiveMatch={detailedLiveMatch}
-          onBack={handleBack}
-        />
       </Container>
     );
   }
@@ -354,120 +287,23 @@ const LiveMatchesPage: React.FC = () => {
     <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
       <Stack spacing={3}>
         {/* Banner */}
-        <Banner className="h-[150px] sm:h-[170px] md:h-[190px]" />
+        <Banner className="h-37.5 sm:h-47.5 md:h-47.5" />
 
         {/* Sport Tabs */}
         <SportTabs
-          sports={sportsData}
-          selectedSport={activeSport}
+          sports={sports}
+          selectedSport={selectedSport}
           onSelectSport={handleSportChange}
-          isLoading={sportsLoading}
+          isLoading={loadingSports}
         />
 
-        {/* Main Content Grid */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-            gap: 3,
-            alignItems: 'flex-start',
-          }}
-        >
-          {/* Live Matches Content */}
-          <Paper elevation={0} sx={{ p: { xs: 1, md: 0 } }}>
-            <Stack spacing={2}>
-              {/* Live Matches Section */}
-              {isLiveScoresLoading && !hasLiveMatches ? (
-                <MatchListSkeleton sections={2} rowsPerSection={5} />
-              ) : showLiveError ? (
-                <ErrorState
-                  title={`Unable to load live matches for ${activeSportName}`}
-                  error={liveMatchesErrorMessage || `Live matches for ${activeSportName} are temporarily unavailable.`}
-                  onRetry={() => refetchLiveScores()}
-                />
-              ) : hasLiveMatches ? (
-                <>
-                  {/* While switching sports or refetching, show loading indicator */}
-                  {isLiveScoresFetching && (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: 'neutral.200',
-                        bgcolor: 'neutral.50',
-                        color: 'text.secondary',
-                        fontSize: '0.875rem',
-                      }}
-                    >
-                      Updating live matches for {activeSportName}…
-                    </Paper>
-                  )}
-
-                  {Object.entries(liveScoresByCompetition).map(([competitionName, matches]) => (
-                    <MatchListSection
-                      key={competitionName}
-                      competition={{ id: competitionName, name: competitionName, matches }}
-                      onSelectMatch={handleSelectMatch}
-                    />
-                  ))}
-                </>
-              ) : (
-                <Box
-                  sx={{
-                    bgcolor: 'background.paper',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    p: 3,
-                    textAlign: 'center',
-                  }}
-                >
-                  <SportsSoccer color="disabled" sx={{ fontSize: { xs: 40, sm: 56 }, mb: 1.5 }} />
-                  <Typography variant="body1" sx={{ mb: 0.5, fontWeight: 600 }}>
-                    No live matches available for {activeSportName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Live matches for {activeSportName} are currently unavailable. Please try again later.
-                  </Typography>
-                </Box>
-              )}
-            </Stack>
-          </Paper>
-
-          {/* News Sidebar */}
-          <Stack spacing={1.5}>
-            <DashboardNewsSidebar
-              topNews={featuredNews}
-              laligaNews={newsItems.slice(0, 8)}
-              isLoading={
-                (isNewsLoading && newsItems.length === 0) ||
-                (isFeaturedNewsLoading && !featuredNews?.length) ||
-                isNewsFetching ||
-                isFeaturedNewsFetching
-              }
-              isError={isNewsError || isFeaturedNewsError}
-              onRetry={handleNewsRetry}
-            />
-          </Stack>
+        {/* Matches Content */}
+        <Box>
+          {selectedMatch ? renderMatchDetail() : renderMatchesList()}
         </Box>
       </Stack>
     </Container>
   );
 };
 
-export default withAuth(() => (
-  <ErrorBoundary
-    resetKeys={[]}
-    onError={(error, errorInfo) => {
-      logger.error('Live matches page error', {
-        error: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-      });
-    }}
-  >
-    <LiveMatchesPage />
-  </ErrorBoundary>
-));
+export default withAuth(LiveMatchesPage);

@@ -25,7 +25,7 @@ export const ComponentDemo: React.FC = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-4xl mx-auto space-y-12">
+      <div className=" mx-auto space-y-12">
         
         {/* Header */}
         <div className="text-center">
@@ -37,16 +37,7 @@ export const ComponentDemo: React.FC = () => {
           </p>
         </div>
 
-        {/* Migration Status */}
-        <Alert variant="success" title="Migration Complete!" className="mb-8">
-          <p>All components have been successfully migrated to the new Tailwind design system:</p>
-          <ul className="mt-2 ml-4 list-disc text-sm">
-            <li>✅ LoginForm and RegisterForm migrated</li>
-            <li>✅ ErrorBoundary migrated</li>
-            <li>✅ Button, Input, Checkbox, Alert components created</li>
-            <li>✅ Backward compatibility maintained</li>
-          </ul>
-        </Alert>
+
 
         {/* Alerts Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">

@@ -80,6 +80,7 @@ export const API_ENDPOINTS = {
     UPDATE: '/api/v1/auth/user/profile/update',
     SUBSCRIPTIONS: '/api/v1/subscriptions/plans',
     SUBSCRIPTION_PLANS: '/api/v1/subscriptions/plans',
+    SUBSCRIPTION_PLAN_BY_ID: (id: number) => `/api/v1/subscriptions/plans/${id}`,
     TRANSACTIONS: '/api/v1/transactions',
     FOLLOWINGS: '/api/v1/teams/following',
     TEAMS_ALL: '/api/v1/teams/all-with-status',

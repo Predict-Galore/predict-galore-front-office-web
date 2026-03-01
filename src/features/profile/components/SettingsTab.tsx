@@ -264,8 +264,11 @@ const SettingsTab: React.FC = () => {
           sx: { borderRadius: 2 },
         }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+        <DialogTitle
+          component="div"
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}
+        >
+          <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 'bold' }}>
             Change Password
           </Typography>
           <IconButton onClick={() => setIsPasswordDialogOpen(false)}>

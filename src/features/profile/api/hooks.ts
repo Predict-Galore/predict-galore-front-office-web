@@ -48,6 +48,16 @@ export function useSubscriptionPlans(onlyActive: boolean = true) {
   });
 }
 
+// Get subscription plan by id hook
+export function useSubscriptionPlanById(planId: number | null, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['profile', 'subscription-plan', planId],
+    queryFn: () => ProfileService.getSubscriptionPlanById(planId as number),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: (options?.enabled ?? true) && planId !== null,
+  });
+}
+
 // Get transaction history hook
 export function useTransactionHistory() {
   return useQuery({
@@ -147,6 +157,7 @@ export function useNotificationSettings() {
     queryKey: ['profile', 'notification-settings'],
     queryFn: () => ProfileService.getNotificationSettings(),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false,
   });
 }
 

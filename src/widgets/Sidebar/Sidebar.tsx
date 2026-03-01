@@ -1,16 +1,17 @@
 /**
  * Sidebar Widget
- * Migrated to widget architecture
+ * Enhanced with collapsible functionality
  */
 
 'use client';
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { IconButton, Drawer, useMediaQuery, Box, Tooltip } from '@mui/material';
+import { IconButton, Drawer, useMediaQuery, Box, Tooltip, Typography } from '@mui/material';
 import {
   Dashboard,
   ChevronLeft,
+  ChevronRight,
   FeedOutlined,
   SportsSoccerOutlined,
   Home,
@@ -19,9 +20,8 @@ import Link from 'next/link';
 
 // Constants
 const DRAWER_WIDTH = 260;
-const COLLAPSED_WIDTH = 72;
+const COLLAPSED_WIDTH = 80;
 
-// Types
 interface SidebarItem {
   id: string;
   label: string;
@@ -66,52 +66,77 @@ const MENU_ITEMS: SidebarItem[] = [
 const SidebarItem: React.FC<{
   item: SidebarItem;
   isActive: boolean;
+  isCollapsed: boolean;
   onClick?: () => void;
-}> = ({ item, isActive, onClick }) => {
-  const { icon, path } = item;
+}> = ({ item, isActive, isCollapsed, onClick }) => {
+  const { icon, label, path } = item;
 
-  return (
-    <Tooltip title={item.label} placement="right" arrow>
-      <Link href={path} onClick={onClick} className="block w-full">
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            my: 1,
-            transition: 'all 0.2s',
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            ...(isActive
-              ? {
-                  bgcolor: 'success.50',
-                  border: '2px solid',
-                  borderColor: 'success.main',
-                  color: 'success.main',
-                }
-              : {
+  const content = (
+    <Link href={path} onClick={onClick} className="block w-full">
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          px: isCollapsed ? 0 : 2,
+          py: 1.5,
+          mx: isCollapsed ? 'auto' : 2,
+          my: 1,
+          transition: 'all 0.2s',
+          borderRadius: isCollapsed ? '50%' : '12px',
+          width: isCollapsed ? 48 : 'auto',
+          height: isCollapsed ? 48 : 'auto',
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          ...(isActive
+            ? {
+                bgcolor: 'success.50',
+                border: '2px solid',
+                borderColor: 'success.main',
+                color: 'success.main',
+              }
+            : {
+                bgcolor: 'transparent',
+                color: 'text.secondary',
+                '&:hover': {
                   bgcolor: 'grey.100',
-                  color: 'text.secondary',
-                  '&:hover': {
-                    bgcolor: 'grey.200',
-                    color: 'text.primary',
-                  },
-                }),
-          }}
-        >
-          {React.cloneElement(icon, { fontSize: 'medium' as const })}
-        </Box>
-      </Link>
-    </Tooltip>
+                  color: 'text.primary',
+                },
+              }),
+        }}
+      >
+        {React.cloneElement(icon, { fontSize: 'medium' as const })}
+        {!isCollapsed && (
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: isActive ? 600 : 500,
+              fontSize: '0.95rem',
+            }}
+          >
+            {label}
+          </Typography>
+        )}
+      </Box>
+    </Link>
   );
+
+  // Only show tooltip when collapsed
+  if (isCollapsed) {
+    return (
+      <Tooltip title={label} placement="right" arrow>
+        {content}
+      </Tooltip>
+    );
+  }
+
+  return content;
 };
 
 // Main Sidebar Component
 const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Determine active item based on current pathname
   const activeItemId = useMemo(() => {
@@ -131,6 +156,12 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
     }
   }, [isMobile, onMobileToggle]);
 
+  const handleToggleCollapse = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
+
+  const drawerWidth = isMobile ? DRAWER_WIDTH : isCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH;
+
   const drawerContent = (
     <Box
       sx={{
@@ -140,28 +171,44 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
         backgroundColor: 'common.white',
       }}
     >
-      {/* Top spacing + mobile close button */}
+      {/* Top section with toggle button */}
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isMobile ? 'flex-end' : 'center',
-          px: 1.5,
-          py: isMobile ? 1.5 : 2,
+          justifyContent: isMobile ? 'flex-end' : isCollapsed ? 'center' : 'flex-end',
+          px: isCollapsed ? 1 : 2,
+          py: 2,
+          minHeight: 64,
         }}
       >
-        {isMobile && (
+        {isMobile ? (
           <IconButton
             onClick={handleCloseMobile}
             sx={{
               color: 'text.secondary',
               '&:hover': {
                 color: 'text.primary',
+                bgcolor: 'grey.100',
               },
             }}
             aria-label="Close sidebar"
           >
             <ChevronLeft />
+          </IconButton>
+        ) : (
+          <IconButton
+            onClick={handleToggleCollapse}
+            sx={{
+              color: 'text.secondary',
+              '&:hover': {
+                color: 'text.primary',
+                bgcolor: 'grey.100',
+              },
+            }}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         )}
       </Box>
@@ -171,12 +218,11 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
         sx={{
           flex: 1,
           overflowY: 'auto',
+          overflowX: 'hidden',
           px: 0,
-          py: isMobile ? 1 : 0,
+          py: 1,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: isMobile ? 0 : 1,
         }}
       >
         {MENU_ITEMS.map((item) => (
@@ -184,6 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
             key={item.id}
             item={item}
             isActive={activeItemId === item.id}
+            isCollapsed={!isMobile && isCollapsed}
             onClick={handleCloseMobile}
           />
         ))}
@@ -202,10 +249,10 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onMobileToggle }) => {
           keepMounted: true,
         }}
         sx={{
-          width: isMobile ? 'auto' : COLLAPSED_WIDTH,
+          width: drawerWidth,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: isMobile ? DRAWER_WIDTH : COLLAPSED_WIDTH,
+            width: drawerWidth,
             boxSizing: 'border-box',
             transition: 'width 225ms cubic-bezier(0.4, 0, 0.6, 1)',
             overflowX: 'hidden',

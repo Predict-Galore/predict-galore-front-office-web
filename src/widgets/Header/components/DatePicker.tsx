@@ -1,13 +1,19 @@
 /**
- * Date Picker Component
- * Green-outlined pill button with clean white calendar dropdown
+ * Header Calendar Component
+ * Displays current date and opens a lightweight month calendar.
  */
 
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { CalendarToday, KeyboardArrowUp, KeyboardArrowDown, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { useTheme, useMediaQuery } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  CalendarToday,
+  ChevronLeft,
+  ChevronRight,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+} from '@mui/icons-material';
+import { Box, IconButton, Popover, Typography } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 import { cn } from '@/shared/lib/utils';
 
@@ -18,132 +24,48 @@ interface DatePickerComponentProps {
 }
 
 const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
 
 const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange, value, date }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(value || date || new Date()));
-  const [currentMonth, setCurrentMonth] = useState<Dayjs>(selectedDate);
-  const calendarRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(value ?? date ?? new Date()));
+  const [visibleMonth, setVisibleMonth] = useState<Dayjs>(dayjs(value ?? date ?? new Date()).startOf('month'));
 
-  const formatDate = (d: Dayjs): string => d.format('MM/DD/YYYY');
+  useEffect(() => {
+    const nextDate = dayjs(value ?? date ?? new Date());
+    setSelectedDate(nextDate);
+    setVisibleMonth(nextDate.startOf('month'));
+  }, [value, date]);
 
-  const getCalendarDays = (): (Dayjs | null)[] => {
-    const startOfMonth = currentMonth.startOf('month');
-    const endOfMonth = currentMonth.endOf('month');
-    const startDay = startOfMonth.day();
-    const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
+  const isOpen = Boolean(anchorEl);
 
-    const days: (Dayjs | null)[] = [];
+  const calendarDays = useMemo(() => {
+    const monthStart = visibleMonth.startOf('month');
+    const mondayOffset = (monthStart.day() + 6) % 7;
+    const firstVisibleDay = monthStart.subtract(mondayOffset, 'day');
 
-    for (let i = adjustedStartDay - 1; i >= 0; i--) {
-      days.push(startOfMonth.subtract(i + 1, 'day'));
-    }
+    return Array.from({ length: 42 }, (_, index) => firstVisibleDay.add(index, 'day'));
+  }, [visibleMonth]);
 
-    for (let i = 0; i < endOfMonth.date(); i++) {
-      days.push(startOfMonth.add(i, 'day'));
-    }
-
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-      days.push(endOfMonth.add(i, 'day'));
-    }
-
-    return days;
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleDateSelect = useCallback(
-    (d: Dayjs) => {
-      setSelectedDate(d);
-      setCurrentMonth(d);
-      setIsOpen(false);
-      onDateChange?.(d.toDate());
-    },
-    [onDateChange]
-  );
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-  const handlePrevMonth = useCallback(() => {
-    setCurrentMonth((prev) => prev.subtract(1, 'month'));
-  }, []);
-
-  const handleNextMonth = useCallback(() => {
-    setCurrentMonth((prev) => prev.add(1, 'month'));
-  }, []);
-
-  // Close on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isOpen &&
-        calendarRef.current &&
-        buttonRef.current &&
-        !calendarRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
-
-  const calendarDays = getCalendarDays();
-
-  const isCurrentMonth = (day: Dayjs | null): boolean =>
-    day ? day.month() === currentMonth.month() : false;
-
-  const isSelected = (day: Dayjs | null): boolean =>
-    day ? day.isSame(selectedDate, 'day') : false;
-
-  const isToday = (day: Dayjs | null): boolean =>
-    day ? day.isSame(dayjs(), 'day') : false;
+  const handleDateSelect = (day: Dayjs) => {
+    setSelectedDate(day);
+    setVisibleMonth(day.startOf('month'));
+    onDateChange?.(day.toDate());
+    handleClose();
+  };
 
   return (
     <div className="relative">
-      {/* Green-outlined pill button */}
       <button
-        ref={buttonRef}
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
         className={cn(
           'flex items-center gap-1.5 px-3 py-2 rounded-full',
           'bg-white border border-green-500',
@@ -151,10 +73,10 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
           'font-medium text-sm text-gray-900',
           'whitespace-nowrap'
         )}
-        aria-label="Select date"
+        aria-label="Open calendar"
       >
         <CalendarToday sx={{ fontSize: 16, color: 'success.main' }} />
-        <span>{formatDate(selectedDate)}</span>
+        <span>{selectedDate.format('MM/DD/YYYY')}</span>
         {isOpen ? (
           <KeyboardArrowUp sx={{ fontSize: 18, color: 'text.secondary' }} />
         ) : (
@@ -162,101 +84,109 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
         )}
       </button>
 
-      {/* Calendar Dropdown */}
-      {isOpen && (
-        <div
-          ref={calendarRef}
-          className={cn(
-            'top-full mt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200',
-            isMobile
-              ? 'fixed left-4 right-4 top-[72px] w-auto'
-              : 'absolute right-0'
-          )}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Clean white card */}
-          <div
-            className={cn(
-              'bg-white rounded-xl shadow-lg border border-gray-200 p-5',
-              isMobile ? 'w-full' : 'min-w-[320px]'
-            )}
-          >
-            {/* Month / Year header with arrows */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-gray-900">
-                {MONTHS[currentMonth.month()]} {currentMonth.year()}
-              </h3>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={handlePrevMonth}
-                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              width: 620,
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              borderRadius: 2,
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 3 }}>
+          <Box sx={{ width: 320, maxWidth: '100%', mx: 'auto' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                {visibleMonth.format('MMMM YYYY')}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton
+                  size="small"
                   aria-label="Previous month"
+                  onClick={() => setVisibleMonth((prev) => prev.subtract(1, 'month'))}
                 >
-                  <ChevronLeft sx={{ fontSize: 20, color: 'text.secondary' }} />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNextMonth}
-                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  <ChevronLeft sx={{ fontSize: 20 }} />
+                </IconButton>
+                <IconButton
+                  size="small"
                   aria-label="Next month"
+                  onClick={() => setVisibleMonth((prev) => prev.add(1, 'month'))}
                 >
-                  <ChevronRight sx={{ fontSize: 20, color: 'text.secondary' }} />
-                </button>
-              </div>
-            </div>
+                  <ChevronRight sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Box>
+            </Box>
 
-            {/* Day-of-week headers */}
-            <div className="grid grid-cols-7 mb-1">
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+                rowGap: 0.5,
+                columnGap: 0.5,
+              }}
+            >
               {DAYS_OF_WEEK.map((day) => (
-                <div
+                <Typography
                   key={day}
-                  className="text-center text-xs font-semibold text-gray-500 py-1.5"
+                  variant="caption"
+                  sx={{ textAlign: 'center', fontWeight: 700, color: 'text.secondary', py: 0.5 }}
                 >
                   {day}
-                </div>
+                </Typography>
               ))}
-            </div>
 
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7">
-              {calendarDays.map((day, index) => {
-                if (!day) return <div key={index} />;
-
-                const isCurrent = isCurrentMonth(day);
-                const isSelectedDate = isSelected(day);
-                const isTodayDate = isToday(day);
+              {calendarDays.map((day) => {
+                const isInCurrentMonth = day.month() === visibleMonth.month();
+                const isSelected = day.isSame(selectedDate, 'day');
+                const isToday = day.isSame(dayjs(), 'day');
+                const todayHighlightClass = isToday
+                  ? isSelected
+                    ? 'ring-2 ring-offset-1 ring-green-200'
+                    : 'ring-2 ring-offset-1 ring-green-500'
+                  : '';
 
                 return (
                   <button
                     key={day.format('YYYY-MM-DD')}
                     type="button"
                     onClick={() => handleDateSelect(day)}
+                    aria-current={isToday ? 'date' : undefined}
                     className={cn(
-                      'relative flex items-center justify-center',
-                      'w-full aspect-square text-sm font-medium transition-all',
-                      'rounded-full',
+                      'aspect-square rounded-full text-sm font-medium transition-colors relative',
                       'hover:bg-gray-100',
-                      // Not current month
-                      !isCurrent && 'text-gray-300',
-                      // Current month, not selected
-                      isCurrent && !isSelectedDate && 'text-gray-900',
-                      // Selected
-                      isSelectedDate &&
-                        'bg-green-500 text-white hover:bg-green-600 font-bold',
-                      // Today (not selected)
-                      !isSelectedDate && isTodayDate && isCurrent &&
-                        'ring-2 ring-green-500 ring-offset-1'
+                      isSelected
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : isInCurrentMonth
+                          ? 'text-gray-900'
+                          : 'text-gray-300',
+                      todayHighlightClass
                     )}
                   >
                     {day.date()}
+                    {isToday && (
+                      <span
+                        className={cn(
+                          'absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full',
+                          isSelected ? 'bg-white' : 'bg-green-600'
+                        )}
+                      />
+                    )}
                   </button>
                 );
               })}
-            </div>
-          </div>
-        </div>
-      )}
+            </Box>
+          </Box>
+        </Box>
+      </Popover>
     </div>
   );
 };

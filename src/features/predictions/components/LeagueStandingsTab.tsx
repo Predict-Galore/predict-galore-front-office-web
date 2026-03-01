@@ -1,7 +1,7 @@
 /**
  * League Standings Tab Component
  * Shows league table with team standings, form, and qualification indicators
- * 
+ *
  * This component displays:
  * - League table with team positions
  * - Team statistics (played, wins, draws, losses, goals, points)
@@ -29,9 +29,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import {
-  TableChart,
-} from '@mui/icons-material';
+import { TableChart } from '@mui/icons-material';
 import { LeagueTableEntry } from '../model/types';
 import { useLeagueTable } from '../api/hooks';
 
@@ -53,7 +51,7 @@ const QUALIFICATION_CONFIG = {
     color: '#2563eb', // blue
     label: 'Europa League',
   },
-  'relegation': {
+  relegation: {
     color: '#dc2626', // red
     label: 'Relegation',
   },
@@ -115,7 +113,7 @@ const TableSkeleton: React.FC = () => (
     elevation={0}
     sx={{
       bgcolor: '#000',
-      borderRadius: 3,
+      borderRadius: 0,
       p: 3,
     }}
   >
@@ -136,7 +134,7 @@ const EmptyState: React.FC<{ leagueId?: number }> = ({ leagueId }) => (
     elevation={0}
     sx={{
       bgcolor: '#000',
-      borderRadius: 3,
+      borderRadius: 0,
       p: 6,
       textAlign: 'center',
     }}
@@ -166,13 +164,25 @@ const TableTab: React.FC<TableTabProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  // Log for debugging
+  React.useEffect(() => {
+    console.log('=== TABLE TAB COMPONENT ===');
+    console.log('League ID:', leagueId);
+    console.log('Prop Table Data:', propTableData);
+    console.log('Prop Is Loading:', propIsLoading);
+  }, [leagueId, propTableData, propIsLoading]);
+
   // Fetch league table data if not provided as props
-  const {
-    data: hookTableData = [],
-    isLoading: hookIsLoading,
-  } = useLeagueTable(leagueId ?? null, {
+  const { data: hookTableData = [], isLoading: hookIsLoading } = useLeagueTable(leagueId ?? null, {
     enabled: !!leagueId && !propTableData,
   });
+
+  // Log hook data
+  React.useEffect(() => {
+    console.log('=== TABLE TAB HOOK DATA ===');
+    console.log('Hook Table Data:', hookTableData);
+    console.log('Hook Is Loading:', hookIsLoading);
+  }, [hookTableData, hookIsLoading]);
 
   // Use prop data if available, otherwise use hook data
   const tableData = propTableData || hookTableData;
@@ -197,7 +207,7 @@ const TableTab: React.FC<TableTabProps> = ({
       elevation={0}
       sx={{
         bgcolor: '#000',
-        borderRadius: 3,
+        borderRadius: 0,
         overflow: 'hidden',
       }}
     >

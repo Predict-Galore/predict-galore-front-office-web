@@ -28,7 +28,6 @@ import {
 import {
   ArrowBack,
   Share,
-  NotificationsNone,
   CalendarTodayOutlined,
   AccessTimeOutlined,
   LocationOnOutlined,
@@ -47,14 +46,6 @@ interface SelectedLiveMatchViewProps {
   match: Match;
   detailedLiveMatch: DetailedLiveMatch;
   onBack: () => void;
-}
-
-interface GoalScorer {
-  player: string;
-  minute: number;
-  team: 'home' | 'away';
-  isPenalty: boolean;
-  extraTime?: number;
 }
 
 // ==================== HELPER COMPONENTS ====================
@@ -201,41 +192,6 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
   }, [match.dateTime]);
 
   /**
-   * Extract and format goal scorers from match events
-   */
-  const goalScorers = useMemo(() => {
-    const goals = detailedLiveMatch.events
-      .filter((event) => event.type === 'goal')
-      .map((event): GoalScorer => ({
-        player: event.playerName || 'Unknown',
-        minute: event.minute,
-        team: event.team,
-        isPenalty: event.description?.toLowerCase().includes('penalty') || false,
-        extraTime: event.extraTime,
-      }));
-
-    return {
-      home: goals.filter((g) => g.team === 'home'),
-      away: goals.filter((g) => g.team === 'away'),
-    };
-  }, [detailedLiveMatch.events]);
-
-  /**
-   * Format goal scorer text
-   */
-  const formatGoal = (goal: GoalScorer): string => {
-    let text = goal.player;
-    text += ` ${goal.minute}'`;
-    if (goal.extraTime) {
-      text = `${goal.player} ${goal.minute}+${goal.extraTime}'`;
-    }
-    if (goal.isPenalty) {
-      text += ' (P)';
-    }
-    return text;
-  };
-
-  /**
    * Match statistics for comparison
    */
   const matchStats = useMemo(
@@ -326,9 +282,6 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
             <IconButton aria-label="Share match" sx={{ color: 'white' }}>
               <Share sx={{ fontSize: 20 }} />
             </IconButton>
-            <IconButton aria-label="Notifications" sx={{ color: 'white' }}>
-              <NotificationsNone sx={{ fontSize: 22 }} />
-            </IconButton>
           </Stack>
         </Stack>
 
@@ -383,6 +336,7 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
               <Chip
                 label={match.status}
                 sx={{
+                  paddingX: 4,
                   bgcolor: 'rgba(255, 255, 255, 0.2)',
                   color: 'white',
                   fontWeight: 700,
@@ -422,56 +376,7 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           </Stack>
 
           {/* Goal Scorers */}
-          {(goalScorers.home.length > 0 || goalScorers.away.length > 0) && (
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="flex-start"
-              justifyContent="center"
-              sx={{ mt: 3, px: 1 }}
-            >
-              {/* Home Scorers */}
-              <Box sx={{ flex: 1, textAlign: 'right' }}>
-                {goalScorers.home.map((goal, i) => (
-                  <Typography
-                    key={i}
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      color: 'rgba(255,255,255,0.9)',
-                      fontSize: '0.75rem',
-                      lineHeight: 1.8,
-                    }}
-                  >
-                    {formatGoal(goal)}
-                  </Typography>
-                ))}
-              </Box>
-
-              {/* Ball Icon */}
-              <Box sx={{ pt: 0.5 }}>
-                <SportsSoccer sx={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
-              </Box>
-
-              {/* Away Scorers */}
-              <Box sx={{ flex: 1, textAlign: 'left' }}>
-                {goalScorers.away.map((goal, i) => (
-                  <Typography
-                    key={i}
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      color: 'rgba(255,255,255,0.9)',
-                      fontSize: '0.75rem',
-                      lineHeight: 1.8,
-                    }}
-                  >
-                    {formatGoal(goal)}
-                  </Typography>
-                ))}
-              </Box>
-            </Stack>
-          )}
+   
         </Box>
       </Paper>
 

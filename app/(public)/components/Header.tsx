@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -48,9 +47,18 @@ const Header: React.FC = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const handleMobileNavClick = (href: string) => {
+  const handleNavigate = (href: string) => {
+    if (href === pathname) {
+      setMobileMenuOpen(false);
+      return;
+    }
+
     router.push(href);
     setMobileMenuOpen(false);
+  };
+
+  const handleMobileNavClick = (href: string) => {
+    handleNavigate(href);
   };
 
   return (
@@ -66,7 +74,19 @@ const Header: React.FC = () => {
           <Toolbar sx={{ height: { xs: 64, md: 80 }, px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Logo */}
             <Box sx={{ flexGrow: 0, mr: 2 }}>
-              <Link href="/landing-page">
+              <Box
+                onClick={() => handleNavigate('/')}
+                sx={{ cursor: 'pointer', display: 'inline-flex' }}
+                role="button"
+                aria-label="Go to home page"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleNavigate('/');
+                  }
+                }}
+              >
                 <Image
                   src={IMAGES.LOGO.MAIN}
                   alt="Predict Galore"
@@ -76,7 +96,7 @@ const Header: React.FC = () => {
                   style={{ height: 32, width: 'auto' }}
                   unoptimized
                 />
-              </Link>
+              </Box>
             </Box>
 
             {/* Desktop Navigation */}
@@ -90,8 +110,7 @@ const Header: React.FC = () => {
                       return (
                         <Button
                           key={link.href}
-                          component={Link}
-                          href={link.href}
+                          onClick={() => handleNavigate(link.href)}
                           sx={{
                             color: active ? 'success.main' : 'text.secondary',
                             fontWeight: active ? 600 : 500,
@@ -114,7 +133,7 @@ const Header: React.FC = () => {
                 <Stack direction="row" spacing={2}>
                   <Button
                     variant="outlined"
-                    onClick={() => router.push('/login')}
+                    onClick={() => handleNavigate('/login')}
                     sx={{
                       textTransform: 'none',
                       borderRadius: 1,
@@ -133,7 +152,7 @@ const Header: React.FC = () => {
 
                   <Button
                     variant="contained"
-                    onClick={() => router.push('/register')}
+                    onClick={() => handleNavigate('/register')}
                     sx={{
                       textTransform: 'none',
                       borderRadius: 1,

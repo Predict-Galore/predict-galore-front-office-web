@@ -1,7 +1,7 @@
 /**
  * Predictions Tab Component
  * Shows comprehensive prediction details including all picks
- * 
+ *
  * This component displays:
  * - List of all prediction picks for a match
  * - Market information and selection details
@@ -24,10 +24,7 @@ import {
   CardHeader,
   Divider,
 } from '@mui/material';
-import {
-  SportsSoccer,
-  Info,
-} from '@mui/icons-material';
+import { SportsSoccer, Info } from '@mui/icons-material';
 
 // ==================== TYPES ====================
 
@@ -113,7 +110,7 @@ const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => (
       bgcolor: 'grey.50',
       border: '1px solid',
       borderColor: 'grey.200',
-      borderRadius: 2,
+      borderRadius: 0,
     }}
   >
     <Typography
@@ -139,13 +136,13 @@ const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => (
 
 const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => {
   // ==================== LOADING STATE ====================
-  
+
   if (isLoading) {
     return <PicksSkeleton />;
   }
 
   // ==================== EMPTY STATE ====================
-  
+
   if (!picks || picks.length === 0) {
     return <EmptyState />;
   }
@@ -169,7 +166,7 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
             key={index}
             elevation={2}
             sx={{
-              borderRadius: 3,
+              borderRadius: 0,
               overflow: 'hidden',
               border: '1px solid',
               borderColor: 'grey.200',
@@ -177,9 +174,7 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
           >
             {/* Pick Header */}
             <CardHeader
-              avatar={
-                <SportsSoccer sx={{ color: 'success.dark' }} />
-              }
+              avatar={<SportsSoccer sx={{ color: 'success.dark' }} />}
               title={
                 <Typography variant="h6" fontWeight={600}>
                   {pick.market || 'N/A'}
@@ -247,19 +242,14 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
               >
                 {/* Odds */}
                 {pick.odds && pick.odds > 0 && (
-                  <DetailItem
-                    label="Odds"
-                    value={Number(pick.odds).toFixed(2)}
-                  />
+                  <DetailItem label="Odds" value={Number(pick.odds).toFixed(2)} />
                 )}
 
                 {/* Tip */}
                 {pick.tip && <DetailItem label="Tip" value={pick.tip} />}
 
                 {/* Recent Form */}
-                {pick.recentForm && (
-                  <DetailItem label="Recent Form" value={pick.recentForm} />
-                )}
+                {pick.recentForm && <DetailItem label="Recent Form" value={pick.recentForm} />}
 
                 {/* Predicted Score */}
                 {(pick.homeScore || pick.awayScore) &&
@@ -276,9 +266,7 @@ const PredictionsTab: React.FC<PredictionsTabProps> = ({ picks, isLoading }) => 
                 )}
 
                 {/* Player Name */}
-                {pick.playerName && (
-                  <DetailItem label="Player" value={pick.playerName} />
-                )}
+                {pick.playerName && <DetailItem label="Player" value={pick.playerName} />}
 
                 {/* Team Name */}
                 {pick.teamName && <DetailItem label="Team" value={pick.teamName} />}

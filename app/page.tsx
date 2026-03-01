@@ -1,9 +1,15 @@
-// app/page.tsx
-import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import PublicLayout from './(public)/layout';
+import LandingPageContent from './(public)/components/LandingPageContent';
 
-// Avoid static prerender so redirect runs without triggering client context during SSG
 export const dynamic = 'force-dynamic';
 
 export default function RootPage() {
-  redirect('/landing-page');
+  return (
+    <Suspense fallback={null}>
+      <PublicLayout>
+        <LandingPageContent />
+      </PublicLayout>
+    </Suspense>
+  );
 }

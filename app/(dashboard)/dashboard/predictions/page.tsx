@@ -1,183 +1,190 @@
-"use client";
+/**
+ * Predictions Page
+ * Shows all available predictions for selected sport
+ */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Container, Stack, Box, Paper } from '@mui/material';
+import { Container, Stack, Box } from '@mui/material';
 import { SportTabs } from '@/shared/components/shared';
-import { useSports, usePredictions } from '@/features/predictions';
-import { useNews, useFeaturedNews } from '@/features/news';
+import { useSports, usePredictions } from '@/features/predictions/api/hooks';
 import Banner from '@/features/dashboard/components/Banner';
-import { PredictionsSection } from '@/features/predictions/components';
-import { DashboardNewsSidebar } from '@/shared/components/shared';
-import { getFriendlyErrorMessage } from '@/shared/lib/errors';
+import PredictionsSection from '@/features/predictions/components/PredictionsList';
+import SelectedPredictionView from '@/features/predictions/components/SelectedPredictionView';
 import { EmptyState, ErrorState } from '@/shared/components/shared';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
-import type { Sport } from '@/features/predictions/model/types';
-import type { Prediction } from '@/features/predictions/model/types';
-import withAuth from '../../../hoc/withAuth';
 import PremiumModal from '@/features/dashboard/components/PremiumModal';
+import withAuth from '../../../hoc/withAuth';
+import type { Sport, Prediction } from '@/features/predictions/model/types';
 
-const PredictionPage: React.FC = () => {
+/**
+ * Predictions Page Component
+ */
+const PredictionsPage: React.FC = () => {
   const router = useRouter();
-  const [activeSport, setActiveSport] = useState<Sport | null>(null);
-  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
-  // Fetch sports data
+  // UI State
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedPredictionId, setSelectedPredictionId] = useState<number | null>(null);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
+
+  // Fetch sports list
   const {
     data: sports = [],
-    isLoading: isSportsLoading,
-    isError: isSportsError,
-    error: sportsError,
+    isLoading: loadingSports,
+    isError: sportsError,
     refetch: refetchSports,
   } = useSports();
 
-  const activeSportName = useMemo(
-    () => activeSport?.name || sports?.[0]?.name || 'this sport',
-    [activeSport?.name, sports]
-  );
+  // Get selected sport ID
+  const sportId = selectedSport?.id || sports[0]?.id;
 
-  // Get the active sport ID from the API sports data
-  const activeSportId = useMemo(() => {
-    if (!activeSport || !sports || sports.length === 0) {
-      return sports[0]?.id;
-    }
-    // Find the sport in API data that matches the active sport name
-    const matchingSport = sports.find(s =>
-      s.name?.toLowerCase() === activeSport.name?.toLowerCase()
-    );
-    return matchingSport?.id || sports[0]?.id;
-  }, [activeSport, sports]);
-
-  // Fetch predictions
+  // Fetch predictions for selected sport
   const {
     data: predictionsData,
-    isLoading: isPredictionsLoading,
-    isFetching: isPredictionsFetching,
-    isError: isPredictionsError,
-    error: predictionsError,
+    isLoading: loadingPredictions,
+    isFetching: isFetchingPredictions,
+    isError: predictionsError,
     refetch: refetchPredictions,
   } = usePredictions(
-    {
-      sportId: activeSportId,
-      pageSize: 20,
-    },
-    { enabled: !!activeSportId }
+    { sportId, pageSize: 20 },
+    { enabled: !!sportId }
   );
 
-  // Fetch featured news without sport filter - backend returns by category
-  const {
-    featuredNews,
-    isLoading: isFeaturedNewsLoading,
-    isFetching: isFeaturedNewsFetching,
-    isError: isFeaturedNewsError,
-    refetch: refetchFeaturedNews,
-  } = useFeaturedNews(1);
-
-  // Fetch news without sport filter - backend returns by category
-  const {
-    data: newsData,
-    isLoading: isNewsLoading,
-    isFetching: isNewsFetching,
-    isError: isNewsError,
-    refetch: refetchNews,
-  } = useNews({ 
-    pageSize: 8,
-  });
-
-  // Set default sport
+  // Set default sport when sports load
   useEffect(() => {
-    if (!activeSport && sports.length > 0) {
-      setActiveSport(sports[0]);
+    if (!selectedSport && sports.length > 0) {
+      setSelectedSport(sports[0]);
     }
-  }, [activeSport, sports]);
+  }, [selectedSport, sports]);
 
-  // Handle sport change
-  const handleSportChange = useCallback((sport: Sport) => {
-    setActiveSport(sport);
-  }, []);
+  /**
+   * Handle sport selection
+   */
+  const handleSportChange = (sport: Sport) => {
+    setIsTabSwitching(true);
+    setSelectedSport(sport);
+    setSelectedPredictionId(null);
+  };
 
-  const handleClosePremiumModal = useCallback(() => {
-    setIsPremiumModalOpen(false);
-  }, []);
+  const handlePredictionClick = (prediction: Prediction) => {
+    if (prediction.status === 'Locked') {
+      setShowPremiumModal(true);
+      return;
+    }
 
-  const sportsErrorMessage = useMemo(
-    () => (isSportsError ? getFriendlyErrorMessage(sportsError) : ''),
-    [isSportsError, sportsError]
-  );
+    setSelectedPredictionId(prediction.id);
+  };
 
-  const predictionsErrorMessage = useMemo(
-    () =>
-      isPredictionsError
-        ? getFriendlyErrorMessage(predictionsError, 'Unable to load predictions right now.')
-        : '',
-    [isPredictionsError, predictionsError]
-  );
+  useEffect(() => {
+    if (!isTabSwitching) return;
+    if (loadingPredictions || isFetchingPredictions) return;
 
-  const predictionsSource = useMemo<Prediction[]>(() => {
-    return predictionsData?.predictions || [];
-  }, [predictionsData]);
+    const timeoutId = window.setTimeout(() => {
+      setIsTabSwitching(false);
+    }, 180);
 
-  const hasPredictions = predictionsSource.length > 0;
-  const showPredictionsError = isPredictionsError && !hasPredictions;
+    return () => window.clearTimeout(timeoutId);
+  }, [isTabSwitching, isFetchingPredictions, loadingPredictions]);
 
-  // Safely extract news items
-  const newsItems = useMemo(() => {
-    if (!newsData) return [];
-    if (Array.isArray(newsData.items)) return newsData.items;
-    // Handle different possible data structures
-    const dataAsRecord = newsData as Record<string, unknown>;
-    if (Array.isArray(dataAsRecord.data)) return dataAsRecord.data as typeof newsData.items;
-    return [];
-  }, [newsData]);
+  // Get predictions list
+  const predictions = predictionsData?.predictions || [];
 
-  const handleNewsRetry = useCallback(() => {
-    refetchFeaturedNews();
-    refetchNews();
-  }, [refetchFeaturedNews, refetchNews]);
+  // Get sport name for display
+  const sportName = selectedSport?.name || 'this sport';
 
-  // Loading state
-  if (isSportsError) {
+  /**
+   * Render predictions content
+   */
+  const renderContent = () => {
+    if (isTabSwitching) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Loading state
+    if (loadingPredictions && predictions.length === 0) {
+      return <MatchListSkeleton sections={2} rowsPerSection={5} />;
+    }
+
+    // Error state
+    if (predictionsError && predictions.length === 0) {
+      return (
+        <ErrorState
+          title={`Unable to load predictions for ${sportName}`}
+          error="Predictions are temporarily unavailable"
+          onRetry={refetchPredictions}
+        />
+      );
+    }
+
+    // Empty state
+    if (predictions.length === 0) {
+      return (
+        <EmptyState
+          title={`No predictions available for ${sportName}`}
+          description="Check back later for new predictions"
+        />
+      );
+    }
+
+    // Render predictions
+    if (selectedPredictionId) {
+      return (
+        <SelectedPredictionView
+          predictionId={selectedPredictionId}
+          onBack={() => setSelectedPredictionId(null)}
+        />
+      );
+    }
+
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <PredictionsSection
+        predictions={predictions}
+        isLoading={loadingPredictions}
+        error=""
+        selectedSport={sportName}
+        onRetry={refetchPredictions}
+        onPredictionClick={handlePredictionClick}
+      />
+    );
+  };
+
+  // Show error if sports failed to load
+  if (sportsError) {
+    return (
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <ErrorState
           title="Unable to load sports"
-          error={sportsErrorMessage}
-          onRetry={() => refetchSports()}
+          error="Failed to load sports data"
+          onRetry={refetchSports}
         />
       </Container>
     );
   }
 
-  // Initial load only: keep it page-level; afterwards we use per-section loading
-  if (isSportsLoading && sports.length === 0) {
+  // Show loading skeleton on initial load
+  if (loadingSports && sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <Stack spacing={3}>
-          <Paper sx={{ height: { xs: 120, sm: 150, md: 180 }, bgcolor: 'grey.100' }} />
-          <Paper sx={{ height: 40, bgcolor: 'grey.100' }} />
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-              gap: 2,
-            }}
-          >
-            <Box>
-              <Paper sx={{ height: { xs: 300, sm: 350, md: 400 }, bgcolor: 'grey.100' }} />
-            </Box>
-            <Paper sx={{ height: { xs: 300, sm: 400, md: 520 }, bgcolor: 'grey.100' }} />
-          </Box>
+          <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
+          <MatchListSkeleton sections={2} rowsPerSection={5} />
         </Stack>
       </Container>
     );
   }
 
-  if (!sports.length) {
+  // Show empty state if no sports available
+  if (sports.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth={false} sx={{ py: 4 }}>
         <EmptyState
           title="No sports available"
-          description="We could not load sports from the server. Please try again later."
+          description="Sports data is not available at the moment"
         />
       </Container>
     );
@@ -192,83 +199,26 @@ const PredictionPage: React.FC = () => {
         {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={activeSport}
+          selectedSport={selectedSport}
           onSelectSport={handleSportChange}
-          isLoading={isSportsLoading}
+          isLoading={loadingSports}
         />
 
-        {/* Main Content Grid */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 400px' },
-            gap: 3,
-            alignItems: 'flex-start',
-          }}
-        >
-          {/* Predictions Content */}
-          <Paper elevation={0} sx={{ p: { xs: 1, md: 0 } }}>
-            <Stack spacing={2}>
-              {/* Predictions Section */}
-              {isPredictionsLoading && !hasPredictions ? (
-                <MatchListSkeleton sections={2} rowsPerSection={5} />
-              ) : showPredictionsError ? (
-                <ErrorState
-                  title={`Unable to load predictions for ${activeSportName}`}
-                  error={predictionsErrorMessage || `Predictions for ${activeSportName} are temporarily unavailable.`}
-                  onRetry={() => refetchPredictions()}
-                />
-              ) : hasPredictions ? (
-                <>
-                  <PredictionsSection
-                    predictions={predictionsSource}
-                    isLoading={isPredictionsLoading}
-                    error={predictionsErrorMessage}
-                    selectedSport={activeSportName}
-                    onRetry={() => refetchPredictions()}
-                  />
-                </>
-              ) : isPredictionsFetching ? (
-                // Show skeleton while fetching new sport data
-                <MatchListSkeleton sections={2} rowsPerSection={5} />
-              ) : (
-                <EmptyState
-                  title={`No predictions available for ${activeSportName}`}
-                  description={`We don't have predictions for ${activeSportName} right now. Please try again later.`}
-                />
-              )}
-            </Stack>
-          </Paper>
-
-          {/* News Sidebar */}
-          <Stack spacing={1.5}>
-            <DashboardNewsSidebar
-              topNews={featuredNews}
-              laligaNews={newsItems.slice(0, 8)}
-              isLoading={
-                (isNewsLoading && newsItems.length === 0) ||
-                (isFeaturedNewsLoading && !featuredNews?.length) ||
-                isNewsFetching ||
-                isFeaturedNewsFetching
-              }
-              isError={isNewsError || isFeaturedNewsError}
-              onRetry={handleNewsRetry}
-            />
-          </Stack>
+        {/* Predictions Content */}
+        <Box>
+          {renderContent()}
         </Box>
       </Stack>
 
       {/* Premium Modal */}
-      {isPremiumModalOpen && (
-        <PremiumModal
-          open={isPremiumModalOpen}
-          onClose={handleClosePremiumModal}
-          onGetPremium={() => router.push('/dashboard/profile?tab=subscriptions')}
-          limit={5}
-        />
-      )}
+      <PremiumModal
+        open={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        onGetPremium={() => router.push('/dashboard/profile?tab=subscriptions')}
+        limit={5}
+      />
     </Container>
   );
 };
 
-export default withAuth(PredictionPage);
+export default withAuth(PredictionsPage);

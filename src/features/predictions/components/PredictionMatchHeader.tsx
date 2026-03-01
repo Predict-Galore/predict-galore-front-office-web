@@ -20,7 +20,6 @@ import {
   Tabs,
   Tab,
   Avatar,
-  Chip,
   Stack,
   useTheme,
   useMediaQuery,
@@ -30,7 +29,6 @@ import {
   Share,
   Notifications,
 } from '@mui/icons-material';
-import dayjs from 'dayjs';
 import { Prediction } from '../model/types';
 
 // ==================== TYPES ====================
@@ -63,14 +61,6 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
   // ==================== HELPERS ====================
 
   /**
-   * Format date and time for display
-   */
-  const formatDateTime = (dateString: string): string => {
-    const date = dayjs(dateString);
-    return date.isValid() ? date.format('DD.MM.YYYY • HH:mm') : 'Date TBD';
-  };
-
-  /**
    * Get team data with fallbacks
    */
   const homeTeam = prediction.homeTeam || { 
@@ -94,9 +84,9 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
       sx={{
         width: '100%',
         background: 'linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%)',
-        borderRadius: 4,
+        borderRadius: 0,
         overflow: 'hidden',
-        border: '1px solid',
+        border: '0px solid',
         borderColor: 'rgba(26, 77, 46, 0.2)',
         boxShadow: 3,
       }}
@@ -151,7 +141,7 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
       </Box>
 
       {/* Date/Time Chip */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', pb: 2 }}>
+      {/* <Box sx={{ display: 'flex', justifyContent: 'center', pb: 2 }}>
         <Chip
           label={prediction.startTime ? formatDateTime(prediction.startTime) : 'Date TBD'}
           sx={{
@@ -162,7 +152,7 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
             height: 28,
           }}
         />
-      </Box>
+      </Box> */}
 
       {/* Teams and Score Section */}
       <Box sx={{ px: 2, pb: 4 }}>

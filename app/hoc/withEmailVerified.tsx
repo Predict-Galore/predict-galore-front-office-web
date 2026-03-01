@@ -4,7 +4,8 @@
 import { useEffect, useState, ComponentType } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Shield } from 'lucide-react';
-import { useAuthStore, useProfileQuery } from '@/features/auth';
+import { useProfileQuery } from '@/features/auth/api/hooks';
+import { useAuthStore } from '@/features/auth/model/store';
 import { Button, Loading } from '@/shared/components/ui';
 
 /**

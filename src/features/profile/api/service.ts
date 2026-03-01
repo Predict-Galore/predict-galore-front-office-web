@@ -4,10 +4,12 @@
  */
 
 import { api, API_ENDPOINTS, createLogger } from '@/shared/api';
+import { ApiError } from '@/shared/lib/errors';
 import { ProfileTransformer } from '../lib/transformers';
 import type {
   ProfileUser,
   Subscription,
+  SubscriptionPlan,
   Transaction,
   Following,
   NotificationSettings,
@@ -23,6 +25,72 @@ const logger = createLogger('ProfileService');
  * Handles all profile-related API calls
  */
 export class ProfileService {
+  private static readonly defaultNotificationSettings: NotificationSettings = {
+    predictionInsights: { inApp: true, push: false },
+    matchUpdates: { inApp: true, push: false },
+    newsAlerts: { inApp: true, push: false },
+  };
+
+  private static isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+  }
+
+  private static normalizeSubscriptionPlan(payload: unknown): SubscriptionPlan {
+    const record = this.isRecord(payload) ? payload : {};
+
+    return {
+      id: Number(record.id ?? 0),
+      name: String(record.name ?? ''),
+      planCode: String(record.planCode ?? ''),
+      amount: Number(record.amount ?? 0),
+      durationDays: Number(record.durationDays ?? record.duration ?? 0),
+      autoRenewDefault: Boolean(record.autoRenewDefault),
+      isActie: Boolean(record.isActie ?? record.isActive),
+      description: typeof record.description === 'string' ? record.description : undefined,
+      currency: typeof record.currency === 'string' ? record.currency : undefined,
+      createdAt: typeof record.createdAt === 'string' ? record.createdAt : undefined,
+      updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : undefined,
+    };
+  }
+
+  private static extractPlanList(response: unknown): SubscriptionPlan[] {
+    if (Array.isArray(response)) {
+      return response.map((item) => this.normalizeSubscriptionPlan(item));
+    }
+
+    if (!this.isRecord(response)) return [];
+
+    const candidates: unknown[] = [];
+    candidates.push(response.data, response.items, response.results, response.plans);
+
+    if (this.isRecord(response.data)) {
+      candidates.push(
+        response.data.items,
+        response.data.results,
+        response.data.plans
+      );
+    }
+
+    const list = candidates.find((candidate) => Array.isArray(candidate));
+    return Array.isArray(list) ? list.map((item) => this.normalizeSubscriptionPlan(item)) : [];
+  }
+
+  private static extractPlanDetail(response: unknown): SubscriptionPlan {
+    if (Array.isArray(response)) {
+      return this.normalizeSubscriptionPlan(response[0]);
+    }
+
+    if (!this.isRecord(response)) {
+      return this.normalizeSubscriptionPlan({});
+    }
+
+    if (this.isRecord(response.data)) {
+      return this.normalizeSubscriptionPlan(response.data);
+    }
+
+    return this.normalizeSubscriptionPlan(response);
+  }
+
   /**
    * Get user profile
    */
@@ -73,34 +141,30 @@ export class ProfileService {
   /**
    * Get subscription plans
    */
-  static async getSubscriptionPlans(onlyActive: boolean = true): Promise<
-    Array<{
-      id: number;
-      name: string;
-      planCode: string;
-      amount: number;
-      duration: number;
-      isActive: boolean;
-    }>
-  > {
+  static async getSubscriptionPlans(onlyActive: boolean = true): Promise<SubscriptionPlan[]> {
     logger.info('Get subscription plans request', { onlyActive });
 
     try {
       const url = `${API_ENDPOINTS.PROFILE.SUBSCRIPTION_PLANS}?onlyActive=${onlyActive}`;
-      const response = await api.get<
-        Array<{
-          id: number;
-          name: string;
-          planCode: string;
-          amount: number;
-          duration: number;
-          isActive: boolean;
-        }>
-      >(url);
-
-      return response;
+      const response = await api.get<unknown>(url);
+      return this.extractPlanList(response);
     } catch (error) {
       logger.error('Failed to fetch plans', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Get a subscription plan by id
+   */
+  static async getSubscriptionPlanById(id: number): Promise<SubscriptionPlan> {
+    logger.info('Get subscription plan by id request', { id });
+
+    try {
+      const response = await api.get<unknown>(API_ENDPOINTS.PROFILE.SUBSCRIPTION_PLAN_BY_ID(id));
+      return this.extractPlanDetail(response);
+    } catch (error) {
+      logger.error('Failed to fetch subscription plan by id', { error, id });
       throw error;
     }
   }
@@ -223,6 +287,10 @@ export class ProfileService {
 
       return ProfileTransformer.transformNotificationSettings(response);
     } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        logger.debug('Notification settings endpoint not available. Using defaults.');
+        return this.defaultNotificationSettings;
+      }
       logger.error('Failed to fetch notification settings', { error });
       throw error;
     }

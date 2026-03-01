@@ -128,9 +128,12 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
         sx: { borderRadius: 2 },
       }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 1.5 }}>
+      <DialogTitle
+        component="div"
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 1.5 }}
+      >
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
             Manage your Subscription
           </Typography>
           <Typography variant="body2" sx={{ color: 'grey.600' }}>
