@@ -1,10 +1,7 @@
 'use client';
 
 import React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Stack from '@mui/material/Stack';
+import { Box, Typography, Container, Stack } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,150 +13,158 @@ const HeroSection: React.FC = () => {
     <Box
       sx={{
         position: 'relative',
-        // Dynamic gradient using theme colors for a cohesive brand feel
-        background:
-          'linear-gradient(135deg, var(--theme-secondary-main) 0%, var(--theme-primary-dark) 100%)',
-        overflow: 'hidden',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        pt: { xs: 12, lg: 0 }, // Adjust for navbar height
+        overflow: 'hidden',
+        background:
+          'linear-gradient(135deg, var(--theme-secondary-main) 0%, var(--theme-primary-dark) 100%)',
       }}
     >
-      {/* Decorative background overlay for texture */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.12,
-          backgroundImage: `
-            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 2px, transparent 3px),
-            radial-gradient(circle at 80% 0%, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 3px)
-          `,
-          backgroundSize: '220px 220px',
-          backgroundRepeat: 'repeat',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <Container
-        maxWidth={false}
-        sx={{
-          px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
-          mx: 0,
-          flex: 1,
-        }}
-      >
+      <Container maxWidth="xl">
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
-            gap: { xs: 8, lg: 2 },
+            gridTemplateColumns: { xs: '1fr', lg: '0.9fr 1.1fr' }, 
             alignItems: 'center',
           }}
         >
-          {/* Left Side - Content */}
-          <Box sx={{ color: 'white', textAlign: { xs: 'center', lg: 'left' } }}>
+          {/* LEFT CONTENT */}
+          <Box sx={{ color: 'white', zIndex: 2 }}>
             <Typography
-              variant="h1"
               sx={{
-                mb: 3,
-                color: 'white',
+                fontSize: { xs: '2.8rem', md: '3.5rem' },
+                fontWeight: 900,
                 lineHeight: 1.1,
+                mb: 3,
+                color: '#fff',
               }}
             >
-              Stay Ahead of <br /> the Game, <br /> Every Game
+              Stay Ahead of
+              <br />
+              the Game,
+              <br />
+              Every Game
             </Typography>
 
             <Typography
-              variant="body1"
               sx={{
-                mb: 5,
+                fontSize: '1.1rem',
+                maxWidth: 520,
                 color: alpha('#fff', 0.9),
-                // maxWidth: { xs: '100%', lg: '580px' },
-                fontSize: { xs: '1.1rem', md: '1.25rem' },
-                mx: { xs: 'auto', lg: 0 },
+                mb: 5,
               }}
             >
-              Predict Galore delivers accurate and in-depth analyses you can trust.
+              Whether on web or mobile, Predict Galore delivers accurate predictions, league tables,
+              and in-depth analysis you can trust.
             </Typography>
 
-            {/* CTA Buttons - use design system buttons */}
+            {/* CTA */}
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
-              spacing={2.5}
-              justifyContent={{ xs: 'center', lg: 'flex-start' }}
+              spacing={{ xs: 1.5, sm: 2 }}
+              alignItems={{ xs: 'stretch', sm: 'center' }}
+              sx={{ width: '100%' }}
             >
+              {/* PRIMARY BUTTON */}
               <Button
                 component={Link}
                 href="/register"
-                variant="primary"
-                size="lg"
                 sx={{
-                  px: 6,
-                  py: 2,
+                  width: { xs: '100%', sm: 'auto' },
+
+                  px: { xs: 2.5, sm: 3.5, md: 5 },
+                  py: { xs: 0.9, sm: 1.2, md: 1.6 },
+
+                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' },
                   fontWeight: 700,
+
+                  minHeight: { xs: 40, sm: 44, md: 48 },
+
+                  borderRadius: 1,
                   bgcolor: 'white',
-                  color: '#1a1a1a',
+                  color: '#111',
+
+                  whiteSpace: 'nowrap',
+
                   '&:hover': {
-                    bgcolor: '#f5f5f5',
-                    transform: 'translateY(-2px)',
+                    bgcolor: '#f3f3f3',
+                    transform: 'translateY(-1px)',
                   },
-                  transition: 'all 0.3s ease',
+
+                  transition: 'all 0.2s ease',
                 }}
               >
-                Join Predict Galore Now{' '}
+                Join Predict Galore Now
               </Button>
+
+              {/* SECONDARY BUTTON */}
               <Button
                 component={Link}
                 href="/login"
                 variant="outline"
-                size="lg"
                 sx={{
-                  px: 6,
-                  py: 2,
+                  width: { xs: '100%', sm: 'auto' },
+
+                  px: { xs: 2.5, sm: 3.5, md: 5 },
+                  py: { xs: 0.9, sm: 1.2, md: 1.6 },
+
+                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' },
                   fontWeight: 700,
+
+                  minHeight: { xs: 40, sm: 44, md: 48 },
+
+                  borderRadius: 1,
                   borderColor: 'white',
                   color: 'white',
                   borderWidth: 2,
+
+                  whiteSpace: 'nowrap',
+
                   '&:hover': {
                     borderColor: 'white',
-                    color: 'white',
-                    transform: 'translateY(-2px)',
-                    borderWidth: 2,
+                    background: alpha('#fff', 0.1),
+                    transform: 'translateY(-1px)',
                   },
-                  transition: 'all 0.3s ease',
+
+                  transition: 'all 0.2s ease',
                 }}
               >
-                Download our Mobile App
+                Download Our Mobile App
               </Button>
             </Stack>
           </Box>
 
-          {/* Right Side - Full Mockup Image */}
+          {/* RIGHT SIDE */}
           <Box
             sx={{
               position: 'relative',
-              width: '100%',
-              height: { xs: '400px', sm: '550px',  },
               display: 'flex',
+              justifyContent: { xs: 'center', lg: 'flex-end' }, 
               alignItems: 'center',
-              justifyContent: 'center',
-              filter: 'drop-shadow(0px 20px 40px rgba(0,0,0,0.2))',
+              height: { xs: 500, md: 700, lg: 750 }, 
+              mt: { xs: 2, lg: 0 }, 
             }}
           >
-            <Image
-              src={IMAGES.LANDING.HERO_PHONE_MOCKUP}
-              alt="Predict Galore Mobile App with Features"
-              fill
-              sizes="(max-width: 768px) 400px, (max-width: 1024px) 550px, 800px"
-              style={{ objectFit: 'contain', objectPosition: 'center' }}
-              priority
-              unoptimized
-            />
+            {/* PHONE */}
+            <Box
+              sx={{
+                position: 'relative',
+                width: { xs: 280, md: 380, lg: 450 }, // Larger on desktop
+                height: { xs: 540, md: 720, lg: 850 }, // Larger on desktop
+                maxWidth: '100%',
+              }}
+            >
+              <Image
+                src={IMAGES.LANDING.HERO_PHONE_MOCKUP}
+                alt="App"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </Box>
           </Box>
+          
         </Box>
       </Container>
     </Box>

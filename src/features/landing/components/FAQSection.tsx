@@ -11,6 +11,7 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { alpha } from '@mui/material/styles';
 
 const FAQSection: React.FC = () => {
   const [expanded, setExpanded] = useState<string | false>(false);
@@ -80,15 +81,36 @@ const FAQSection: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: '#ffffff', py: { xs: 8, md: 12 } }}>
-      <Container maxWidth="md">
+    <Box sx={{ 
+      bgcolor: '#ffffff', 
+      py: { xs: 6, sm: 8, md: 10, lg: 12 } 
+    }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{
+          px: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
         {/* Section Header */}
-        <Box sx={{ textAlign: 'center', mb: 8 }}>
+        <Box sx={{ 
+          textAlign: 'center', 
+          mb: { xs: 5, sm: 6, md: 7, lg: 8 },
+          maxWidth: { sm: '90%', md: '80%', lg: '70%' },
+          mx: 'auto',
+        }}>
           <Typography
             variant="h3"
             sx={{
               color: '#0f172a',
-              mb: 2,
+              mb: { xs: 1.5, sm: 2, md: 2.5 },
+              fontSize: { 
+                xs: '1.75rem',
+                sm: '2rem',
+                md: '2.5rem',
+                lg: '3rem'
+              },
+              fontWeight: { xs: 700, md: 800 },
+              lineHeight: 1.2,
             }}
           >
             Got Questions?
@@ -97,8 +119,15 @@ const FAQSection: React.FC = () => {
             variant="body1"
             sx={{
               color: '#475569',
-              maxWidth: '600px',
+              maxWidth: { xs: '100%', md: '600px' },
               mx: 'auto',
+              fontSize: { 
+                xs: '0.95rem',
+                sm: '1rem',
+                md: '1.1rem'
+              },
+              lineHeight: 1.6,
+              px: { xs: 2, sm: 0 },
             }}
           >
             Everything you need to know before getting started with Predict Galore.
@@ -106,7 +135,13 @@ const FAQSection: React.FC = () => {
         </Box>
 
         {/* FAQ Accordions */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: { xs: 1.5, sm: 2, md: 2.5 },
+          maxWidth: '900px',
+          mx: 'auto',
+        }}>
           {faqs.map((faq) => (
             <Accordion
               key={faq.id}
@@ -115,18 +150,18 @@ const FAQSection: React.FC = () => {
               disableGutters
               elevation={0}
               sx={{
-                border: `1px solid ${'#e2e8f0'}`,
-                borderRadius: '8px !important',
+                border: `1px solid ${alpha('#e2e8f0', expanded === faq.id ? 1 : 0.8)}`,
+                borderRadius: { xs: '6px !important', sm: '8px !important' },
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  borderColor: '#42A605',
-                  bgcolor: '#f8fafc',
+                  borderColor: expanded === faq.id ? '#42A605' : alpha('#42A605', 0.5),
+                  bgcolor: alpha('#f8fafc', 0.7),
                 },
                 '&:before': { display: 'none' },
                 ...(expanded === faq.id && {
                   borderColor: '#42A605',
-                  boxShadow: `0 4px 20px ${'#e2e8f0'}`,
+                  boxShadow: `0 4px 20px ${alpha('#e2e8f0', 0.8)}`,
                 }),
               }}
             >
@@ -134,39 +169,54 @@ const FAQSection: React.FC = () => {
                 expandIcon={
                   <AddCircleOutlineIcon
                     sx={{
-                      color:
-                        expanded === faq.id
-                          ? '#42A605'
-                          : '#0f172a',
+                      color: expanded === faq.id ? '#42A605' : '#0f172a',
                       transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       transform: expanded === faq.id ? 'rotate(45deg)' : 'none',
+                      fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
                     }}
                   />
                 }
                 sx={{
-                  px: { xs: 2, md: 4 },
-                  py: 1,
+                  px: { xs: 2, sm: 3, md: 4 },
+                  py: { xs: 0.5, sm: 0.75, md: 1 },
+                  minHeight: { xs: 56, sm: 64, md: 72 },
                   '& .MuiAccordionSummary-content': {
-                    my: 2,
+                    my: { xs: 1.5, sm: 1.75, md: 2 },
                   },
                 }}
               >
                 <Typography
                   sx={{
-                    fontWeight: 600,
-                    color: '#0f172a',
-                    fontSize: '1.05rem',
+                    fontWeight: { xs: 600, md: 700 },
+                    color: expanded === faq.id ? '#42A605' : '#0f172a',
+                    fontSize: { 
+                      xs: '0.95rem',
+                      sm: '1rem',
+                      md: '1.1rem',
+                      lg: '1.15rem'
+                    },
+                    lineHeight: 1.4,
+                    pr: { xs: 1, sm: 2 },
                   }}
                 >
                   {faq.question}
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ px: { xs: 2, md: 4 }, pb: 4, pt: 0 }}>
+              <AccordionDetails sx={{ 
+                px: { xs: 2, sm: 3, md: 4 }, 
+                pb: { xs: 3, sm: 3.5, md: 4 }, 
+                pt: { xs: 0.5, sm: 1, md: 1.5 },
+              }}>
                 <Typography
                   sx={{
                     color: '#475569',
-                    lineHeight: 1.6,
-                    fontSize: '0.95rem',
+                    lineHeight: { xs: 1.5, sm: 1.6, md: 1.7 },
+                    fontSize: { 
+                      xs: '0.875rem',
+                      sm: '0.9rem',
+                      md: '0.95rem',
+                      lg: '1rem'
+                    },
                     textAlign: 'left',
                   }}
                 >
@@ -180,30 +230,61 @@ const FAQSection: React.FC = () => {
         {/* Footer Contact Info */}
         <Box
           sx={{
-            mt: 10,
+            mt: { xs: 6, sm: 8, md: 10 },
             textAlign: 'center',
-            p: 4,
-            borderRadius: 4,
+            p: { xs: 3, sm: 4, md: 5 },
+            borderRadius: { xs: 3, sm: 4 },
             bgcolor: '#f8fafc',
-            border: `1px dashed ${'#e2e8f0'}`,
+            border: `1px dashed ${alpha('#e2e8f0', 0.8)}`,
+            maxWidth: '700px',
+            mx: 'auto',
           }}
         >
           <Typography
             variant="h6"
-            sx={{ fontWeight: 800, mb: 1, color: '#0f172a' }}
+            sx={{ 
+              fontWeight: { xs: 700, md: 800 }, 
+              mb: { xs: 1, sm: 1.25, md: 1.5 }, 
+              color: '#0f172a',
+              fontSize: { 
+                xs: '1.1rem',
+                sm: '1.2rem',
+                md: '1.3rem'
+              },
+            }}
           >
             Still have questions?
           </Typography>
-          <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: '#475569', 
+              mb: { xs: 2, sm: 2.5, md: 3 },
+              fontSize: { 
+                xs: '0.875rem',
+                sm: '0.9rem',
+                md: '0.95rem'
+              },
+              lineHeight: 1.6,
+              px: { xs: 2, sm: 0 },
+            }}
+          >
             Do you have a question, request, issue, or comment that is not covered here?
           </Typography>
           <MuiLink
             href="mailto:customerservice@predictgalore.com"
             sx={{
               color: '#42A605',
-              fontWeight: 700,
-              fontSize: '1rem',
+              fontWeight: { xs: 600, sm: 700 },
+              fontSize: { 
+                xs: '0.9rem',
+                sm: '0.95rem',
+                md: '1rem',
+                lg: '1.1rem'
+              },
               textDecoration: 'none',
+              display: 'inline-block',
+              wordBreak: 'break-all', // Prevents email from overflowing on mobile
               '&:hover': {
                 textDecoration: 'underline',
               },

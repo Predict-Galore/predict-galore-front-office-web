@@ -19,6 +19,8 @@ import {
   Popover,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -40,6 +42,10 @@ interface NotificationDropdownProps {
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificationClick }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
@@ -128,7 +134,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
   };
 
   const getIcon = (type: NotificationItem['type']) => {
-    const iconProps = { sx: { fontSize: 48 } };
+    const iconProps = { sx: { fontSize: isMobile ? 32 : 48 } };
 
     switch (type) {
       case 'success':
@@ -152,19 +158,19 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
           sx={{
             flexDirection: 'column',
             alignItems: 'flex-start',
-            py: 2,
-            px: 3,
+            py: { xs: 1.5, sm: 2 },
+            px: { xs: 2, sm: 3 },
             '&:hover': { bgcolor: 'grey.50' },
           }}
         >
           <Box
             onClick={() => handleShowDetail(notification)}
-            sx={{ width: '100%', cursor: 'pointer', display: 'flex', gap: 2 }}
+            sx={{ width: '100%', cursor: 'pointer', display: 'flex', gap: { xs: 1, sm: 2 } }}
           >
             <Box
               sx={{
-                width: 16,
-                height: 16,
+                width: { xs: 12, sm: 16 },
+                height: { xs: 12, sm: 16 },
                 borderRadius: '50%',
                 bgcolor: notification.isRead ? 'grey.300' : 'success.main',
                 flexShrink: 0,
@@ -180,20 +186,37 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
                   justifyContent: 'space-between',
                   gap: 1,
                   mb: 0.5,
+                  flexWrap: { xs: 'wrap', sm: 'nowrap' },
                 }}
               >
-                <Typography variant="body2" fontWeight={700}>
+                <Typography 
+                  variant="body2" 
+                  fontWeight={700}
+                  sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                >
                   {notification.title}
                 </Typography>
                 <Chip
                   label={notification.isRead ? 'Read' : 'Unread'}
                   size="small"
                   color={notification.isRead ? 'default' : 'error'}
-                  sx={{ height: 22, fontSize: '0.6875rem', fontWeight: 700 }}
+                  sx={{ 
+                    height: { xs: 20, sm: 22 }, 
+                    fontSize: { xs: '0.625rem', sm: '0.6875rem' }, 
+                    fontWeight: 700 
+                  }}
                 />
               </Box>
 
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+              <Typography 
+                variant="caption" 
+                color="text.secondary" 
+                sx={{ 
+                  mb: 0.5, 
+                  display: 'block',
+                  fontSize: { xs: '0.65rem', sm: '0.75rem' }
+                }}
+              >
                 {formatTime(notification.timestamp)}
               </Typography>
 
@@ -206,6 +229,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                   lineHeight: 1.5,
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
                 }}
               >
                 {notification.message}
@@ -218,10 +242,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
               size="small"
               onClick={() => handleToggleExpand(notification.id)}
               sx={{
-                ml: 4,
+                ml: { xs: 3, sm: 4 },
                 mt: 1,
                 textTransform: 'none',
-                fontSize: '0.75rem',
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
                 fontWeight: 600,
                 color: 'success.main',
                 '&:hover': { bgcolor: 'success.50' },
@@ -240,11 +264,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
     if (!selectedNotification) return null;
 
     return (
-      <Box sx={{ p: 3,  maxWidth: '100%' }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%' }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={handleBackToList}
-          sx={{ mb: 3, textTransform: 'none' }}
+          size={isMobile ? "small" : "medium"}
+          sx={{ mb: { xs: 2, sm: 3 }, textTransform: 'none' }}
         >
           Back to notifications
         </Button>
@@ -253,16 +278,30 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
           {getIcon(selectedNotification.type)}
         </Box>
 
-        <Typography variant="h6" fontWeight={700} textAlign="center" gutterBottom>
+        <Typography 
+          variant={isMobile ? "body1" : "h6"} 
+          fontWeight={700} 
+          textAlign="center" 
+          gutterBottom
+          sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+        >
           {selectedNotification.title}
         </Typography>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ 
+            mb: 3, 
+            lineHeight: 1.6,
+            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+          }}
+        >
           {selectedNotification.message}
         </Typography>
 
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-          <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+          <AccessTimeIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
           <Typography variant="caption" color="text.secondary">
             {formatTime(selectedNotification.timestamp)}
           </Typography>
@@ -279,12 +318,23 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
 
         <Stack spacing={1.5}>
           {selectedNotification.actionUrl && (
-            <Button variant="contained" color="success" fullWidth onClick={handleViewFullDetails}>
+            <Button 
+              variant="contained" 
+              color="success" 
+              fullWidth 
+              onClick={handleViewFullDetails}
+              size={isMobile ? "small" : "medium"}
+            >
               View Full Details
             </Button>
           )}
 
-          <Button variant="outlined" fullWidth onClick={handleBackToList}>
+          <Button 
+            variant="outlined" 
+            fullWidth 
+            onClick={handleBackToList}
+            size={isMobile ? "small" : "medium"}
+          >
             Close
           </Button>
         </Stack>
@@ -295,16 +345,16 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
   const renderNotificationList = () => {
     if (isLoading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: { xs: 6, sm: 8 } }}>
+          <CircularProgress size={isMobile ? 32 : 40} />
         </Box>
       );
     }
 
     if (error) {
       return (
-        <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
-          <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+        <Box sx={{ textAlign: 'center', py: { xs: 6, sm: 8 }, px: { xs: 2, sm: 3 } }}>
+          <NotificationsNoneIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: 'grey.400', mb: 2 }} />
           <Typography variant="subtitle1" fontWeight={700} gutterBottom>
             Failed to Load
           </Typography>
@@ -317,8 +367,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
 
     if (sortedNotifications.length === 0) {
       return (
-        <Box sx={{ textAlign: 'center', py: 8, px: 3 }}>
-          <NotificationsNoneIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+        <Box sx={{ textAlign: 'center', py: { xs: 6, sm: 8 }, px: { xs: 2, sm: 3 } }}>
+          <NotificationsNoneIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: 'grey.400', mb: 2 }} />
           <Typography variant="subtitle1" fontWeight={700} gutterBottom>
             No Notifications Yet
           </Typography>
@@ -333,7 +383,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
       <List
         sx={{
           p: 0,
-          maxHeight: 420,
+          maxHeight: { xs: 350, sm: 420 },
           overflow: 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -347,9 +397,26 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
 
   return (
     <>
-      <IconButton onClick={handleOpen} color="inherit">
-        <Badge badgeContent={unreadCount} color="error">
-          {unreadCount > 0 ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+      <IconButton 
+        onClick={handleOpen} 
+        color="inherit"
+        size={isMobile ? "small" : "medium"}
+      >
+        <Badge 
+          badgeContent={unreadCount} 
+          color="error"
+          sx={{
+            '& .MuiBadge-badge': {
+              fontSize: isMobile ? '0.6rem' : '0.75rem',
+              height: isMobile ? 16 : 20,
+              minWidth: isMobile ? 16 : 20,
+            }
+          }}
+        >
+          {unreadCount > 0 ? 
+            <NotificationsIcon sx={{ fontSize: isMobile ? 20 : 24 }} /> : 
+            <NotificationsNoneIcon sx={{ fontSize: isMobile ? 20 : 24 }} />
+          }
         </Badge>
       </IconButton>
 
@@ -357,24 +424,31 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ 
+          vertical: 'bottom', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
+        transformOrigin={{ 
+          vertical: 'top', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
         slotProps={{
           paper: {
             sx: {
               mt: 1,
-              width: 620,
-              maxWidth: '90vw',
+              width: isMobile ? '100%' : 620,
+              maxWidth: isMobile ? 'calc(100vw - 32px)' : '90vw',
               maxHeight: '80vh',
-              borderRadius: 2,
+              borderRadius: isMobile ? 3 : 2,
+              mx: isMobile ? 2 : 0,
             },
           },
         }}
       >
         <Box
           sx={{
-            px: 3,
-            py: 2,
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1.5, sm: 2 },
             borderBottom: 1,
             borderColor: 'divider',
             display: 'flex',
@@ -383,17 +457,22 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onNotificat
             gap: 2,
           }}
         >
-          <Typography variant="h6" fontWeight={700}>
+          <Typography 
+            variant={isMobile ? "body1" : "h6"} 
+            fontWeight={700}
+            sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+          >
             Notifications
           </Typography>
           {!selectedNotification && (
             <Button
-              size="small"
+              size={isMobile ? "small" : "small"}
               onClick={handleMarkAllAsRead}
               disabled={unreadCount === 0 || isMarkingAll || isMarkingOne}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
                 color: 'success.main',
                 '&:disabled': { color: 'text.disabled' },
               }}

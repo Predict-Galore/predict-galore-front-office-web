@@ -13,7 +13,7 @@ import {
   KeyboardArrowDown,
   KeyboardArrowUp,
 } from '@mui/icons-material';
-import { Box, IconButton, Popover, Typography } from '@mui/material';
+import { Box, IconButton, Popover, Typography, useMediaQuery, useTheme } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 import { cn } from '@/shared/lib/utils';
 
@@ -26,6 +26,9 @@ interface DatePickerComponentProps {
 const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange, value, date }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(value ?? date ?? new Date()));
   const [visibleMonth, setVisibleMonth] = useState<Dayjs>(dayjs(value ?? date ?? new Date()).startOf('month'));
@@ -61,26 +64,32 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
     handleClose();
   };
 
+  const buttonSize = isMobile ? 'small' : 'medium';
+
   return (
     <div className="relative">
       <button
         type="button"
         onClick={handleOpen}
         className={cn(
-          'flex items-center gap-1.5 px-3 py-2 rounded-full',
-          'bg-white border border-green-500',
-          'hover:bg-green-50 transition-colors',
-          'font-medium text-sm text-gray-900',
-          'whitespace-nowrap'
+          'flex items-center gap-1.5 rounded-full transition-colors whitespace-nowrap',
+          'bg-white border border-green-500 hover:bg-green-50',
+          'font-medium text-gray-900',
+          isMobile ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm'
         )}
         aria-label="Open calendar"
       >
-        <CalendarToday sx={{ fontSize: 16, color: 'success.main' }} />
-        <span>{selectedDate.format('MM/DD/YYYY')}</span>
+        <CalendarToday sx={{ fontSize: isMobile ? 14 : 16, color: 'success.main' }} />
+        <span className={isMobile ? 'hidden sm:inline' : ''}>
+          {selectedDate.format(isMobile ? 'MM/DD' : 'MM/DD/YYYY')}
+        </span>
+        <span className={isMobile ? 'sm:hidden' : 'hidden'}>
+          {selectedDate.format('MM/DD')}
+        </span>
         {isOpen ? (
-          <KeyboardArrowUp sx={{ fontSize: 18, color: 'text.secondary' }} />
+          <KeyboardArrowUp sx={{ fontSize: isMobile ? 16 : 18, color: 'text.secondary' }} />
         ) : (
-          <KeyboardArrowDown sx={{ fontSize: 18, color: 'text.secondary' }} />
+          <KeyboardArrowDown sx={{ fontSize: isMobile ? 16 : 18, color: 'text.secondary' }} />
         )}
       </button>
 
@@ -88,40 +97,59 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ 
+          vertical: 'bottom', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
+        transformOrigin={{ 
+          vertical: 'top', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
         slotProps={{
           paper: {
             sx: {
               mt: 1,
-              width: 620,
-              maxWidth: '90vw',
+              width: isMobile ? '100%' : 620,
+              maxWidth: isMobile ? 'calc(100vw - 32px)' : '90vw',
               maxHeight: '80vh',
-              borderRadius: 2,
+              borderRadius: isMobile ? 3 : 2,
+              mx: isMobile ? 2 : 0,
             },
           },
         }}
       >
-        <Box sx={{ p: 3 }}>
-          <Box sx={{ width: 320, maxWidth: '100%', mx: 'auto' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ 
+            width: { xs: 280, sm: 320 }, 
+            maxWidth: '100%', 
+            mx: 'auto' 
+          }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              mb: 2 
+            }}>
+              <Typography 
+                variant={isMobile ? "body1" : "subtitle1"} 
+                sx={{ fontWeight: 700 }}
+              >
                 {visibleMonth.format('MMMM YYYY')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <IconButton
-                  size="small"
+                  size={buttonSize}
                   aria-label="Previous month"
                   onClick={() => setVisibleMonth((prev) => prev.subtract(1, 'month'))}
                 >
-                  <ChevronLeft sx={{ fontSize: 20 }} />
+                  <ChevronLeft sx={{ fontSize: isMobile ? 18 : 20 }} />
                 </IconButton>
                 <IconButton
-                  size="small"
+                  size={buttonSize}
                   aria-label="Next month"
                   onClick={() => setVisibleMonth((prev) => prev.add(1, 'month'))}
                 >
-                  <ChevronRight sx={{ fontSize: 20 }} />
+                  <ChevronRight sx={{ fontSize: isMobile ? 18 : 20 }} />
                 </IconButton>
               </Box>
             </Box>
@@ -130,17 +158,23 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
               sx={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
-                rowGap: 0.5,
-                columnGap: 0.5,
+                rowGap: { xs: 0.25, sm: 0.5 },
+                columnGap: { xs: 0.25, sm: 0.5 },
               }}
             >
               {DAYS_OF_WEEK.map((day) => (
                 <Typography
                   key={day}
                   variant="caption"
-                  sx={{ textAlign: 'center', fontWeight: 700, color: 'text.secondary', py: 0.5 }}
+                  sx={{ 
+                    textAlign: 'center', 
+                    fontWeight: 700, 
+                    color: 'text.secondary', 
+                    py: 0.5,
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' }
+                  }}
                 >
-                  {day}
+                  {isMobile ? day.charAt(0) : day}
                 </Typography>
               ))}
 
@@ -161,7 +195,7 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
                     onClick={() => handleDateSelect(day)}
                     aria-current={isToday ? 'date' : undefined}
                     className={cn(
-                      'aspect-square rounded-full text-sm font-medium transition-colors relative',
+                      'aspect-square rounded-full font-medium transition-colors relative',
                       'hover:bg-gray-100',
                       isSelected
                         ? 'bg-green-500 text-white hover:bg-green-600'
@@ -170,6 +204,7 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
                           : 'text-gray-300',
                       todayHighlightClass
                     )}
+                    style={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                   >
                     {day.date()}
                     {isToday && (

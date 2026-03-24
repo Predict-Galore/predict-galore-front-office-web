@@ -8,6 +8,8 @@ const publicRoutes = [
   '/contact-us',
   '/terms',
   '/coming-soon',
+  '/coming-soon-2',
+  '/coming-soon-3',
   '/design-system',
   '/login',
   '/register',

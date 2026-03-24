@@ -96,7 +96,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 }) => {
   const theme = useTheme();
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -139,29 +139,29 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       {
         id: 'profile',
         label: 'Profile details',
-        icon: <PersonOutline sx={{ fontSize: 22 }} />,
+        icon: <PersonOutline sx={{ fontSize: isMobile ? 20 : 22 }} />,
         onClick: handleProfileClick,
       },
       {
         id: 'followings',
         label: 'Followings',
-        icon: <PeopleOutline sx={{ fontSize: 22 }} />,
+        icon: <PeopleOutline sx={{ fontSize: isMobile ? 20 : 22 }} />,
         onClick: () => navigateToProfileTab('/dashboard/profile?tab=followings'),
       },
       {
         id: 'subscriptions',
         label: 'Subscriptions',
-        icon: <CreditCardOutlined sx={{ fontSize: 22 }} />,
+        icon: <CreditCardOutlined sx={{ fontSize: isMobile ? 20 : 22 }} />,
         onClick: () => navigateToProfileTab('/dashboard/profile?tab=subscriptions'),
       },
       {
         id: 'settings',
         label: 'Settings',
-        icon: <SettingsOutlined sx={{ fontSize: 22 }} />,
+        icon: <SettingsOutlined sx={{ fontSize: isMobile ? 20 : 22 }} />,
         onClick: handleSettingsClick,
       },
     ],
-    [handleProfileClick, handleSettingsClick, navigateToProfileTab]
+    [handleProfileClick, handleSettingsClick, navigateToProfileTab, isMobile]
   );
 
   const initials = getUserInitials(user?.name, user?.email);
@@ -172,69 +172,87 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       <IconButton
         ref={triggerRef}
         onClick={toggleDropdown}
-        size="small"
+        size={isMobile ? "small" : "medium"}
         aria-label="Profile menu"
         sx={{
           borderRadius: 999,
-          p: 0.5,
+          p: { xs: 0.25, sm: 0.5 },
           '&:hover': { bgcolor: 'grey.100' },
         }}
       >
         <Avatar
           src={user?.avatar}
           sx={{
-            width: 32,
-            height: 32,
+            width: { xs: 28, sm: 32 },
+            height: { xs: 28, sm: 32 },
             bgcolor: 'success.main',
             color: 'common.white',
             fontWeight: 600,
+            fontSize: { xs: '0.75rem', sm: '0.875rem' },
           }}
         >
           {initials}
         </Avatar>
-        <KeyboardArrowDown className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
+        <KeyboardArrowDown 
+          className={cn('transition-transform', isOpen && 'rotate-180')}
+          sx={{ fontSize: { xs: 16, sm: 20 } }}
+        />
       </IconButton>
 
       <Popover
         open={isOpen}
         anchorEl={anchorEl}
         onClose={closeDropdown}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ 
+          vertical: 'bottom', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
+        transformOrigin={{ 
+          vertical: 'top', 
+          horizontal: isMobile ? 'center' : 'right' 
+        }}
         slotProps={{
           paper: {
             sx: {
               mt: 1,
-              width: 620,
-              maxWidth: '90vw',
+              width: isMobile ? '100%' : 620,
+              maxWidth: isMobile ? 'calc(100vw - 32px)' : '90vw',
               maxHeight: '80vh',
-              borderRadius: 2,
+              borderRadius: isMobile ? 3 : 2,
+              mx: isMobile ? 2 : 0,
             },
           },
         }}
       >
-        <header className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center gap-3">
+        <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Avatar
               src={user?.avatar}
               sx={{
-                width: 56,
-                height: 56,
+                width: { xs: 44, sm: 56 },
+                height: { xs: 44, sm: 56 },
                 bgcolor: '#c8e6c9',
                 color: 'text.primary',
                 fontWeight: 700,
-                fontSize: '1.25rem',
+                fontSize: { xs: '1rem', sm: '1.25rem' },
               }}
             >
               {initials}
             </Avatar>
 
             <div className="flex-1 min-w-0">
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+              <Typography 
+                variant="subtitle1" 
+                sx={{ 
+                  fontWeight: 700, 
+                  lineHeight: 1.3,
+                  fontSize: { xs: '0.9rem', sm: '1rem' }
+                }}
+              >
                 {user?.name || 'User'}
               </Typography>
               <Chip
-                icon={<TuneOutlined sx={{ fontSize: 14 }} />}
+                icon={<TuneOutlined sx={{ fontSize: { xs: 12, sm: 14 } }} />}
                 label={roleBadgeLabel}
                 size="small"
                 variant="outlined"
@@ -243,6 +261,8 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   borderColor: 'success.main',
                   color: 'success.main',
                   fontWeight: 700,
+                  height: { xs: 22, sm: 24 },
+                  fontSize: { xs: '0.65rem', sm: '0.75rem' },
                 }}
               />
             </div>
@@ -262,20 +282,25 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 <ListItemButton
                   onClick={item.onClick}
                   sx={{
-                    px: 3,
-                    py: 2,
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1.5, sm: 2 },
                     '&:hover': { bgcolor: 'grey.50' },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 36, color: 'text.secondary' }}>{item.icon}</ListItemIcon>
+                  <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 }, color: 'text.secondary' }}>
+                    {item.icon}
+                  </ListItemIcon>
                   <ListItemText
                     primary={item.label}
-                    primaryTypographyProps={{ fontSize: '0.9375rem', fontWeight: 600 }}
+                    primaryTypographyProps={{ 
+                      fontSize: { xs: '0.85rem', sm: '0.9375rem' }, 
+                      fontWeight: 600 
+                    }}
                   />
                   {item.external ? (
-                    <OpenInNew sx={{ fontSize: 18, color: 'text.disabled' }} />
+                    <OpenInNew sx={{ fontSize: { xs: 16, sm: 18 }, color: 'text.disabled' }} />
                   ) : (
-                    <ChevronRight sx={{ fontSize: 20, color: 'text.disabled' }} />
+                    <ChevronRight sx={{ fontSize: { xs: 18, sm: 20 }, color: 'text.disabled' }} />
                   )}
                 </ListItemButton>
                 {index < menuItems.length - 1 && <Divider />}
@@ -284,7 +309,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           </List>
         </nav>
 
-        <footer className="px-3 pb-3 pt-2">
+        <footer className="px-2 sm:px-3 pb-2 sm:pb-3 pt-1 sm:pt-2">
           <ListItemButton
             onClick={handleLogoutClick}
             sx={{
@@ -295,12 +320,16 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               borderRadius: 2,
               color: 'error.main',
               fontWeight: 700,
-              py: 1.25,
+              py: { xs: 1, sm: 1.25 },
               '&:hover': { bgcolor: 'error.50' },
             }}
           >
-            <Logout sx={{ fontSize: 18 }} />
-            <Typography variant="body2" fontWeight={700}>
+            <Logout sx={{ fontSize: { xs: 16, sm: 18 } }} />
+            <Typography 
+              variant="body2" 
+              fontWeight={700}
+              sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+            >
               Log Out
             </Typography>
           </ListItemButton>

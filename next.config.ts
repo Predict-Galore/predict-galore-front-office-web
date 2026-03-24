@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         hostname: process.env.NEXT_PUBLIC_API_HOSTNAME || 'apidev.predictgalore.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
 
     // Modern image formats for better performance

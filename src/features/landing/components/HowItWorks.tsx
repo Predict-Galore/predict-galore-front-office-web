@@ -34,11 +34,8 @@ const HowItWorks: React.FC = () => {
     <Box
       sx={{
         position: 'relative',
-        // Matching the deep red/maroon from the screenshot
-        // background:
-        //   'linear-gradient(180deg, var(--theme-secondary-main) 0%, var(--theme-secondary-dark) 100%)',
         background: '#A8141A',
-        py: { xs: 10, md: 15 },
+        py: { xs: 6, sm: 8, md: 10, lg: 15 },
         overflow: 'hidden',
       }}
     >
@@ -55,7 +52,7 @@ const HowItWorks: React.FC = () => {
             radial-gradient(circle at 25% 20%, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 3px),
             radial-gradient(circle at 80% 10%, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 3px)
           `,
-          backgroundSize: '220px 220px',
+          backgroundSize: { xs: '120px 120px', sm: '160px 160px', md: '200px 200px', lg: '220px 220px' },
           backgroundRepeat: 'repeat',
           pointerEvents: 'none',
         }}
@@ -67,18 +64,32 @@ const HowItWorks: React.FC = () => {
           position: 'relative',
           zIndex: 10,
           px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
-          mx: 0,
-          flex: 1,
+          maxWidth: { xl: '1400px' },
+          mx: 'auto',
         }}
       >
         {/* Section Header */}
-        <Box sx={{ textAlign: 'center', mb: { xs: 8, md: 10 } }}>
+        <Box sx={{ 
+          textAlign: 'center', 
+          mb: { xs: 6, sm: 7, md: 8, lg: 10 },
+          maxWidth: { sm: '90%', md: '80%', lg: '70%' },
+          mx: 'auto',
+          px: { xs: 2, sm: 0 }
+        }}>
           <Typography
             variant="h2"
             sx={{
               color: 'white',
-              fontWeight: 800,
-              mb: 2,
+              fontWeight: { xs: 700, sm: 800 },
+              mb: { xs: 1.5, sm: 2, md: 2.5 },
+              fontSize: { 
+                xs: '2rem',
+                sm: '2.5rem',
+                md: '3rem',
+                lg: '3.5rem'
+              },
+              lineHeight: { xs: 1.2, md: 1.1 },
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
             }}
           >
             How It Works
@@ -87,9 +98,16 @@ const HowItWorks: React.FC = () => {
             variant="body1"
             sx={{
               color: alpha('#fff', 0.95),
-              maxWidth: '800px',
+              maxWidth: { xs: '100%', md: '800px' },
               margin: '0 auto',
-              fontSize: { xs: '1.1rem', md: '1.25rem' },
+              fontSize: { 
+                xs: '1rem',
+                sm: '1.1rem',
+                md: '1.2rem',
+                lg: '1.25rem'
+              },
+              lineHeight: { xs: 1.5, md: 1.6 },
+              px: { xs: 2, sm: 3, md: 0 },
             }}
           >
             From AI insights to real-time updates, Predict Galore gives you the advantage before,
@@ -102,9 +120,9 @@ const HowItWorks: React.FC = () => {
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', lg: 'row' },
-            justifyContent: 'space-between',
-            alignItems: { xs: 'center', lg: 'flex-start' },
-            gap: { xs: 4, lg: 4 },
+            justifyContent: 'center',
+            alignItems: { xs: 'center', lg: 'stretch' },
+            gap: { xs: 4, sm: 5, md: 6, lg: 4 },
             position: 'relative',
           }}
         >
@@ -112,12 +130,13 @@ const HowItWorks: React.FC = () => {
             <React.Fragment key={step.id}>
               <Box
                 sx={{
-                  flex: 1,
+                  flex: { lg: 1 },
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  width: '100%',
-                  maxWidth: { xs: '380px', lg: '400px' },
+                  width: { xs: '100%', sm: '80%', md: '70%', lg: '100%' },
+                  maxWidth: { xs: '400px', sm: '450px', md: '480px', lg: '400px' },
+                  mx: { xs: 'auto', lg: 0 },
                 }}
               >
                 {/* Main Step Card Container */}
@@ -125,33 +144,47 @@ const HowItWorks: React.FC = () => {
                   sx={{
                     width: '100%',
                     bgcolor: 'rgba(245, 119, 126, 0.2)',
-                    borderRadius: '32px',
-                    // p: 3,
-                    pb: 0,
+                    borderRadius: { xs: '24px', sm: '28px', md: '32px' },
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     border: `1px solid ${alpha('#fff', 0.15)}`,
                     position: 'relative',
                     overflow: 'hidden',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': {
+                      transform: { lg: 'translateY(-8px)' },
+                      boxShadow: { lg: '0 20px 40px rgba(0,0,0,0.2)' },
+                    },
                   }}
                 >
                   {/* Phone Image */}
                   <Box
                     sx={{
                       position: 'relative',
-                      width: '240px',
-                      height: { xs: '380px', md: '450px' },
+                      width: { xs: '200px', sm: '220px', md: '240px' },
+                      height: { xs: '320px', sm: '360px', md: '400px', lg: '450px' },
                       zIndex: 2,
+                      mt: { xs: 2, sm: 3, md: 0 },
+                      '& img': {
+                        transition: 'transform 0.6s ease',
+                      },
+                      '&:hover img': {
+                        transform: { lg: 'scale(1.05)' },
+                      },
                     }}
                   >
                     <Image
                       src={step.phoneImage}
                       alt={step.title}
                       fill
-                      sizes="(max-width: 768px) 240px, 240px"
-                      style={{ objectFit: 'contain' }}
+                      sizes="(max-width: 640px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 240px, 240px"
+                      style={{ 
+                        objectFit: 'contain',
+                        objectPosition: 'bottom center',
+                      }}
                       unoptimized
+                      priority={index === 0}
                     />
                   </Box>
 
@@ -159,22 +192,27 @@ const HowItWorks: React.FC = () => {
                   <Box
                     sx={{
                       bgcolor: '#0f172a',
-                      width: 'calc(100% + 2px)', // Match parent width
-                      mx: -3,
-                      p: { xs: 4, md: 5 },
+                      width: '100%',
+                      p: { xs: 3, sm: 3.5, md: 4, lg: 5 },
                       textAlign: 'center',
                       zIndex: 3,
-                      mt: -2, // Slight overlap with phone
+                      mt: { xs: -1, sm: -1.5, md: -2 },
                       borderTop: `1px solid ${alpha('#fff', 0.05)}`,
                     }}
                   >
                     <Typography
                       variant="h4"
                       sx={{
-                        fontWeight: 800,
+                        fontWeight: { xs: 700, md: 800 },
                         color: 'white',
-                        mb: 1.5,
-                        fontSize: '1.5rem',
+                        mb: { xs: 1, sm: 1.25, md: 1.5 },
+                        fontSize: { 
+                          xs: '1.25rem',
+                          sm: '1.35rem',
+                          md: '1.5rem',
+                          lg: '1.65rem'
+                        },
+                        lineHeight: 1.2,
                       }}
                     >
                       {step.title}
@@ -183,9 +221,14 @@ const HowItWorks: React.FC = () => {
                       variant="body2"
                       sx={{
                         color: alpha('#fff', 0.8),
-                        lineHeight: 1.6,
-                        fontSize: '1rem',
-                        maxWidth: '280px',
+                        lineHeight: { xs: 1.5, md: 1.6 },
+                        fontSize: { 
+                          xs: '0.875rem',
+                          sm: '0.9rem',
+                          md: '0.95rem',
+                          lg: '1rem'
+                        },
+                        maxWidth: { xs: '240px', sm: '260px', md: '280px' },
                         mx: 'auto',
                       }}
                     >
@@ -204,33 +247,44 @@ const HowItWorks: React.FC = () => {
                       display: { xs: 'none', lg: 'flex' },
                       alignItems: 'center',
                       justifyContent: 'center',
-                      height: '450px', // Match phone height roughly
+                      height: 'auto',
+                      minHeight: '450px',
                     }}
                   >
                     <Image
                       src={IMAGES.LANDING.CURVED_ARROW}
                       alt="next step"
-                      width={120}
-                      height={60}
-                      style={{ filter: 'brightness(0) invert(1)' }}
+                      width={100}
+                      height={50}
+                      style={{ 
+                        filter: 'brightness(0) invert(1)',
+                        width: 'auto',
+                        height: 'auto',
+                        maxWidth: '120px',
+                      }}
                       unoptimized
                     />
                   </Box>
 
-                  {/* Mobile Vertical Straight Arrow */}
+                  {/* Mobile/Tablet Vertical Straight Arrow */}
                   <Box
                     sx={{
                       display: { xs: 'flex', lg: 'none' },
                       justifyContent: 'center',
-                      my: 2,
+                      my: { xs: 1, sm: 2 },
                     }}
                   >
                     <Image
                       src={IMAGES.LANDING.VERTICAL_ARROW}
                       alt="next step"
-                      width={40}
-                      height={80}
-                      style={{ filter: 'brightness(0) invert(1)' }}
+                      width={32}
+                      height={64}
+                      style={{ 
+                        filter: 'brightness(0) invert(1)',
+                        width: 'auto',
+                        height: 'auto',
+                        maxWidth: '40px',
+                      }}
                       unoptimized
                     />
                   </Box>

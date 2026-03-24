@@ -99,6 +99,9 @@ export const API_ENDPOINTS = {
   CONTACT: {
     INFO: '/api/v1/contact/info',
     SUBMIT: '/api/v1/contact',
+    WAITLIST: '/api/v1/waitlist/join',
+    /** Coming-soon-3 waitlist endpoint */
+    WAITLIST_PUBLIC: '/api/v1/waitlist',
   },
 
   // Notifications endpoints
