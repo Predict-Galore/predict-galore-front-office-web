@@ -1,6 +1,6 @@
 /**
  * MATCH ENTITY - Main Export
- * 
+ *
  * Centralized exports for Match entity
  */
 

@@ -220,12 +220,12 @@ const theme = createTheme({
       dark: colors.secondary.dark,
       contrastText: colors.secondary.contrastText,
     },
-    error: { 
+    error: {
       main: colors.coolRed[500], // #ec4751
       light: colors.coolRed[100], // #fee6e5 (light background)
       dark: colors.coolRed[700], // #b61a2e
     },
-    success: { 
+    success: {
       main: colors.green[500], // #36b15e
       light: colors.green[100], // #e0f8e7 (light background)
       dark: colors.green[700], // #22733d

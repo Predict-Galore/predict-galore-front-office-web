@@ -6,21 +6,9 @@
  * Sets up global providers, metadata, and base structure.
  */
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import Providers from '../src/providers/index';
 
 import './globals.css';
-
-// Configure Inter font - Next.js requires this to be a const at module scope
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
-  preload: true,
-  adjustFontFallback: true,
-  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-});
 
 export const metadata: Metadata = {
   title: 'Predict Galore - Sports Analytics Platform',
@@ -45,12 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <head>
-        {/* DNS prefetch and preconnect for better performance */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
         <Providers>
           <main className="min-h-screen bg-gray-50">{children}</main>
         </Providers>

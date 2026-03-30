@@ -1,6 +1,6 @@
 /**
  * Development Authentication Helpers
- * 
+ *
  * Utilities for testing authentication flows in development
  */
 
@@ -39,10 +39,10 @@ export const simulateLogin = () => {
   }
 
   const { login } = useAuthStore.getState();
-  
+
   // Update auth store
   login(mockUser, null);
-  
+
   console.log('✅ Simulated login successful', { user: mockUser });
   console.log('🔄 Refresh the page to see the authentication state');
 };
@@ -57,10 +57,10 @@ export const simulateLogout = () => {
   }
 
   const { logout } = useAuthStore.getState();
-  
+
   // Update auth store
   logout();
-  
+
   console.log('✅ Simulated logout successful');
   console.log('🔄 Refresh the page to see the authentication state');
 };
@@ -75,13 +75,13 @@ export const checkAuthState = () => {
   }
 
   const state = useAuthStore.getState();
-  
+
   console.log('🔍 Current Authentication State:', {
     user: state.user,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
   });
-  
+
   return state;
 };
 
@@ -90,7 +90,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   window.simulateLogin = simulateLogin;
   window.simulateLogout = simulateLogout;
   window.checkAuthState = checkAuthState;
-  
+
   console.log('🔧 Development auth helpers available:');
   console.log('  - simulateLogin() - Log in with mock user');
   console.log('  - simulateLogout() - Log out current user');

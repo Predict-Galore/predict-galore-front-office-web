@@ -4,7 +4,6 @@ import React from 'react';
 import { Box, Typography, Container, Link as MuiLink } from '@mui/material';
 
 const TermsContent: React.FC = () => {
-
   const termsSections = [
     {
       number: 1,

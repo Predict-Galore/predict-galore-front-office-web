@@ -16,19 +16,12 @@ const NotificationButton: React.FC = () => {
   const handleNotificationClick = (notification: NotificationItem) => {
     // Store notification for instant display on detail page, then navigate
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem(
-        `notification-${notification.id}`,
-        JSON.stringify(notification)
-      );
+      sessionStorage.setItem(`notification-${notification.id}`, JSON.stringify(notification));
     }
     router.push(`/dashboard/notifications/${notification.id}`);
   };
 
-  return (
-    <NotificationDropdown 
-      onNotificationClick={handleNotificationClick}
-    />
-  );
+  return <NotificationDropdown onNotificationClick={handleNotificationClick} />;
 };
 
 export default NotificationButton;

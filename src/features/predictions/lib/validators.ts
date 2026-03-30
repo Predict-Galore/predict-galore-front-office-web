@@ -36,5 +36,3 @@ export function validatePredictionFilters(filters: PredictionFilter): {
     errors,
   };
 }
-
-

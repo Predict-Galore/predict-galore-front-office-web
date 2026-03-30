@@ -17,7 +17,10 @@ const logger = createLogger('LiveMatchesHooks');
 /**
  * Get live scores hook
  */
-export function useLiveScoresQuery(filters?: GetLiveScoresRequest, options?: { enabled?: boolean }) {
+export function useLiveScoresQuery(
+  filters?: GetLiveScoresRequest,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: liveMatchesKeys.scores(filters?.sport),
     queryFn: () => LiveMatchesService.getLiveScores(filters),

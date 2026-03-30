@@ -1,6 +1,6 @@
 /**
  * NEWS ENTITY - Domain Model
- * 
+ *
  * Core news business entity for sports news and articles
  */
 
@@ -77,14 +77,14 @@ export interface NewsSource {
   lastCrawled?: string;
 }
 
-export type SourceType = 
-  | 'official'      // Official team/league sources
-  | 'mainstream'    // Major news outlets
-  | 'sports_media'  // Sports-specific media
-  | 'blog'          // Sports blogs
-  | 'social'        // Social media
-  | 'wire'          // News wire services
-  | 'aggregator';   // News aggregators
+export type SourceType =
+  | 'official' // Official team/league sources
+  | 'mainstream' // Major news outlets
+  | 'sports_media' // Sports-specific media
+  | 'blog' // Sports blogs
+  | 'social' // Social media
+  | 'wire' // News wire services
+  | 'aggregator'; // News aggregators
 
 export interface NewsCategory {
   id: string;
@@ -98,19 +98,9 @@ export interface NewsCategory {
   isActive: boolean;
 }
 
-export type ArticleStatus = 
-  | 'draft'
-  | 'published'
-  | 'updated'
-  | 'archived'
-  | 'deleted';
+export type ArticleStatus = 'draft' | 'published' | 'updated' | 'archived' | 'deleted';
 
-export type ArticlePriority = 
-  | 'low'
-  | 'normal'
-  | 'high'
-  | 'urgent'
-  | 'breaking';
+export type ArticlePriority = 'low' | 'normal' | 'high' | 'urgent' | 'breaking';
 
 export interface Sport {
   id: string;
@@ -167,13 +157,7 @@ export interface MediaContent {
   order: number;
 }
 
-export type MediaType = 
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'gallery'
-  | 'infographic'
-  | 'embed';
+export type MediaType = 'image' | 'video' | 'audio' | 'gallery' | 'infographic' | 'embed';
 
 export interface SEOMetadata {
   metaTitle?: string;
@@ -345,7 +329,7 @@ export interface FeedSection {
   collapsible: boolean;
 }
 
-export type SectionType = 
+export type SectionType =
   | 'breaking'
   | 'trending'
   | 'featured'

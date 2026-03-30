@@ -1,6 +1,6 @@
 /**
  * PREDICTION ENTITY - Domain Model
- * 
+ *
  * Core prediction business entity for sports betting predictions
  */
 
@@ -48,21 +48,21 @@ export interface TeamInfo {
   position?: number;
 }
 
-export type PredictionType = 
-  | 'match_result'      // 1X2
-  | 'over_under'        // Total goals
-  | 'both_teams_score'  // BTTS
-  | 'correct_score'     // Exact score
-  | 'handicap'          // Asian handicap
-  | 'double_chance'     // 1X, X2, 12
+export type PredictionType =
+  | 'match_result' // 1X2
+  | 'over_under' // Total goals
+  | 'both_teams_score' // BTTS
+  | 'correct_score' // Exact score
+  | 'handicap' // Asian handicap
+  | 'double_chance' // 1X, X2, 12
   | 'first_goal_scorer' // Player to score first
-  | 'anytime_scorer'    // Player to score anytime
-  | 'clean_sheet'       // Team to keep clean sheet
-  | 'corners'           // Corner kicks
-  | 'cards'             // Yellow/red cards
-  | 'halftime_result'   // HT result
-  | 'combo'             // Multiple predictions combined
-  | 'custom';           // Custom prediction type
+  | 'anytime_scorer' // Player to score anytime
+  | 'clean_sheet' // Team to keep clean sheet
+  | 'corners' // Corner kicks
+  | 'cards' // Yellow/red cards
+  | 'halftime_result' // HT result
+  | 'combo' // Multiple predictions combined
+  | 'custom'; // Custom prediction type
 
 export interface PredictionMarket {
   name: string;
@@ -90,15 +90,15 @@ export interface PredictionOutcome {
   probability?: number;
 }
 
-export type PredictionStatus = 
-  | 'pending'     // Waiting for match to start
-  | 'active'      // Match is live
-  | 'won'         // Prediction won
-  | 'lost'        // Prediction lost
-  | 'void'        // Prediction voided
-  | 'pushed'      // Stake returned
-  | 'cancelled'   // Match cancelled
-  | 'suspended';  // Temporarily suspended
+export type PredictionStatus =
+  | 'pending' // Waiting for match to start
+  | 'active' // Match is live
+  | 'won' // Prediction won
+  | 'lost' // Prediction lost
+  | 'void' // Prediction voided
+  | 'pushed' // Stake returned
+  | 'cancelled' // Match cancelled
+  | 'suspended'; // Temporarily suspended
 
 export interface PredictionAnalysis {
   keyFactors: string[];
@@ -195,7 +195,7 @@ export interface MotivationLevel {
   impact: number; // -3 to +3
 }
 
-export type PredictionSource = 
+export type PredictionSource =
   | 'ai_algorithm'
   | 'expert_tipster'
   | 'community'

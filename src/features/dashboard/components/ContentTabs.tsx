@@ -1,7 +1,7 @@
 /**
  * Content Tabs Component
  * Toggle between Predictions and Live Matches views
- * 
+ *
  * @component
  * @description A segmented control that allows users to switch between
  * viewing predictions and live matches on the dashboard.
@@ -30,10 +30,10 @@ interface ContentTabsProps {
 
 /**
  * ContentTabs Component
- * 
+ *
  * Provides a toggle interface for switching between predictions and live matches.
  * The active tab is highlighted with a green background and border.
- * 
+ *
  * @example
  * ```tsx
  * <ContentTabs

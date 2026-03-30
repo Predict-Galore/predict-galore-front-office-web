@@ -69,7 +69,8 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     !!watchedUsername &&
     !!watchedPassword &&
     // This ensures phone-input and email-input both work correctly.
-    (!errors.username && !errors.password);
+    !errors.username &&
+    !errors.password;
 
   // Optional: To debug, you can view the errors and dirtyFields.
   // console.log({ errors, dirtyFields, watchedUsername, watchedPassword, isFormValid });
@@ -82,7 +83,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       onSuccess: () => {
         toast.success('Login successful! Redirecting...');
         setIsRedirecting(true);
-        
+
         if (onSuccess) {
           onSuccess();
           return;
@@ -123,9 +124,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         >
           Welcome Back!
         </Typography>
-        <Typography sx={{ color: '#667085', fontSize: '1.1rem' }}>
-          Login to Continue
-        </Typography>
+        <Typography sx={{ color: '#667085', fontSize: '1.1rem' }}>Login to Continue</Typography>
       </Box>
 
       {localError && (
@@ -156,7 +155,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
                     country={'ng'}
                     placeholder="(+234) 000-000-0000"
                     value={field.value}
-                    onChange={val => {
+                    onChange={(val) => {
                       field.onChange(val);
                       setValue('username', val, { shouldValidate: true, shouldDirty: true });
                       trigger('username');
@@ -229,7 +228,13 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           />
           <Typography
             onClick={() => router.push('/forgot-password')}
-            sx={{ color: '#D92D20', fontWeight: 600, fontSize: '0.875rem', mt: 1.5, cursor: 'pointer' }}
+            sx={{
+              color: '#D92D20',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              mt: 1.5,
+              cursor: 'pointer',
+            }}
           >
             Forgot password?
           </Typography>
@@ -246,7 +251,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               fontSize: '1.1rem',
               fontWeight: 700,
               '&:hover': { bgcolor: '#3d8a00' },
-              '&:disabled': { bgcolor: '#A6D388' }
+              '&:disabled': { bgcolor: '#A6D388' },
             }}
             // The main fix: also require fields filled (not just isFormValid) for enabling.
             disabled={!isFieldsFilled || !isFormValid || isLoginSubmitting}
@@ -284,12 +289,12 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           width: 100% !important;
           height: 64px !important;
           border-radius: 12px !important;
-          border: 1px solid #D0D5DD !important;
+          border: 1px solid #d0d5dd !important;
           font-size: 1.1rem !important;
         }
         .phone-wrapper .react-tel-input .flag-dropdown {
           border-radius: 12px 0 0 12px !important;
-          border: 1px solid #D0D5DD !important;
+          border: 1px solid #d0d5dd !important;
           background: #fff !important;
         }
       `}</style>

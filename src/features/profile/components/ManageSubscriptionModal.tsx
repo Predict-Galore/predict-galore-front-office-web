@@ -1,7 +1,7 @@
 /**
  * Manage Subscription Modal Component
  * Allows users to view and switch between subscription plans
- * 
+ *
  * @component
  * @description Modal dialog for managing subscription plans.
  * Displays available plans and allows users to subscribe or switch plans.
@@ -60,10 +60,10 @@ interface ManageSubscriptionModalProps {
 
 /**
  * ManageSubscriptionModal Component
- * 
+ *
  * Displays available subscription plans and allows users to subscribe or switch.
  * Shows current active plan with a checkmark indicator.
- * 
+ *
  * @example
  * ```tsx
  * <ManageSubscriptionModal
@@ -130,7 +130,13 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
     >
       <DialogTitle
         component="div"
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 1.5 }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          p: 3,
+          pb: 1.5,
+        }}
       >
         <Box>
           <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
@@ -140,9 +146,9 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
             Switch between our subscription plans
           </Typography>
         </Box>
-        <IconButton 
-          onClick={onClose} 
-          size="small" 
+        <IconButton
+          onClick={onClose}
+          size="small"
           sx={{ color: 'grey.500', '&:hover': { color: 'grey.700' } }}
         >
           <Close />
@@ -168,12 +174,9 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
                 sx={{
                   p: 2,
                   border: '2px solid',
-                  borderColor: isActive || selectedPlan?.id === plan.id
-                    ? 'success.main'
-                    : 'grey.300',
-                  bgcolor: isActive || selectedPlan?.id === plan.id
-                    ? 'success.50'
-                    : 'white',
+                  borderColor:
+                    isActive || selectedPlan?.id === plan.id ? 'success.main' : 'grey.300',
+                  bgcolor: isActive || selectedPlan?.id === plan.id ? 'success.50' : 'white',
                   borderRadius: 3,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -182,7 +185,12 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
                   },
                 }}
               >
-                <Stack direction="row" spacing={2} alignItems="flex-start" justifyContent="space-between">
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                >
                   <Box sx={{ flex: 1 }}>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -221,10 +229,7 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button 
-          onClick={onClose} 
-          sx={{ textTransform: 'none', color: 'grey.600' }}
-        >
+        <Button onClick={onClose} sx={{ textTransform: 'none', color: 'grey.600' }}>
           Cancel
         </Button>
         {selectedPlan && !isPlanActive(selectedPlan) && (

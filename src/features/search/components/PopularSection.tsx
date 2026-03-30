@@ -23,10 +23,7 @@ const PopularSection: React.FC<PopularSectionProps> = ({ country = 'Nigeria', cl
   }
 
   return (
-    <Box
-      className={className}
-      sx={{ mt: 3 }}
-    >
+    <Box className={className} sx={{ mt: 3 }}>
       <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 1.5 }}>
         Popular in {country}
       </Typography>

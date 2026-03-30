@@ -1,7 +1,7 @@
 /**
  * Settings Tab Component
  * Manages user settings including password, 2FA, and notifications
- * 
+ *
  * @component
  * @description Provides interface for users to manage their account settings,
  * change password, enable two-factor authentication, and configure notification preferences.
@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -25,16 +25,8 @@ import {
   Alert as MuiAlert,
   AlertTitle,
 } from '@mui/material';
-import {
-  CheckCircle,
-  Lock,
-  Info,
-} from 'lucide-react';
-import {
-  Close,
-  Visibility,
-  VisibilityOff,
-} from '@mui/icons-material';
+import { CheckCircle, Lock, Info } from 'lucide-react';
+import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   useChangePassword,
   useToggleTwoFactorAuth,
@@ -61,10 +53,10 @@ interface NotificationState {
 
 /**
  * SettingsTab Component
- * 
+ *
  * Main settings interface for user account management.
  * Includes password management, 2FA, and notification preferences.
- * 
+ *
  * @example
  * ```tsx
  * <SettingsTab />
@@ -82,31 +74,25 @@ const SettingsTab: React.FC = () => {
   const [showPassword, setShowPassword] = useState({ old: false, new: false, confirm: false });
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [quoteboardEnabled, setQuoteboardEnabled] = useState(true);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-
-  // Notification settings - initialize from backend
-  const [predictionInsights, setPredictionInsights] = useState<NotificationState>({ inApp: true, push: false });
-  const [matchUpdates, setMatchUpdates] = useState<NotificationState>({ inApp: true, push: false });
-  const [newsAlerts, setNewsAlerts] = useState<NotificationState>({ inApp: true, push: false });
-
-  // Load notification settings from backend
-  useEffect(() => {
-    if (notificationSettings) {
-      setPredictionInsights(
-        notificationSettings.predictionInsights || { inApp: true, push: false }
-      );
-      setMatchUpdates(notificationSettings.matchUpdates || { inApp: true, push: false });
-      setNewsAlerts(notificationSettings.newsAlerts || { inApp: true, push: false });
-    }
-  }, [notificationSettings]);
-
-  // Check for success message in URL
-  useEffect(() => {
+  const [showSuccessMessage, setShowSuccessMessage] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('passwordChanged') === 'true') {
-      setShowSuccessMessage(true);
-    }
-  }, []);
+    return urlParams.get('passwordChanged') === 'true';
+  });
+
+  const defaultNotifyState: NotificationState = { inApp: true, push: false };
+
+  // Notification settings - use backend values as defaults, and keep local overrides when changed.
+  const [predictionInsightsOverride, setPredictionInsightsOverride] =
+    useState<NotificationState | null>(null);
+  const [matchUpdatesOverride, setMatchUpdatesOverride] = useState<NotificationState | null>(null);
+  const [newsAlertsOverride, setNewsAlertsOverride] = useState<NotificationState | null>(null);
+
+  const predictionInsights =
+    predictionInsightsOverride ?? notificationSettings?.predictionInsights ?? defaultNotifyState;
+  const matchUpdates =
+    matchUpdatesOverride ?? notificationSettings?.matchUpdates ?? defaultNotifyState;
+  const newsAlerts = newsAlertsOverride ?? notificationSettings?.newsAlerts ?? defaultNotifyState;
 
   /**
    * Calculates password strength based on various criteria
@@ -235,21 +221,21 @@ const SettingsTab: React.FC = () => {
             title="Prediction Insights"
             description="Receive notifications for new predictions and prediction results"
             state={predictionInsights}
-            onChange={setPredictionInsights}
+            onChange={(val) => setPredictionInsightsOverride(val)}
           />
 
           <NotifyGroup
             title="Match & Live Updates"
             description="Receive notifications for score updates, goal scorers, kickoff and match summary"
             state={matchUpdates}
-            onChange={setMatchUpdates}
+            onChange={(val) => setMatchUpdatesOverride(val)}
           />
 
           <NotifyGroup
             title="News Alerts"
             description="Receive notifications for latest news on players, teams and leagues you follow"
             state={newsAlerts}
-            onChange={setNewsAlerts}
+            onChange={(val) => setNewsAlertsOverride(val)}
           />
         </Stack>
       </Paper>
@@ -266,7 +252,13 @@ const SettingsTab: React.FC = () => {
       >
         <DialogTitle
           component="div"
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3, pb: 2 }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            p: 3,
+            pb: 2,
+          }}
         >
           <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 'bold' }}>
             Change Password
@@ -323,9 +315,8 @@ const SettingsTab: React.FC = () => {
                         height: 4,
                         flex: 1,
                         borderRadius: 1,
-                        bgcolor: level <= passwordStrength.strength
-                          ? passwordStrength.color
-                          : 'grey.300',
+                        bgcolor:
+                          level <= passwordStrength.strength ? passwordStrength.color : 'grey.300',
                       }}
                     />
                   ))}
@@ -355,7 +346,11 @@ const SettingsTab: React.FC = () => {
               }}
             />
             {confirmPassword && passwordsMatch && (
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', color: 'success.main' }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: 'center', color: 'success.main' }}
+              >
                 <CheckCircle size={16} />
                 <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
                   Password matches
@@ -407,7 +402,7 @@ interface RowWithButtonProps {
 
 /**
  * RowWithButton Component
- * 
+ *
  * Displays a row with a title and action button.
  * Used for settings options that trigger actions.
  */
@@ -459,7 +454,7 @@ interface RowWithSwitchProps {
 
 /**
  * RowWithSwitch Component
- * 
+ *
  * Displays a row with a title and toggle switch.
  * Used for settings options that can be enabled/disabled.
  */
@@ -504,17 +499,17 @@ interface NotifyGroupProps {
 
 /**
  * NotifyGroup Component
- * 
+ *
  * Displays a notification category with in-app and push notification toggles.
  * Groups related notification settings together.
  */
 const NotifyGroup: React.FC<NotifyGroupProps> = ({ title, description, state, onChange }) => (
-  <Stack 
-    spacing={1.5} 
-    sx={{ 
-      borderBottom: '1px solid', 
-      borderColor: 'grey.100', 
-      pb: 2 
+  <Stack
+    spacing={1.5}
+    sx={{
+      borderBottom: '1px solid',
+      borderColor: 'grey.100',
+      pb: 2,
     }}
   >
     <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -552,7 +547,7 @@ interface RowToggleProps {
 
 /**
  * RowToggle Component
- * 
+ *
  * Displays a simple row with a label and toggle switch.
  * Used for individual notification type toggles.
  */

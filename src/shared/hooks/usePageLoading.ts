@@ -16,4 +16,3 @@ export function stopPageLoading(): void {
 export function usePageLoading(): boolean {
   return false;
 }
-

@@ -5,10 +5,7 @@
  */
 
 import type { Sport, League, Prediction, PredictionPagination } from '../model/types';
-import type {
-  SportsResponse,
-  LeaguesResponse,
-} from '../api/types';
+import type { SportsResponse, LeaguesResponse } from '../api/types';
 
 export class PredictionTransformer {
   /**
@@ -41,7 +38,7 @@ export class PredictionTransformer {
     pagination: PredictionPagination;
   } {
     const typedResponse = response as Record<string, unknown>;
-    
+
     // Handle PredictionsResponse format
     if ('predictions' in typedResponse) {
       return {
@@ -56,16 +53,22 @@ export class PredictionTransformer {
     }
 
     // Handle new backend format with data.items
-    if (typedResponse.data && typeof typedResponse.data === 'object' && 'items' in typedResponse.data) {
+    if (
+      typedResponse.data &&
+      typeof typedResponse.data === 'object' &&
+      'items' in typedResponse.data
+    ) {
       const data = typedResponse.data as Record<string, unknown>;
       const items = (data.items || []) as Record<string, unknown>[];
-      
+
       // Transform items to match Prediction interface
       const predictions = items.map((item) => {
         // If item has match field (simplified format), parse it
         if (item.match && typeof item.match === 'string') {
-          const [homeTeamName, awayTeamName] = item.match.split(' vs ').map((s: string) => s.trim());
-          
+          const [homeTeamName, awayTeamName] = item.match
+            .split(' vs ')
+            .map((s: string) => s.trim());
+
           const datePostedUtc = String(item.datePostedUtc || item.dateTime || '');
 
           return {
@@ -95,11 +98,11 @@ export class PredictionTransformer {
             datePostedUtc,
           } as Prediction;
         }
-        
+
         // Otherwise return as is (already in correct format)
         return item as unknown as Prediction;
       });
-      
+
       const dataObj = typedResponse.data as Record<string, unknown>;
       return {
         predictions,
@@ -107,13 +110,21 @@ export class PredictionTransformer {
           page: (dataObj.page as number) || 1,
           pageSize: (dataObj.pageSize as number) || 20,
           total: (dataObj.total as number) || 0,
-          hasMore: ((dataObj.page as number) || 1) * ((dataObj.pageSize as number) || 20) < ((dataObj.total as number) || 0),
+          hasMore:
+            ((dataObj.page as number) || 1) * ((dataObj.pageSize as number) || 20) <
+            ((dataObj.total as number) || 0),
         },
       };
     }
 
     // Handle old BackendPredictionResponse format (flat data array)
-    const responseWithData = typedResponse as { data?: unknown[]; currentPage?: number; pageSize?: number; totalItems?: number; totalPages?: number };
+    const responseWithData = typedResponse as {
+      data?: unknown[];
+      currentPage?: number;
+      pageSize?: number;
+      totalItems?: number;
+      totalPages?: number;
+    };
     if (responseWithData.data && Array.isArray(responseWithData.data)) {
       return {
         predictions: responseWithData.data as Prediction[],

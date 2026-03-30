@@ -1,12 +1,18 @@
 /**
  * CHECKBOX COMPONENT - Material UI Implementation
- * 
+ *
  * Matches Figma design specifications exactly
  * Uses Material UI Checkbox with custom theme styling
  */
 
 import React, { forwardRef } from 'react';
-import { Checkbox as MuiCheckbox, CheckboxProps as MuiCheckboxProps, FormControlLabel, FormHelperText, FormControl } from '@mui/material';
+import {
+  Checkbox as MuiCheckbox,
+  CheckboxProps as MuiCheckboxProps,
+  FormControlLabel,
+  FormHelperText,
+  FormControl,
+} from '@mui/material';
 
 export interface CheckboxProps extends Omit<MuiCheckboxProps, 'color'> {
   label?: React.ReactNode;
@@ -15,17 +21,7 @@ export interface CheckboxProps extends Omit<MuiCheckboxProps, 'color'> {
 }
 
 const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
-  (
-    {
-      label,
-      helperText,
-      errorText,
-      disabled,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ label, helperText, errorText, disabled, className, ...props }, ref) => {
     const hasError = !!errorText;
     const message = errorText || helperText;
 
@@ -68,11 +64,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             },
           }}
         />
-        {message && (
-          <FormHelperText sx={{ ml: 0, mt: 0.5 }}>
-            {message}
-          </FormHelperText>
-        )}
+        {message && <FormHelperText sx={{ ml: 0, mt: 0.5 }}>{message}</FormHelperText>}
       </FormControl>
     );
   }

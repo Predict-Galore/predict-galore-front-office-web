@@ -1,6 +1,6 @@
 /**
  * Redirect Loader Component
- * 
+ *
  * Full-screen loader shown during page redirects
  */
 
@@ -14,9 +14,9 @@ interface RedirectLoaderProps {
   show?: boolean;
 }
 
-const RedirectLoader: React.FC<RedirectLoaderProps> = ({ 
-  message = 'Redirecting...', 
-  show = true 
+const RedirectLoader: React.FC<RedirectLoaderProps> = ({
+  message = 'Redirecting...',
+  show = true,
 }) => {
   if (!show) return null;
 

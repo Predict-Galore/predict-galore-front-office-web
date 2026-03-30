@@ -1,9 +1,9 @@
 /**
  * IMAGE CONSTANTS
- * 
+ *
  * Centralized image paths for the entire application.
  * Single source of truth for all image assets.
- * 
+ *
  * Usage:
  * import { IMAGES } from '@/shared/constants/images';
  * <Image src={IMAGES.LOGO.MAIN} alt="Logo" />

@@ -21,12 +21,12 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T
 
     try {
       const item = window.localStorage.getItem(key);
-      
+
       // Handle empty or null values
       if (!item || item.trim() === '') {
         return initialValue;
       }
-      
+
       return JSON.parse(item);
     } catch (error) {
       logger.warn('Error reading localStorage', {

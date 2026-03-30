@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 export default function Loading() {
   // Generate random positions once using useState lazy initializer
-  const [floatingShapes] = useState<Array<{ left: string; top: string }>>(() => 
+  const [floatingShapes] = useState<Array<{ left: string; top: string }>>(() =>
     [...Array(8)].map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
@@ -97,8 +97,8 @@ export default function Loading() {
               position: 'absolute',
               width: 8,
               height: 8,
-            // Use a standard CSS background color instead of MotionStyle-only props
-            backgroundColor: '#22c55e',
+              // Use a standard CSS background color instead of MotionStyle-only props
+              backgroundColor: '#22c55e',
               borderRadius: '50%',
               left: '50%',
               top: '50%',
@@ -176,22 +176,22 @@ export default function Loading() {
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ delay: 1, duration: 0.5 }}
         >
-        <Box
-          component={motion.div}
-          sx={(theme) => ({
-            height: '100%',
-            background: `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
-            borderRadius: '999px',
-          })}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            repeatType: 'reverse',
-          }}
-        />
+          <Box
+            component={motion.div}
+            sx={(theme) => ({
+              height: '100%',
+              background: `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+              borderRadius: '999px',
+            })}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              repeatType: 'reverse',
+            }}
+          />
         </Box>
 
         {/* Subtle Loading Text */}

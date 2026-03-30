@@ -1,13 +1,13 @@
 /**
  * MATCH ENTITY - API Transformers
- * 
+ *
  * Utilities for transforming between API responses and Match entities
  */
 
-import { 
-  Team, 
-  Sport, 
-  Competition, 
+import {
+  Team,
+  Sport,
+  Competition,
   MatchEvent,
   MatchScore,
   MatchStatistics,
@@ -28,7 +28,7 @@ import {
   SportRules,
   OddsMarket,
   OddsOutcome,
-  BroadcastInfo
+  BroadcastInfo,
 } from './types';
 
 // API response interfaces (what we receive from backend)
@@ -347,7 +347,9 @@ export function transformApiPersonToEntity(apiPerson: ApiPersonResponse): Person
     name: apiPerson.name,
     firstName: apiPerson.first_name,
     lastName: apiPerson.last_name,
-    nationality: apiPerson.nationality ? transformApiCountryToEntity(apiPerson.nationality) : undefined,
+    nationality: apiPerson.nationality
+      ? transformApiCountryToEntity(apiPerson.nationality)
+      : undefined,
     dateOfBirth: apiPerson.date_of_birth,
     photo: apiPerson.photo,
   };
@@ -426,7 +428,9 @@ export function transformApiSeasonToEntity(apiSeason: ApiSeasonResponse): Season
 /**
  * Transform API competition format response to CompetitionFormat entity
  */
-export function transformApiCompetitionFormatToEntity(apiFormat: ApiCompetitionFormatResponse): CompetitionFormat {
+export function transformApiCompetitionFormatToEntity(
+  apiFormat: ApiCompetitionFormatResponse
+): CompetitionFormat {
   return {
     type: apiFormat.type as CompetitionFormat['type'],
     rounds: apiFormat.rounds,
@@ -440,14 +444,18 @@ export function transformApiCompetitionFormatToEntity(apiFormat: ApiCompetitionF
 /**
  * Transform API competition response to Competition entity
  */
-export function transformApiCompetitionToEntity(apiCompetition: ApiCompetitionResponse): Competition {
+export function transformApiCompetitionToEntity(
+  apiCompetition: ApiCompetitionResponse
+): Competition {
   return {
     id: apiCompetition.id,
     name: apiCompetition.name,
     slug: apiCompetition.slug,
     shortName: apiCompetition.short_name,
     sport: transformApiSportToEntity(apiCompetition.sport),
-    country: apiCompetition.country ? transformApiCountryToEntity(apiCompetition.country) : undefined,
+    country: apiCompetition.country
+      ? transformApiCountryToEntity(apiCompetition.country)
+      : undefined,
     level: apiCompetition.level as Competition['level'],
     type: apiCompetition.type as Competition['type'],
     season: apiCompetition.season ? transformApiSeasonToEntity(apiCompetition.season) : undefined,
@@ -538,7 +546,9 @@ export function transformApiMatchScoreToEntity(apiScore: ApiMatchScoreResponse):
 /**
  * Transform API match statistics response to MatchStatistics entity
  */
-export function transformApiMatchStatisticsToEntity(apiStats: ApiMatchStatisticsResponse): MatchStatistics {
+export function transformApiMatchStatisticsToEntity(
+  apiStats: ApiMatchStatisticsResponse
+): MatchStatistics {
   return {
     possession: apiStats.possession,
     shots: apiStats.shots,
@@ -562,7 +572,9 @@ export function transformApiMatchEventToEntity(apiEvent: ApiMatchEventResponse):
     extraTime: apiEvent.extra_time,
     team: apiEvent.team,
     player: apiEvent.player ? transformApiPersonToEntity(apiEvent.player) : undefined,
-    assistPlayer: apiEvent.assist_player ? transformApiPersonToEntity(apiEvent.assist_player) : undefined,
+    assistPlayer: apiEvent.assist_player
+      ? transformApiPersonToEntity(apiEvent.assist_player)
+      : undefined,
     description: apiEvent.description,
     coordinates: apiEvent.coordinates,
   };
@@ -604,7 +616,9 @@ export function transformApiMatchOddsToEntity(apiOdds: ApiMatchOddsResponse): Ma
 /**
  * Transform API match prediction response to MatchPrediction entity
  */
-export function transformApiMatchPredictionToEntity(apiPrediction: ApiMatchPredictionResponse): MatchPrediction {
+export function transformApiMatchPredictionToEntity(
+  apiPrediction: ApiMatchPredictionResponse
+): MatchPrediction {
   return {
     id: apiPrediction.id,
     type: apiPrediction.type as MatchPrediction['type'],
@@ -620,7 +634,9 @@ export function transformApiMatchPredictionToEntity(apiPrediction: ApiMatchPredi
 /**
  * Transform API weather conditions response to WeatherConditions entity
  */
-export function transformApiWeatherConditionsToEntity(apiWeather: ApiWeatherConditionsResponse): WeatherConditions {
+export function transformApiWeatherConditionsToEntity(
+  apiWeather: ApiWeatherConditionsResponse
+): WeatherConditions {
   return {
     temperature: apiWeather.temperature,
     humidity: apiWeather.humidity,
@@ -634,7 +650,9 @@ export function transformApiWeatherConditionsToEntity(apiWeather: ApiWeatherCond
 /**
  * Transform API match coverage response to MatchCoverage entity
  */
-export function transformApiMatchCoverageToEntity(apiCoverage: ApiMatchCoverageResponse): MatchCoverage {
+export function transformApiMatchCoverageToEntity(
+  apiCoverage: ApiMatchCoverageResponse
+): MatchCoverage {
   return {
     live: apiCoverage.live,
     video: apiCoverage.video,
@@ -648,7 +666,9 @@ export function transformApiMatchCoverageToEntity(apiCoverage: ApiMatchCoverageR
 /**
  * Transform API broadcast info response to BroadcastInfo entity
  */
-export function transformApiBroadcastInfoToEntity(apiBroadcast: ApiBroadcastInfoResponse): BroadcastInfo {
+export function transformApiBroadcastInfoToEntity(
+  apiBroadcast: ApiBroadcastInfoResponse
+): BroadcastInfo {
   return {
     country: apiBroadcast.country,
     broadcaster: apiBroadcast.broadcaster,
@@ -660,7 +680,9 @@ export function transformApiBroadcastInfoToEntity(apiBroadcast: ApiBroadcastInfo
 /**
  * Transform API match metadata response to MatchMetadata entity
  */
-export function transformApiMatchMetadataToEntity(apiMetadata: ApiMatchMetadataResponse): MatchMetadata {
+export function transformApiMatchMetadataToEntity(
+  apiMetadata: ApiMatchMetadataResponse
+): MatchMetadata {
   return {
     importance: apiMetadata.importance,
     rivalry: apiMetadata.rivalry,

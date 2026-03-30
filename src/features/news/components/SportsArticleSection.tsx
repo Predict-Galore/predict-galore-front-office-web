@@ -6,18 +6,8 @@
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  Paper,
-  Chip,
-  Stack,
-  CardMedia,
-} from '@mui/material';
-import {
-  Image as ImageIcon,
-} from '@mui/icons-material';
+import { Box, Button, Typography, Paper, Chip, Stack, CardMedia } from '@mui/material';
+import { Image as ImageIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { NewsItem } from '../model/types';
 import { getSafeNewsImageUrl } from '@/shared/utils/imageUtils';
@@ -93,12 +83,7 @@ const ArticleMetadata: React.FC<ArticleMetadataProps> = ({ publishedAt, category
   };
 
   return (
-    <Stack
-      direction="row"
-      justifyContent="space-between"
-      alignItems="center"
-      sx={{ mb: 1 }}
-    >
+    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
       <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
         {formatDate(publishedAt)}
       </Typography>

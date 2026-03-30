@@ -1,12 +1,17 @@
 /**
  * ALERT COMPONENT - Material UI Implementation
- * 
+ *
  * Matches Figma design specifications exactly
  * Uses Material UI Alert with custom theme styling
  */
 
 import React from 'react';
-import { Alert as MuiAlert, AlertProps as MuiAlertProps, AlertTitle, IconButton } from '@mui/material';
+import {
+  Alert as MuiAlert,
+  AlertProps as MuiAlertProps,
+  AlertTitle,
+  IconButton,
+} from '@mui/material';
 import { Close } from '@mui/icons-material';
 
 export interface AlertProps extends Omit<MuiAlertProps, 'severity' | 'onClose' | 'variant'> {
@@ -16,13 +21,7 @@ export interface AlertProps extends Omit<MuiAlertProps, 'severity' | 'onClose' |
   onClose?: () => void;
 }
 
-const Alert: React.FC<AlertProps> = ({
-  variant = 'info',
-  title,
-  children,
-  onClose,
-  ...props
-}) => {
+const Alert: React.FC<AlertProps> = ({ variant = 'info', title, children, onClose, ...props }) => {
   // Map custom variant to MUI severity
   const severity: 'success' | 'error' | 'warning' | 'info' = variant;
 
@@ -54,35 +53,35 @@ const Alert: React.FC<AlertProps> = ({
           severity === 'success'
             ? 'success.light'
             : severity === 'error'
-            ? 'error.light'
-            : severity === 'warning'
-            ? 'warning.light'
-            : 'info.light',
+              ? 'error.light'
+              : severity === 'warning'
+                ? 'warning.light'
+                : 'info.light',
         backgroundColor:
           severity === 'success'
             ? 'success.light'
             : severity === 'error'
-            ? 'error.light'
-            : severity === 'warning'
-            ? 'warning.light'
-            : 'info.light',
+              ? 'error.light'
+              : severity === 'warning'
+                ? 'warning.light'
+                : 'info.light',
         color:
           severity === 'success'
             ? 'success.dark'
             : severity === 'error'
-            ? 'error.dark'
-            : severity === 'warning'
-            ? 'warning.dark'
-            : 'info.dark',
+              ? 'error.dark'
+              : severity === 'warning'
+                ? 'warning.dark'
+                : 'info.dark',
         '& .MuiAlert-icon': {
           color:
             severity === 'success'
               ? 'success.main'
               : severity === 'error'
-              ? 'error.main'
-              : severity === 'warning'
-              ? 'warning.main'
-              : 'info.main',
+                ? 'error.main'
+                : severity === 'warning'
+                  ? 'warning.main'
+                  : 'info.main',
         },
       }}
       {...props}

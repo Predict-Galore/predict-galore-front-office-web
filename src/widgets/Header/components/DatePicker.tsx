@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   CalendarToday,
   ChevronLeft,
@@ -28,16 +28,12 @@ const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange, value, date }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(value ?? date ?? new Date()));
-  const [visibleMonth, setVisibleMonth] = useState<Dayjs>(dayjs(value ?? date ?? new Date()).startOf('month'));
-
-  useEffect(() => {
-    const nextDate = dayjs(value ?? date ?? new Date());
-    setSelectedDate(nextDate);
-    setVisibleMonth(nextDate.startOf('month'));
-  }, [value, date]);
+  const [visibleMonth, setVisibleMonth] = useState<Dayjs>(
+    dayjs(value ?? date ?? new Date()).startOf('month')
+  );
 
   const isOpen = Boolean(anchorEl);
 
@@ -50,6 +46,9 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
   }, [visibleMonth]);
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const nextDate = dayjs(value ?? date ?? new Date());
+    setSelectedDate(nextDate);
+    setVisibleMonth(nextDate.startOf('month'));
     setAnchorEl(event.currentTarget);
   };
 
@@ -83,9 +82,7 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
         <span className={isMobile ? 'hidden sm:inline' : ''}>
           {selectedDate.format(isMobile ? 'MM/DD' : 'MM/DD/YYYY')}
         </span>
-        <span className={isMobile ? 'sm:hidden' : 'hidden'}>
-          {selectedDate.format('MM/DD')}
-        </span>
+        <span className={isMobile ? 'sm:hidden' : 'hidden'}>{selectedDate.format('MM/DD')}</span>
         {isOpen ? (
           <KeyboardArrowUp sx={{ fontSize: isMobile ? 16 : 18, color: 'text.secondary' }} />
         ) : (
@@ -97,13 +94,13 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{ 
-          vertical: 'bottom', 
-          horizontal: isMobile ? 'center' : 'right' 
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: isMobile ? 'center' : 'right',
         }}
-        transformOrigin={{ 
-          vertical: 'top', 
-          horizontal: isMobile ? 'center' : 'right' 
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: isMobile ? 'center' : 'right',
         }}
         slotProps={{
           paper: {
@@ -119,21 +116,22 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
         }}
       >
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box sx={{ 
-            width: { xs: 280, sm: 320 }, 
-            maxWidth: '100%', 
-            mx: 'auto' 
-          }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between', 
-              mb: 2 
-            }}>
-              <Typography 
-                variant={isMobile ? "body1" : "subtitle1"} 
-                sx={{ fontWeight: 700 }}
-              >
+          <Box
+            sx={{
+              width: { xs: 280, sm: 320 },
+              maxWidth: '100%',
+              mx: 'auto',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mb: 2,
+              }}
+            >
+              <Typography variant={isMobile ? 'body1' : 'subtitle1'} sx={{ fontWeight: 700 }}>
                 {visibleMonth.format('MMMM YYYY')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -166,12 +164,12 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateChange,
                 <Typography
                   key={day}
                   variant="caption"
-                  sx={{ 
-                    textAlign: 'center', 
-                    fontWeight: 700, 
-                    color: 'text.secondary', 
+                  sx={{
+                    textAlign: 'center',
+                    fontWeight: 700,
+                    color: 'text.secondary',
                     py: 0.5,
-                    fontSize: { xs: '0.65rem', sm: '0.75rem' }
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' },
                   }}
                 >
                   {isMobile ? day.charAt(0) : day}

@@ -30,14 +30,16 @@ export interface BackendSearchResponse {
   success?: boolean;
   message?: string;
   errors?: string | null;
-  data?: SearchResult[] | {
-    items?: SearchResult[];
-    results?: SearchResult[];
-    total?: number;
-    page?: number;
-    pageSize?: number;
-    hasMore?: boolean;
-  };
+  data?:
+    | SearchResult[]
+    | {
+        items?: SearchResult[];
+        results?: SearchResult[];
+        total?: number;
+        page?: number;
+        pageSize?: number;
+        hasMore?: boolean;
+      };
   // flat array fallback
   results?: SearchResult[];
   total?: number;

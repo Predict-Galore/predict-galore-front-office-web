@@ -1,6 +1,6 @@
 /**
  * COMPONENT DEMO - Showcases all design system components
- * 
+ *
  * Matches Figma design specifications exactly
  */
 
@@ -26,79 +26,62 @@ export const ComponentDemo: React.FC = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className=" mx-auto space-y-12">
-        
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Design System Components
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Design System Components</h1>
           <p className="text-gray-600">
             Components matching Figma design specifications - Now fully integrated!
           </p>
         </div>
 
-
-
         {/* Alerts Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Alert Components</h2>
-          
+
           <div className="space-y-4">
             <Alert variant="success" title="Success Alert">
               This is a success message with proper styling and icons.
             </Alert>
-            
+
             {showAlert && (
               <Alert variant="error" title="Error Alert" onClose={() => setShowAlert(false)}>
                 This is an error message with a close button.
               </Alert>
             )}
-            
+
             <Alert variant="warning" title="Warning Alert">
               This is a warning message for important information.
             </Alert>
-            
-            <Alert variant="info">
-              This is an info message without a title.
-            </Alert>
+
+            <Alert variant="info">This is an info message without a title.</Alert>
           </div>
         </section>
 
         {/* Input Fields Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Input Fields</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
             {/* Default Inputs */}
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-700">Default States</h3>
-              
+
               <Input
                 label="Input name"
                 placeholder="Placeholder"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
               />
-              
-              <Input
-                label="Input name"
-                placeholder="Placeholder"
-                value="Placeholder"
-                readOnly
-              />
-              
-              <Input
-                label="Input name"
-                placeholder="Placeholder"
-                disabled
-              />
+
+              <Input label="Input name" placeholder="Placeholder" value="Placeholder" readOnly />
+
+              <Input label="Input name" placeholder="Placeholder" disabled />
             </div>
 
             {/* Validation States */}
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-700">Validation States</h3>
-              
+
               <Input
                 label="Input name"
                 placeholder="Placeholder"
@@ -106,7 +89,7 @@ export const ComponentDemo: React.FC = () => {
                 onChange={(e) => setErrorInput(e.target.value)}
                 errorText="Error message"
               />
-              
+
               <Input
                 label="Input name"
                 placeholder="Placeholder"
@@ -120,19 +103,16 @@ export const ComponentDemo: React.FC = () => {
           {/* Input with Icons */}
           <div className="mt-8 space-y-6">
             <h3 className="text-lg font-medium text-gray-700">With Icons</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Input
-                placeholder="Search..."
-                leftIcon={<Search className="w-5 h-5" />}
-              />
-              
+              <Input placeholder="Search..." leftIcon={<Search className="w-5 h-5" />} />
+
               <Input
                 placeholder="Email address"
                 leftIcon={<Mail className="w-5 h-5" />}
                 type="email"
               />
-              
+
               <Input
                 placeholder="Password"
                 leftIcon={<Lock className="w-5 h-5" />}
@@ -145,7 +125,7 @@ export const ComponentDemo: React.FC = () => {
         {/* Buttons Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Buttons</h2>
-          
+
           {/* Primary Buttons */}
           <div className="space-y-8">
             <div>
@@ -156,19 +136,19 @@ export const ComponentDemo: React.FC = () => {
                   Default
                   <ChevronRight className="w-4 h-4" />
                 </Button>
-                
+
                 <Button variant="primary" size="md">
                   <ChevronRight className="w-5 h-5" />
                   Active
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="primary" size="lg">
                   <ChevronRight className="w-6 h-6" />
                   Large
                   <ChevronRight className="w-6 h-6" />
                 </Button>
-                
+
                 <Button variant="primary" disabled>
                   <ChevronRight className="w-5 h-5" />
                   Disabled
@@ -186,19 +166,19 @@ export const ComponentDemo: React.FC = () => {
                   Default
                   <ChevronRight className="w-4 h-4" />
                 </Button>
-                
+
                 <Button variant="outline" size="md">
                   <ChevronRight className="w-5 h-5" />
                   Active
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="outline" size="lg">
                   <ChevronRight className="w-6 h-6" />
                   Large
                   <ChevronRight className="w-6 h-6" />
                 </Button>
-                
+
                 <Button variant="outline" disabled>
                   <ChevronRight className="w-5 h-5" />
                   Disabled
@@ -214,19 +194,19 @@ export const ComponentDemo: React.FC = () => {
                 <Button variant="primary" size="icon">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="primary" size="icon" className="bg-primary-600">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="primary" size="icon" className="bg-gray-900">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="primary" size="icon" disabled>
                   <ChevronRight className="w-5 h-5" />
                 </Button>
-                
+
                 <Button variant="outline" size="icon">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
@@ -240,11 +220,11 @@ export const ComponentDemo: React.FC = () => {
                 <Button variant="primary" loading>
                   Loading...
                 </Button>
-                
+
                 <Button variant="outline" loading>
                   Loading...
                 </Button>
-                
+
                 <Button variant="primary" size="icon" loading />
               </div>
             </div>
@@ -256,7 +236,7 @@ export const ComponentDemo: React.FC = () => {
                 <Button variant="primary" fullWidth>
                   Full Width Primary
                 </Button>
-                
+
                 <Button variant="outline" fullWidth>
                   Full Width Outline
                 </Button>
@@ -268,35 +248,30 @@ export const ComponentDemo: React.FC = () => {
         {/* Checkbox Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Checkboxes</h2>
-          
+
           <div className="space-y-4">
             <Checkbox
               label="Default checkbox"
               checked={checkboxValue}
               onChange={(e) => setCheckboxValue(e.target.checked)}
             />
-            
+
             <Checkbox
               label="Checkbox with helper text"
               helperText="This is some helpful information"
               checked={false}
               onChange={() => {}}
             />
-            
+
             <Checkbox
               label="Checkbox with error"
               errorText="This field is required"
               checked={false}
               onChange={() => {}}
             />
-            
-            <Checkbox
-              label="Disabled checkbox"
-              disabled
-              checked={false}
-              onChange={() => {}}
-            />
-            
+
+            <Checkbox label="Disabled checkbox" disabled checked={false} onChange={() => {}} />
+
             <Checkbox
               label={
                 <span>
@@ -319,7 +294,7 @@ export const ComponentDemo: React.FC = () => {
         {/* Loading Components Section */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Loading Components</h2>
-          
+
           {/* Loading Variants */}
           <div className="space-y-8">
             <div>
@@ -329,22 +304,22 @@ export const ComponentDemo: React.FC = () => {
                   <Loading variant="spinner" size="md" />
                   <p className="text-sm text-gray-600">Spinner</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="dots" size="md" />
                   <p className="text-sm text-gray-600">Dots</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="pulse" size="md" />
                   <p className="text-sm text-gray-600">Pulse</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="bars" size="md" />
                   <p className="text-sm text-gray-600">Bars</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="skeleton" />
                   <p className="text-sm text-gray-600">Skeleton</p>
@@ -360,17 +335,17 @@ export const ComponentDemo: React.FC = () => {
                   <Loading variant="spinner" size="sm" />
                   <p className="text-sm text-gray-600">Small</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="spinner" size="md" />
                   <p className="text-sm text-gray-600">Medium</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="spinner" size="lg" />
                   <p className="text-sm text-gray-600">Large</p>
                 </div>
-                
+
                 <div className="text-center space-y-2">
                   <Loading variant="spinner" size="xl" />
                   <p className="text-sm text-gray-600">Extra Large</p>
@@ -392,8 +367,8 @@ export const ComponentDemo: React.FC = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Button Loading States</h3>
               <div className="flex gap-4">
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   loading={buttonLoading}
                   onClick={() => {
                     setButtonLoading(true);
@@ -402,7 +377,7 @@ export const ComponentDemo: React.FC = () => {
                 >
                   {buttonLoading ? 'Loading...' : 'Click to Load'}
                 </Button>
-                
+
                 <Button variant="outline" loading>
                   Loading Button
                 </Button>
@@ -413,7 +388,7 @@ export const ComponentDemo: React.FC = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Overlay Loading</h3>
               <div className="relative">
-                <Button 
+                <Button
                   variant="primary"
                   onClick={() => {
                     setShowOverlay(true);
@@ -422,11 +397,8 @@ export const ComponentDemo: React.FC = () => {
                 >
                   Show Overlay Loading
                 </Button>
-                
-                <OverlayLoading 
-                  show={showOverlay}
-                  message="Processing your request..."
-                />
+
+                <OverlayLoading show={showOverlay} message="Processing your request..." />
               </div>
             </div>
 
@@ -434,17 +406,9 @@ export const ComponentDemo: React.FC = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Loading with Messages</h3>
               <div className="space-y-4">
-                <Loading 
-                  variant="spinner" 
-                  size="md" 
-                  message="Loading your dashboard..." 
-                />
-                
-                <Loading 
-                  variant="dots" 
-                  size="md" 
-                  message="Fetching latest predictions..." 
-                />
+                <Loading variant="spinner" size="md" message="Loading your dashboard..." />
+
+                <Loading variant="dots" size="md" message="Fetching latest predictions..." />
               </div>
             </div>
           </div>
@@ -452,8 +416,10 @@ export const ComponentDemo: React.FC = () => {
 
         {/* Interactive Demo */}
         <section className="bg-white rounded-2xl p-8 shadow-sm">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Interactive Demo - Login Form</h2>
-          
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            Interactive Demo - Login Form
+          </h2>
+
           <div className="space-y-6 max-w-md">
             <Input
               label="Email"
@@ -461,32 +427,27 @@ export const ComponentDemo: React.FC = () => {
               leftIcon={<Mail className="w-5 h-5" />}
               type="email"
             />
-            
+
             <Input
               label="Password"
               placeholder="Enter your password"
               leftIcon={<Lock className="w-5 h-5" />}
               type="password"
             />
-            
-            <Checkbox
-              label="Remember me"
-              checked={false}
-              onChange={() => {}}
-            />
-            
+
+            <Checkbox label="Remember me" checked={false} onChange={() => {}} />
+
             <div className="flex gap-4">
               <Button variant="primary" className="flex-1">
                 Sign In
               </Button>
-              
+
               <Button variant="outline" className="flex-1">
                 Create Account
               </Button>
             </div>
           </div>
         </section>
-
       </div>
     </div>
   );

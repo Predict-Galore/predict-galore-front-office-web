@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Stack,
-  Paper,
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  Chip,
-} from '@mui/material';
+import { Stack, Paper, Box, Typography, IconButton, Button, Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -29,7 +21,12 @@ const SelectedNewsView: React.FC<SelectedNewsViewProps> = ({ articleId, onBack }
   const [hasLiked, setHasLiked] = useState(false);
   const [hasDisliked, setHasDisliked] = useState(false);
 
-  const { data: article, isLoading, error, refetch } = useNewsItem(articleId, {
+  const {
+    data: article,
+    isLoading,
+    error,
+    refetch,
+  } = useNewsItem(articleId, {
     enabled: !!articleId,
   });
 

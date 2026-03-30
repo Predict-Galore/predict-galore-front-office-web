@@ -34,7 +34,8 @@ const HowItWorks: React.FC = () => {
     <Box
       sx={{
         position: 'relative',
-        background: '#A8141A',
+        // background: '#A8141A',
+        background: '#5e0b0b',
         py: { xs: 6, sm: 8, md: 10, lg: 15 },
         overflow: 'hidden',
       }}
@@ -52,7 +53,12 @@ const HowItWorks: React.FC = () => {
             radial-gradient(circle at 25% 20%, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 3px),
             radial-gradient(circle at 80% 10%, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 3px)
           `,
-          backgroundSize: { xs: '120px 120px', sm: '160px 160px', md: '200px 200px', lg: '220px 220px' },
+          backgroundSize: {
+            xs: '120px 120px',
+            sm: '160px 160px',
+            md: '200px 200px',
+            lg: '220px 220px',
+          },
           backgroundRepeat: 'repeat',
           pointerEvents: 'none',
         }}
@@ -69,24 +75,26 @@ const HowItWorks: React.FC = () => {
         }}
       >
         {/* Section Header */}
-        <Box sx={{ 
-          textAlign: 'center', 
-          mb: { xs: 6, sm: 7, md: 8, lg: 10 },
-          maxWidth: { sm: '90%', md: '80%', lg: '70%' },
-          mx: 'auto',
-          px: { xs: 2, sm: 0 }
-        }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: { xs: 6, sm: 7, md: 8, lg: 10 },
+            maxWidth: { sm: '90%', md: '80%', lg: '70%' },
+            mx: 'auto',
+            px: { xs: 2, sm: 0 },
+          }}
+        >
           <Typography
             variant="h2"
             sx={{
               color: 'white',
               fontWeight: { xs: 700, sm: 800 },
               mb: { xs: 1.5, sm: 2, md: 2.5 },
-              fontSize: { 
+              fontSize: {
                 xs: '2rem',
                 sm: '2.5rem',
                 md: '3rem',
-                lg: '3.5rem'
+                lg: '3.5rem',
               },
               lineHeight: { xs: 1.2, md: 1.1 },
               textShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -100,11 +108,11 @@ const HowItWorks: React.FC = () => {
               color: alpha('#fff', 0.95),
               maxWidth: { xs: '100%', md: '800px' },
               margin: '0 auto',
-              fontSize: { 
+              fontSize: {
                 xs: '1rem',
                 sm: '1.1rem',
                 md: '1.2rem',
-                lg: '1.25rem'
+                lg: '1.25rem',
               },
               lineHeight: { xs: 1.5, md: 1.6 },
               px: { xs: 2, sm: 3, md: 0 },
@@ -179,7 +187,7 @@ const HowItWorks: React.FC = () => {
                       alt={step.title}
                       fill
                       sizes="(max-width: 640px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 240px, 240px"
-                      style={{ 
+                      style={{
                         objectFit: 'contain',
                         objectPosition: 'bottom center',
                       }}
@@ -206,11 +214,11 @@ const HowItWorks: React.FC = () => {
                         fontWeight: { xs: 700, md: 800 },
                         color: 'white',
                         mb: { xs: 1, sm: 1.25, md: 1.5 },
-                        fontSize: { 
+                        fontSize: {
                           xs: '1.25rem',
                           sm: '1.35rem',
                           md: '1.5rem',
-                          lg: '1.65rem'
+                          lg: '1.65rem',
                         },
                         lineHeight: 1.2,
                       }}
@@ -222,11 +230,11 @@ const HowItWorks: React.FC = () => {
                       sx={{
                         color: alpha('#fff', 0.8),
                         lineHeight: { xs: 1.5, md: 1.6 },
-                        fontSize: { 
+                        fontSize: {
                           xs: '0.875rem',
                           sm: '0.9rem',
                           md: '0.95rem',
-                          lg: '1rem'
+                          lg: '1rem',
                         },
                         maxWidth: { xs: '240px', sm: '260px', md: '280px' },
                         mx: 'auto',
@@ -256,7 +264,7 @@ const HowItWorks: React.FC = () => {
                       alt="next step"
                       width={100}
                       height={50}
-                      style={{ 
+                      style={{
                         filter: 'brightness(0) invert(1)',
                         width: 'auto',
                         height: 'auto',
@@ -279,7 +287,7 @@ const HowItWorks: React.FC = () => {
                       alt="next step"
                       width={32}
                       height={64}
-                      style={{ 
+                      style={{
                         filter: 'brightness(0) invert(1)',
                         width: 'auto',
                         height: 'auto',

@@ -7,16 +7,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import {
-  Container,
-  Stack,
-  Paper,
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  Chip,
-} from '@mui/material';
+import { Container, Stack, Paper, Box, Typography, IconButton, Button, Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -42,7 +33,11 @@ const NewsArticlePage: React.FC = () => {
   const [hasDisliked, setHasDisliked] = useState(false);
 
   // Fetch article data
-  const { data: article, isLoading, error } = useNewsItem(articleId ?? undefined, {
+  const {
+    data: article,
+    isLoading,
+    error,
+  } = useNewsItem(articleId ?? undefined, {
     enabled: !!articleId,
   });
 

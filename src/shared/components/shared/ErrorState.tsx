@@ -2,7 +2,7 @@
  * ERROR STATE COMPONENT
  *
  * Reusable error state component with retry and back actions
- * 
+ *
  * @component
  * @description Displays a user-friendly error message with optional retry and back buttons.
  * Used throughout the application when errors occur during data fetching or operations.
@@ -31,10 +31,10 @@ interface ErrorStateProps {
 
 /**
  * ErrorState Component
- * 
+ *
  * Displays an error icon, title, message, and optional action buttons.
  * Provides a consistent error experience across the application.
- * 
+ *
  * @example
  * ```tsx
  * <ErrorState
@@ -53,13 +53,13 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   className,
 }) => {
   return (
-    <Box 
-      className={className} 
-      sx={{ 
-        minHeight: 400, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    <Box
+      className={className}
+      sx={{
+        minHeight: 400,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <Box sx={{ textAlign: 'center', maxWidth: 400 }}>

@@ -3,7 +3,7 @@
  *
  * Catches JavaScript errors anywhere in the child component tree,
  * logs those errors, and displays a fallback UI instead of crashing.
- * 
+ *
  * @component
  * @description React Error Boundary that catches errors in child components
  * and displays a user-friendly error message with recovery options.
@@ -50,11 +50,11 @@ interface State {
 
 /**
  * ErrorBoundary Component
- * 
+ *
  * Wraps child components and catches any JavaScript errors.
  * Displays a fallback UI with options to retry or go home.
  * Logs errors for debugging and monitoring.
- * 
+ *
  * @example
  * ```tsx
  * <ErrorBoundary

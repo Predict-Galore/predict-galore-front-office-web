@@ -1,6 +1,6 @@
 /**
  * UI COMPONENTS INDEX
- * 
+ *
  * Central export for all design system components
  */
 
@@ -16,27 +16,22 @@ export type { CheckboxProps } from './Checkbox/Checkbox';
 export { Alert } from './Alert/Alert';
 export type { AlertProps } from './Alert/Alert';
 
-export { 
-  Modal,
-  ModalHeader,
-  ModalContent,
-  ModalFooter
-} from './Modal/Modal';
+export { Modal, ModalHeader, ModalContent, ModalFooter } from './Modal/Modal';
 export type { ModalProps } from './Modal/Modal';
 
-export { 
-  Loading, 
-  PageLoading, 
-  InlineLoading, 
-  ButtonLoading, 
-  OverlayLoading 
+export {
+  Loading,
+  PageLoading,
+  InlineLoading,
+  ButtonLoading,
+  OverlayLoading,
 } from './Loading/Loading';
-export type { 
-  LoadingProps, 
-  PageLoadingProps, 
-  InlineLoadingProps, 
-  ButtonLoadingProps, 
-  OverlayLoadingProps 
+export type {
+  LoadingProps,
+  PageLoadingProps,
+  InlineLoadingProps,
+  ButtonLoadingProps,
+  OverlayLoadingProps,
 } from './Loading/Loading';
 
 export { ComponentDemo } from './demo/ComponentDemo';

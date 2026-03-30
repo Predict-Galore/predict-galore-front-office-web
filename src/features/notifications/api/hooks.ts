@@ -35,7 +35,8 @@ let mockNotificationStore: NotificationItem[] = [
     id: '2',
     type: 'info',
     title: 'Match Starting Soon',
-    message: 'Manchester United vs Liverpool starts in 30 minutes. Don\'t forget to place your predictions!',
+    message:
+      "Manchester United vs Liverpool starts in 30 minutes. Don't forget to place your predictions!",
     timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
     isRead: false,
   },
@@ -43,7 +44,8 @@ let mockNotificationStore: NotificationItem[] = [
     id: '3',
     type: 'warning',
     title: 'Subscription Expiring',
-    message: 'Your premium subscription expires in 3 days. Renew now to continue enjoying premium features.',
+    message:
+      'Your premium subscription expires in 3 days. Renew now to continue enjoying premium features.',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     isRead: true,
   },
@@ -62,8 +64,8 @@ export const useNotificationsQuery = (params: NotificationsQueryParams) => {
     queryKey: ['notifications', params],
     queryFn: async () => {
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Return paginated results
       const start = (params.page - 1) * params.pageSize;
       const end = start + params.pageSize;
@@ -78,9 +80,9 @@ export const useUnreadCount = () => {
     queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const unreadCount = mockNotificationStore.filter(n => !n.isRead).length;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const unreadCount = mockNotificationStore.filter((n) => !n.isRead).length;
       return { unreadCount };
     },
     staleTime: 30000, // 30 seconds

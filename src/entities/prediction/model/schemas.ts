@@ -1,6 +1,6 @@
 /**
  * PREDICTION ENTITY - Validation Schemas
- * 
+ *
  * Zod validation schemas for Prediction entity and related types
  */
 
@@ -8,23 +8,52 @@ import { z } from 'zod';
 
 // Enums and basic types
 export const predictionTypeSchema = z.enum([
-  'match_result', 'over_under', 'both_teams_score', 'correct_score', 'handicap',
-  'double_chance', 'first_goal_scorer', 'anytime_scorer', 'clean_sheet',
-  'corners', 'cards', 'halftime_result', 'combo', 'custom'
+  'match_result',
+  'over_under',
+  'both_teams_score',
+  'correct_score',
+  'handicap',
+  'double_chance',
+  'first_goal_scorer',
+  'anytime_scorer',
+  'clean_sheet',
+  'corners',
+  'cards',
+  'halftime_result',
+  'combo',
+  'custom',
 ]);
 
 export const predictionStatusSchema = z.enum([
-  'pending', 'active', 'won', 'lost', 'void', 'pushed', 'cancelled', 'suspended'
+  'pending',
+  'active',
+  'won',
+  'lost',
+  'void',
+  'pushed',
+  'cancelled',
+  'suspended',
 ]);
 
 export const predictionSourceSchema = z.enum([
-  'ai_algorithm', 'expert_tipster', 'community', 'statistical_model', 'machine_learning', 'hybrid'
+  'ai_algorithm',
+  'expert_tipster',
+  'community',
+  'statistical_model',
+  'machine_learning',
+  'hybrid',
 ]);
 
 export const motivationLevelSchema = z.enum(['very_high', 'high', 'normal', 'low', 'very_low']);
 export const difficultySchema = z.enum(['easy', 'medium', 'hard', 'expert']);
 export const liquiditySchema = z.enum(['high', 'medium', 'low']);
-export const stakingStrategyTypeSchema = z.enum(['fixed', 'percentage', 'kelly', 'fibonacci', 'martingale']);
+export const stakingStrategyTypeSchema = z.enum([
+  'fixed',
+  'percentage',
+  'kelly',
+  'fibonacci',
+  'martingale',
+]);
 
 // Team info schema
 export const teamInfoSchema = z.object({
@@ -120,7 +149,10 @@ export const historicalDataSchema = z.object({
   averageGoals: z.number().min(0, 'Average goals must be non-negative'),
   bttsPercentage: z.number().min(0).max(100, 'BTTS percentage must be between 0 and 100'),
   over25Percentage: z.number().min(0).max(100, 'Over 2.5 percentage must be between 0 and 100'),
-  cleanSheetPercentage: z.number().min(0).max(100, 'Clean sheet percentage must be between 0 and 100'),
+  cleanSheetPercentage: z
+    .number()
+    .min(0)
+    .max(100, 'Clean sheet percentage must be between 0 and 100'),
 });
 
 // Head to head analysis schema
@@ -339,28 +371,38 @@ export const predictionSearchResponseSchema = z.object({
   hasMore: z.boolean(),
   stats: predictionStatsSchema,
   filters: z.object({
-    sports: z.array(z.object({
-      id: z.string().uuid(),
-      name: z.string(),
-      count: z.number().int().min(0),
-    })),
-    competitions: z.array(z.object({
-      id: z.string().uuid(),
-      name: z.string(),
-      count: z.number().int().min(0),
-    })),
-    types: z.array(z.object({
-      type: predictionTypeSchema,
-      count: z.number().int().min(0),
-    })),
-    sources: z.array(z.object({
-      source: predictionSourceSchema,
-      count: z.number().int().min(0),
-    })),
-    tags: z.array(z.object({
-      tag: z.string(),
-      count: z.number().int().min(0),
-    })),
+    sports: z.array(
+      z.object({
+        id: z.string().uuid(),
+        name: z.string(),
+        count: z.number().int().min(0),
+      })
+    ),
+    competitions: z.array(
+      z.object({
+        id: z.string().uuid(),
+        name: z.string(),
+        count: z.number().int().min(0),
+      })
+    ),
+    types: z.array(
+      z.object({
+        type: predictionTypeSchema,
+        count: z.number().int().min(0),
+      })
+    ),
+    sources: z.array(
+      z.object({
+        source: predictionSourceSchema,
+        count: z.number().int().min(0),
+      })
+    ),
+    tags: z.array(
+      z.object({
+        tag: z.string(),
+        count: z.number().int().min(0),
+      })
+    ),
   }),
 });
 

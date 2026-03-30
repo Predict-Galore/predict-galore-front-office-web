@@ -64,13 +64,18 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
   });
 
   const password = useWatch({ control, name: 'password' });
-  const passwordStrength = React.useMemo(() => (password ? validatePasswordStrength(password) : null), [password]);
+  const passwordStrength = React.useMemo(
+    () => (password ? validatePasswordStrength(password) : null),
+    [password]
+  );
 
   const handlePhoneChange = (value: string, country: CountryData) => {
     setPhoneValue(value);
     const countryCode = country.dialCode;
-    const phoneNumberWithoutCode = value.startsWith(countryCode) ? value.slice(countryCode.length) : value;
-    
+    const phoneNumberWithoutCode = value.startsWith(countryCode)
+      ? value.slice(countryCode.length)
+      : value;
+
     setValue('phone', value, { shouldValidate: true });
     setValue('countryCode', countryCode, { shouldValidate: true });
     setValue('phoneNumber', phoneNumberWithoutCode, { shouldValidate: true });
@@ -92,7 +97,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         const token = responseData?.token || result?.token || null;
 
         if (user) {
-          login({ ...user, role: 'user', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, token);
+          login(
+            {
+              ...user,
+              role: 'user',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            token
+          );
           if (!user.isEmailVerified) {
             sessionStorage.setItem('pendingVerificationEmail', formData.email);
             router.push(AUTH_CONSTANTS.ROUTES.VERIFY_EMAIL);
@@ -133,22 +146,39 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         </Alert>
       )}
 
-      <Box component="form" onSubmit={handleSubmit(handleFormSubmission)} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        
+      <Box
+        component="form"
+        onSubmit={handleSubmit(handleFormSubmission)}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}
+      >
         {/* Name Fields Row */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Controller
             name="firstName"
             control={control}
             render={({ field, fieldState }) => (
-              <Input {...field} label="First Name" placeholder="First name" errorText={fieldState.error?.message} leftIcon={<User size={20} />} fullWidth />
+              <Input
+                {...field}
+                label="First Name"
+                placeholder="First name"
+                errorText={fieldState.error?.message}
+                leftIcon={<User size={20} />}
+                fullWidth
+              />
             )}
           />
           <Controller
             name="lastName"
             control={control}
             render={({ field, fieldState }) => (
-              <Input {...field} label="Last Name" placeholder="Last name" errorText={fieldState.error?.message} leftIcon={<User size={20} />} fullWidth />
+              <Input
+                {...field}
+                label="Last Name"
+                placeholder="Last name"
+                errorText={fieldState.error?.message}
+                leftIcon={<User size={20} />}
+                fullWidth
+              />
             )}
           />
         </Box>
@@ -158,7 +188,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           name="email"
           control={control}
           render={({ field, fieldState }) => (
-            <Input {...field} label="Email Address" type="email" placeholder="Enter your email" errorText={fieldState.error?.message} leftIcon={<Mail size={20} />} fullWidth />
+            <Input
+              {...field}
+              label="Email Address"
+              type="email"
+              placeholder="Enter your email"
+              errorText={fieldState.error?.message}
+              leftIcon={<Mail size={20} />}
+              fullWidth
+            />
           )}
         />
 
@@ -188,7 +226,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
               errorText={fieldState.error?.message}
               leftIcon={<Lock size={20} />}
               rightIcon={
-                <Box component="button" type="button" onClick={() => setShowPassword(!showPassword)} sx={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  sx={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </Box>
               }
@@ -201,11 +244,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           <Box sx={{ mt: -1 }}>
             <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
               {[0, 1, 2, 3, 4].map((i) => (
-                <Box key={i} sx={{ height: 6, flex: 1, borderRadius: 1, bgcolor: i < (passwordStrength.score / 20) ? '#4AA900' : '#E4E7EC' }} />
+                <Box
+                  key={i}
+                  sx={{
+                    height: 6,
+                    flex: 1,
+                    borderRadius: 1,
+                    bgcolor: i < passwordStrength.score / 20 ? '#4AA900' : '#E4E7EC',
+                  }}
+                />
               ))}
             </Box>
             <Typography variant="caption" sx={{ color: '#667085' }}>
-              Strength: <span style={{ color: '#4AA900', fontWeight: 600 }}>{passwordStrength.isValid ? 'Strong' : 'Weak'}</span>
+              Strength:{' '}
+              <span style={{ color: '#4AA900', fontWeight: 600 }}>
+                {passwordStrength.isValid ? 'Strong' : 'Weak'}
+              </span>
             </Typography>
           </Box>
         )}
@@ -222,7 +276,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
               errorText={fieldState.error?.message}
               leftIcon={<Lock size={20} />}
               rightIcon={
-                <Box component="button" type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} sx={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  sx={{ border: 'none', background: 'none', cursor: 'pointer' }}
+                >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </Box>
               }
@@ -238,7 +297,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
             <Checkbox
               checked={field.value}
               onChange={field.onChange}
-              label={<Typography variant="body2">I agree to the <span style={{ color: '#4AA900', fontWeight: 600 }}>Terms of Service</span></Typography>}
+              label={
+                <Typography variant="body2">
+                  I agree to the{' '}
+                  <span style={{ color: '#4AA900', fontWeight: 600 }}>Terms of Service</span>
+                </Typography>
+              }
             />
           )}
         />
@@ -287,12 +351,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           width: 100% !important;
           height: 60px !important;
           border-radius: 12px !important;
-          border: 1px solid #D0D5DD !important;
+          border: 1px solid #d0d5dd !important;
           font-size: 1rem !important;
         }
         .phone-wrapper .react-tel-input .flag-dropdown {
           border-radius: 12px 0 0 12px !important;
-          border: 1px solid #D0D5DD !important;
+          border: 1px solid #d0d5dd !important;
           background: #fff !important;
         }
       `}</style>

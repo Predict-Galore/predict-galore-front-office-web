@@ -1,7 +1,7 @@
 /**
  * Match Header Component
  * Displays match information with tabs (Overview, Predictions, Table)
- * 
+ *
  * This component shows:
  * - Match teams with logos and names
  * - Predicted score
@@ -24,11 +24,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import {
-  ArrowBack,
-  Share,
-  Notifications,
-} from '@mui/icons-material';
+import { ArrowBack, Share, Notifications } from '@mui/icons-material';
 import { Prediction } from '../model/types';
 
 // ==================== TYPES ====================
@@ -49,11 +45,11 @@ const TABS = [
 
 // ==================== COMPONENT ====================
 
-const MatchHeader: React.FC<MatchHeaderProps> = ({ 
-  prediction, 
-  activeTab, 
-  onTabChange, 
-  onBack 
+const MatchHeader: React.FC<MatchHeaderProps> = ({
+  prediction,
+  activeTab,
+  onTabChange,
+  onBack,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -63,18 +59,18 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
   /**
    * Get team data with fallbacks
    */
-  const homeTeam = prediction.homeTeam || { 
-    id: 0, 
-    name: 'Home Team', 
-    logoUrl: '', 
-    shortName: 'HOME' 
+  const homeTeam = prediction.homeTeam || {
+    id: 0,
+    name: 'Home Team',
+    logoUrl: '',
+    shortName: 'HOME',
   };
-  
-  const awayTeam = prediction.awayTeam || { 
-    id: 0, 
-    name: 'Away Team', 
-    logoUrl: '', 
-    shortName: 'AWAY' 
+
+  const awayTeam = prediction.awayTeam || {
+    id: 0,
+    name: 'Away Team',
+    logoUrl: '',
+    shortName: 'AWAY',
   };
 
   // ==================== RENDER ====================

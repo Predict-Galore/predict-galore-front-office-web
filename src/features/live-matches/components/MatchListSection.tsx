@@ -1,7 +1,7 @@
 /**
  * Match List Section Component
  * Displays matches grouped by competition with collapsible sections
- * 
+ *
  * This component shows:
  * - Competition header with logo and name
  * - List of matches with team logos, names, and scores
@@ -23,11 +23,7 @@ import {
   Collapse,
   Divider,
 } from '@mui/material';
-import {
-  KeyboardArrowUp,
-  KeyboardArrowDown,
-  SportsSoccer,
-} from '@mui/icons-material';
+import { KeyboardArrowUp, KeyboardArrowDown, SportsSoccer } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { Match, CompetitionGroup } from '../model/types';
 
@@ -48,7 +44,7 @@ const COMPETITION_LOGOS: Record<string, string> = {
   'Premier League': '/leagues/premier-league.svg',
   'La Liga': '/leagues/la-liga.svg',
   'Serie A': '/leagues/serie-a.svg',
-  'Bundesliga': '/leagues/bundesliga.svg',
+  Bundesliga: '/leagues/bundesliga.svg',
   'UEFA Champions League': '/leagues/champions-league.svg',
   'Italian Serie A': '/leagues/serie-a.svg',
 };
@@ -57,10 +53,7 @@ const COMPETITION_LOGOS: Record<string, string> = {
  * Status badge configuration
  * Defines styling for different match statuses
  */
-const STATUS_CONFIG: Record<
-  string,
-  { label: string; bgcolor: string; color: string }
-> = {
+const STATUS_CONFIG: Record<string, { label: string; bgcolor: string; color: string }> = {
   FT: { label: 'FT', bgcolor: 'success.50', color: 'success.dark' },
   HT: { label: 'HT', bgcolor: 'grey.100', color: 'grey.700' },
   ET: { label: 'ET', bgcolor: 'error.50', color: 'error.dark' },
@@ -81,13 +74,7 @@ interface CompetitionLogoProps {
 
 const CompetitionLogo: React.FC<CompetitionLogoProps> = ({ name, logoUrl }) => {
   if (logoUrl) {
-    return (
-      <Avatar
-        src={logoUrl}
-        alt={name}
-        sx={{ width: 32, height: 32 }}
-      />
-    );
+    return <Avatar src={logoUrl} alt={name} sx={{ width: 32, height: 32 }} />;
   }
 
   // Fallback: Show initials
@@ -153,10 +140,7 @@ const EmptyState: React.FC = () => (
 
 // ==================== MAIN COMPONENT ====================
 
-const MatchListSection: React.FC<MatchListSectionProps> = ({
-  competition,
-  onSelectMatch,
-}) => {
+const MatchListSection: React.FC<MatchListSectionProps> = ({ competition, onSelectMatch }) => {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -165,10 +149,7 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({
   /**
    * Get competition logo URL
    */
-  const competitionLogo = useMemo(
-    () => COMPETITION_LOGOS[competition.name],
-    [competition.name]
-  );
+  const competitionLogo = useMemo(() => COMPETITION_LOGOS[competition.name], [competition.name]);
 
   /**
    * Check if match should show score
@@ -279,7 +260,7 @@ const MatchListSection: React.FC<MatchListSectionProps> = ({
               return (
                 <React.Fragment key={match.id}>
                   {index > 0 && <Divider />}
-                  
+
                   <Box
                     sx={{
                       px: 3,

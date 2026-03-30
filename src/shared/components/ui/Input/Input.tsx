@@ -1,6 +1,6 @@
 /**
  * INPUT COMPONENT - Material UI Implementation
- * 
+ *
  * Matches Figma design specifications exactly
  * Uses Material UI TextField with custom theme styling
  */

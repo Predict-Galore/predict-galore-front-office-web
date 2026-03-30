@@ -1,10 +1,12 @@
 # Predict Galore - Sports Prediction Platform
 
-A comprehensive sports prediction and analysis platform built with Next.js, featuring real-time match tracking, advanced prediction algorithms, and premium user experiences.
+A comprehensive sports prediction and analysis platform built with Next.js, featuring real-time
+match tracking, advanced prediction algorithms, and premium user experiences.
 
 ## 🌟 Features
 
 ### 🔐 Authentication & User Management
+
 - Secure user registration and login
 - Email verification and password reset
 - Profile management and settings
@@ -12,6 +14,7 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 - Account deletion with data privacy
 
 ### ⚽ Sports Predictions
+
 - Match outcome predictions (Win/Loss/Draw)
 - Player performance predictions
 - Over/under statistical predictions
@@ -19,6 +22,7 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 - Advanced prediction analytics and accuracy tracking
 
 ### 📊 Live Match Tracking
+
 - Real-time score updates
 - Live match commentary and events
 - Match statistics and player data
@@ -26,6 +30,7 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 - Interactive match timelines
 
 ### 📰 News & Content
+
 - Sports news articles and editorials
 - Content categorization and tagging
 - Author profiles and bylines
@@ -33,6 +38,7 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 - Social sharing capabilities
 
 ### 🔍 Search & Discovery
+
 - Advanced search with filters
 - Player, team, and league discovery
 - Popular items recommendations
@@ -40,6 +46,7 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 - Real-time search results
 
 ### 📱 Responsive Design
+
 - Mobile-first approach
 - Cross-device compatibility
 - Touch-friendly interactions
@@ -49,27 +56,32 @@ A comprehensive sports prediction and analysis platform built with Next.js, feat
 ## 🛠️ Tech Stack
 
 ### Frontend Framework
+
 - **Next.js 15** - React framework with App Router
 - **React 18** - UI library with hooks and concurrent features
 - **TypeScript** - Type-safe JavaScript
 
 ### UI & Styling
+
 - **Material-UI (MUI)** - Component library and design system
 - **Tailwind CSS** - Utility-first CSS framework
 - **Emotion** - CSS-in-JS styling solution
 
 ### State Management
+
 - **Zustand** - Lightweight state management
 - **React Query** - Server state management and caching
 - **Context API** - React state sharing
 
 ### Development Tools
+
 - **ESLint** - Code linting and formatting
 - **Prettier** - Code formatting
 - **Husky** - Git hooks for quality checks
 - **Commitlint** - Commit message conventions
 
 ### Build & Deployment
+
 - **Next.js Build System** - Optimized production builds
 - **Vercel** - Deployment platform
 - **GitHub Actions** - CI/CD pipelines
@@ -121,6 +133,7 @@ predict-galore-frontoffice/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18.17 or later
 - npm, yarn, pnpm, or bun
 - Git
@@ -128,12 +141,14 @@ predict-galore-frontoffice/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/FasDavTek/predict-galore-frontoffice-web.git
    cd predict-galore-frontoffice-web
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -145,12 +160,14 @@ predict-galore-frontoffice/
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your configuration
    ```
 
 4. **Run the development server**
+
    ```bash
    npm run dev
    # or
@@ -161,12 +178,12 @@ predict-galore-frontoffice/
    bun dev
    ```
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+5. **Open your browser** Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📜 Available Scripts
 
 ### Development
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
@@ -175,6 +192,7 @@ npm run preview      # Preview production build
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint         # Run ESLint
 npm run lint:fix     # Fix ESLint issues
@@ -183,6 +201,7 @@ npm run type-check   # Run TypeScript type checking
 ```
 
 ### Testing
+
 ```bash
 npm run test         # Run tests
 npm run test:watch   # Run tests in watch mode
@@ -190,6 +209,7 @@ npm run test:coverage # Generate test coverage report
 ```
 
 ### Database & Deployment
+
 ```bash
 npm run db:migrate   # Run database migrations
 npm run db:seed      # Seed database with sample data
@@ -199,6 +219,7 @@ npm run deploy       # Deploy to production
 ## 🔧 Configuration
 
 ### Environment Variables
+
 Create a `.env.local` file with the following variables:
 
 ```env
@@ -218,6 +239,7 @@ VERCEL_URL="your-deployment-url"
 ```
 
 ### Theme Customization
+
 The application uses Material-UI theming. Customize the theme in `theme/index.ts`:
 
 ```typescript
@@ -239,18 +261,21 @@ export const theme = createTheme({
 ## 📊 Architecture Decisions
 
 ### Feature-Based Architecture
+
 - **Scalability**: Features can be developed and deployed independently
 - **Maintainability**: Clear boundaries between different functionalities
 - **Testing**: Easier to test individual features in isolation
 - **Team Collaboration**: Multiple teams can work on different features simultaneously
 
 ### Component Library Choice
+
 - **Material-UI**: Comprehensive component library with accessibility built-in
 - **Consistency**: Unified design language across the application
 - **Customization**: Extensive theming and styling capabilities
 - **Community**: Large community support and regular updates
 
 ### State Management Strategy
+
 - **Zustand**: Lightweight and simple state management for client state
 - **React Query**: Optimized server state management with caching
 - **Context API**: React's built-in solution for shared state
@@ -259,6 +284,7 @@ export const theme = createTheme({
 ## 🔒 Security Features
 
 ### Authentication & Authorization
+
 - JWT-based authentication
 - Role-based access control
 - Secure password hashing
@@ -266,6 +292,7 @@ export const theme = createTheme({
 - CSRF protection
 
 ### Data Protection
+
 - Input validation and sanitization
 - SQL injection prevention
 - XSS protection
@@ -273,6 +300,7 @@ export const theme = createTheme({
 - Data encryption at rest
 
 ### Privacy & Compliance
+
 - GDPR compliance
 - Data retention policies
 - User consent management
@@ -282,6 +310,7 @@ export const theme = createTheme({
 ## 📈 Performance Optimizations
 
 ### Build Optimizations
+
 - Next.js automatic code splitting
 - Image optimization with next/image
 - Font optimization
@@ -289,6 +318,7 @@ export const theme = createTheme({
 - Bundle analysis and optimization
 
 ### Runtime Performance
+
 - React.memo for component memoization
 - useMemo and useCallback for expensive operations
 - Virtualized lists for large datasets
@@ -296,6 +326,7 @@ export const theme = createTheme({
 - Service worker for caching
 
 ### Monitoring
+
 - Performance monitoring with Web Vitals
 - Error tracking and reporting
 - User analytics and behavior tracking
@@ -304,16 +335,19 @@ export const theme = createTheme({
 ## 🧪 Testing Strategy
 
 ### Unit Testing
+
 - Component testing with React Testing Library
 - Utility function testing with Jest
 - API function testing with MSW
 
 ### Integration Testing
+
 - Feature-level testing
 - API integration testing
 - End-to-end user flows
 
 ### E2E Testing
+
 - Critical user journey testing
 - Cross-browser compatibility testing
 - Mobile device testing
@@ -321,16 +355,19 @@ export const theme = createTheme({
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 1. Connect your GitHub repository to Vercel
 2. Configure environment variables
 3. Deploy automatically on git push
 
 ### Other Platforms
+
 - **Netlify**: Static site hosting with form handling
 - **Railway**: Full-stack deployment with database
 - **AWS Amplify**: Scalable hosting with CI/CD
 
 ### Production Checklist
+
 - [ ] Environment variables configured
 - [ ] Database migrations run
 - [ ] SSL certificate installed
@@ -342,6 +379,7 @@ export const theme = createTheme({
 ## 🤝 Contributing
 
 ### Development Workflow
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
@@ -349,6 +387,7 @@ export const theme = createTheme({
 5. Open a Pull Request
 
 ### Code Standards
+
 - Follow the existing code style
 - Write meaningful commit messages
 - Add tests for new features
@@ -356,6 +395,7 @@ export const theme = createTheme({
 - Ensure all tests pass
 
 ### Commit Convention
+
 ```
 type(scope): description
 
@@ -371,9 +411,11 @@ Types:
 
 ## 📞 Support & Contact
 
-- **Documentation**: [Internal Wiki](https://github.com/FasDavTek/predict-galore-frontoffice-web/wiki)
+- **Documentation**:
+  [Internal Wiki](https://github.com/FasDavTek/predict-galore-frontoffice-web/wiki)
 - **Issues**: [GitHub Issues](https://github.com/FasDavTek/predict-galore-frontoffice-web/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/FasDavTek/predict-galore-frontoffice-web/discussions)
+- **Discussions**:
+  [GitHub Discussions](https://github.com/FasDavTek/predict-galore-frontoffice-web/discussions)
 - **Email**: support@predictgalore.com
 
 ## 📄 License

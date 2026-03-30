@@ -1,6 +1,6 @@
 /**
  * MODAL COMPONENT - Material UI Implementation
- * 
+ *
  * Uses Material UI Dialog with custom theme styling to match Figma
  */
 

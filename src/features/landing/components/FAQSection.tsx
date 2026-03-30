@@ -81,33 +81,37 @@ const FAQSection: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ 
-      bgcolor: '#ffffff', 
-      py: { xs: 6, sm: 8, md: 10, lg: 12 } 
-    }}>
-      <Container 
-        maxWidth="lg" 
+    <Box
+      sx={{
+        bgcolor: '#ffffff',
+        py: { xs: 6, sm: 8, md: 10, lg: 12 },
+      }}
+    >
+      <Container
+        maxWidth="lg"
         sx={{
           px: { xs: 2, sm: 3, md: 4 },
         }}
       >
         {/* Section Header */}
-        <Box sx={{ 
-          textAlign: 'center', 
-          mb: { xs: 5, sm: 6, md: 7, lg: 8 },
-          maxWidth: { sm: '90%', md: '80%', lg: '70%' },
-          mx: 'auto',
-        }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: { xs: 5, sm: 6, md: 7, lg: 8 },
+            maxWidth: { sm: '90%', md: '80%', lg: '70%' },
+            mx: 'auto',
+          }}
+        >
           <Typography
             variant="h3"
             sx={{
               color: '#0f172a',
               mb: { xs: 1.5, sm: 2, md: 2.5 },
-              fontSize: { 
+              fontSize: {
                 xs: '1.75rem',
                 sm: '2rem',
                 md: '2.5rem',
-                lg: '3rem'
+                lg: '3rem',
               },
               fontWeight: { xs: 700, md: 800 },
               lineHeight: 1.2,
@@ -121,10 +125,10 @@ const FAQSection: React.FC = () => {
               color: '#475569',
               maxWidth: { xs: '100%', md: '600px' },
               mx: 'auto',
-              fontSize: { 
+              fontSize: {
                 xs: '0.95rem',
                 sm: '1rem',
-                md: '1.1rem'
+                md: '1.1rem',
               },
               lineHeight: 1.6,
               px: { xs: 2, sm: 0 },
@@ -135,13 +139,15 @@ const FAQSection: React.FC = () => {
         </Box>
 
         {/* FAQ Accordions */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: { xs: 1.5, sm: 2, md: 2.5 },
-          maxWidth: '900px',
-          mx: 'auto',
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: { xs: 1.5, sm: 2, md: 2.5 },
+            maxWidth: '900px',
+            mx: 'auto',
+          }}
+        >
           {faqs.map((faq) => (
             <Accordion
               key={faq.id}
@@ -189,11 +195,11 @@ const FAQSection: React.FC = () => {
                   sx={{
                     fontWeight: { xs: 600, md: 700 },
                     color: expanded === faq.id ? '#42A605' : '#0f172a',
-                    fontSize: { 
+                    fontSize: {
                       xs: '0.95rem',
                       sm: '1rem',
                       md: '1.1rem',
-                      lg: '1.15rem'
+                      lg: '1.15rem',
                     },
                     lineHeight: 1.4,
                     pr: { xs: 1, sm: 2 },
@@ -202,20 +208,22 @@ const FAQSection: React.FC = () => {
                   {faq.question}
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ 
-                px: { xs: 2, sm: 3, md: 4 }, 
-                pb: { xs: 3, sm: 3.5, md: 4 }, 
-                pt: { xs: 0.5, sm: 1, md: 1.5 },
-              }}>
+              <AccordionDetails
+                sx={{
+                  px: { xs: 2, sm: 3, md: 4 },
+                  pb: { xs: 3, sm: 3.5, md: 4 },
+                  pt: { xs: 0.5, sm: 1, md: 1.5 },
+                }}
+              >
                 <Typography
                   sx={{
                     color: '#475569',
                     lineHeight: { xs: 1.5, sm: 1.6, md: 1.7 },
-                    fontSize: { 
+                    fontSize: {
                       xs: '0.875rem',
                       sm: '0.9rem',
                       md: '0.95rem',
-                      lg: '1rem'
+                      lg: '1rem',
                     },
                     textAlign: 'left',
                   }}
@@ -242,28 +250,28 @@ const FAQSection: React.FC = () => {
         >
           <Typography
             variant="h6"
-            sx={{ 
-              fontWeight: { xs: 700, md: 800 }, 
-              mb: { xs: 1, sm: 1.25, md: 1.5 }, 
+            sx={{
+              fontWeight: { xs: 700, md: 800 },
+              mb: { xs: 1, sm: 1.25, md: 1.5 },
               color: '#0f172a',
-              fontSize: { 
+              fontSize: {
                 xs: '1.1rem',
                 sm: '1.2rem',
-                md: '1.3rem'
+                md: '1.3rem',
               },
             }}
           >
             Still have questions?
           </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: '#475569', 
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#475569',
               mb: { xs: 2, sm: 2.5, md: 3 },
-              fontSize: { 
+              fontSize: {
                 xs: '0.875rem',
                 sm: '0.9rem',
-                md: '0.95rem'
+                md: '0.95rem',
               },
               lineHeight: 1.6,
               px: { xs: 2, sm: 0 },
@@ -276,11 +284,11 @@ const FAQSection: React.FC = () => {
             sx={{
               color: '#42A605',
               fontWeight: { xs: 600, sm: 700 },
-              fontSize: { 
+              fontSize: {
                 xs: '0.9rem',
                 sm: '0.95rem',
                 md: '1rem',
-                lg: '1.1rem'
+                lg: '1.1rem',
               },
               textDecoration: 'none',
               display: 'inline-block',

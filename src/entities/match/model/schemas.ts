@@ -1,6 +1,6 @@
 /**
  * MATCH ENTITY - Validation Schemas
- * 
+ *
  * Zod validation schemas for Match entity and related types
  */
 
@@ -8,44 +8,49 @@ import { z } from 'zod';
 
 // Enum schemas
 export const matchStatusSchema = z.enum([
-  'scheduled', 
-  'live', 
-  'halftime', 
-  'finished', 
-  'postponed', 
-  'cancelled', 
-  'suspended', 
-  'abandoned'
+  'scheduled',
+  'live',
+  'halftime',
+  'finished',
+  'postponed',
+  'cancelled',
+  'suspended',
+  'abandoned',
 ]);
 
 export const competitionLevelSchema = z.enum(['international', 'national', 'regional', 'local']);
 export const competitionTypeSchema = z.enum(['league', 'cup', 'tournament', 'friendly']);
-export const competitionFormatTypeSchema = z.enum(['round_robin', 'knockout', 'group_stage', 'playoff']);
+export const competitionFormatTypeSchema = z.enum([
+  'round_robin',
+  'knockout',
+  'group_stage',
+  'playoff',
+]);
 export const surfaceTypeSchema = z.enum(['grass', 'artificial', 'hybrid']);
 export const matchEventTypeSchema = z.enum([
-  'goal', 
-  'own_goal', 
-  'penalty_goal', 
-  'yellow_card', 
-  'red_card', 
-  'substitution', 
-  'penalty_miss', 
-  'var_decision'
+  'goal',
+  'own_goal',
+  'penalty_goal',
+  'yellow_card',
+  'red_card',
+  'substitution',
+  'penalty_miss',
+  'var_decision',
 ]);
 export const oddsMarketTypeSchema = z.enum([
-  '1x2', 
-  'over_under', 
-  'both_teams_score', 
-  'correct_score', 
-  'handicap', 
-  'double_chance'
+  '1x2',
+  'over_under',
+  'both_teams_score',
+  'correct_score',
+  'handicap',
+  'double_chance',
 ]);
 export const predictionTypeSchema = z.enum([
-  'match_result', 
-  'over_under', 
-  'both_teams_score', 
-  'correct_score', 
-  'first_goal_scorer'
+  'match_result',
+  'over_under',
+  'both_teams_score',
+  'correct_score',
+  'first_goal_scorer',
 ]);
 export const broadcastTypeSchema = z.enum(['tv', 'radio', 'streaming']);
 
@@ -82,10 +87,12 @@ export const venueSchema = z.object({
   country: countrySchema,
   capacity: z.number().int().min(0, 'Capacity must be non-negative').optional(),
   surface: surfaceTypeSchema.optional(),
-  coordinates: z.object({
-    latitude: z.number().min(-90).max(90, 'Invalid latitude'),
-    longitude: z.number().min(-180).max(180, 'Invalid longitude'),
-  }).optional(),
+  coordinates: z
+    .object({
+      latitude: z.number().min(-90).max(90, 'Invalid latitude'),
+      longitude: z.number().min(-180).max(180, 'Invalid longitude'),
+    })
+    .optional(),
 });
 
 // Team colors schema
@@ -128,7 +135,12 @@ export const teamSchema = z.object({
   logo: z.string().url('Invalid logo URL').optional(),
   colors: teamColorsSchema,
   country: countrySchema.optional(),
-  founded: z.number().int().min(1800, 'Invalid founding year').max(new Date().getFullYear()).optional(),
+  founded: z
+    .number()
+    .int()
+    .min(1800, 'Invalid founding year')
+    .max(new Date().getFullYear())
+    .optional(),
   venue: venueSchema.optional(),
   manager: personSchema.optional(),
   isNational: z.boolean(),
@@ -197,22 +209,30 @@ export const competitionSchema = z.object({
 export const matchScoreSchema = z.object({
   home: z.number().int().min(0, 'Home score must be non-negative'),
   away: z.number().int().min(0, 'Away score must be non-negative'),
-  halftime: z.object({
-    home: z.number().int().min(0, 'Halftime home score must be non-negative'),
-    away: z.number().int().min(0, 'Halftime away score must be non-negative'),
-  }).optional(),
-  fulltime: z.object({
-    home: z.number().int().min(0, 'Fulltime home score must be non-negative'),
-    away: z.number().int().min(0, 'Fulltime away score must be non-negative'),
-  }).optional(),
-  extratime: z.object({
-    home: z.number().int().min(0, 'Extratime home score must be non-negative'),
-    away: z.number().int().min(0, 'Extratime away score must be non-negative'),
-  }).optional(),
-  penalties: z.object({
-    home: z.number().int().min(0, 'Penalties home score must be non-negative'),
-    away: z.number().int().min(0, 'Penalties away score must be non-negative'),
-  }).optional(),
+  halftime: z
+    .object({
+      home: z.number().int().min(0, 'Halftime home score must be non-negative'),
+      away: z.number().int().min(0, 'Halftime away score must be non-negative'),
+    })
+    .optional(),
+  fulltime: z
+    .object({
+      home: z.number().int().min(0, 'Fulltime home score must be non-negative'),
+      away: z.number().int().min(0, 'Fulltime away score must be non-negative'),
+    })
+    .optional(),
+  extratime: z
+    .object({
+      home: z.number().int().min(0, 'Extratime home score must be non-negative'),
+      away: z.number().int().min(0, 'Extratime away score must be non-negative'),
+    })
+    .optional(),
+  penalties: z
+    .object({
+      home: z.number().int().min(0, 'Penalties home score must be non-negative'),
+      away: z.number().int().min(0, 'Penalties away score must be non-negative'),
+    })
+    .optional(),
 });
 
 // Match statistics schema
@@ -261,10 +281,12 @@ export const matchEventSchema = z.object({
   player: personSchema.optional(),
   assistPlayer: personSchema.optional(),
   description: z.string().min(1, 'Event description required'),
-  coordinates: z.object({
-    x: z.number().min(0).max(100, 'X coordinate must be between 0 and 100'),
-    y: z.number().min(0).max(100, 'Y coordinate must be between 0 and 100'),
-  }).optional(),
+  coordinates: z
+    .object({
+      x: z.number().min(0).max(100, 'X coordinate must be between 0 and 100'),
+      y: z.number().min(0).max(100, 'Y coordinate must be between 0 and 100'),
+    })
+    .optional(),
 });
 
 // Odds outcome schema
@@ -330,7 +352,11 @@ export const broadcastInfoSchema = z.object({
 
 // Match metadata schema
 export const matchMetadataSchema = z.object({
-  importance: z.number().int().min(1, 'Importance must be at least 1').max(10, 'Importance must be at most 10'),
+  importance: z
+    .number()
+    .int()
+    .min(1, 'Importance must be at least 1')
+    .max(10, 'Importance must be at most 10'),
   rivalry: z.boolean().optional(),
   derby: z.boolean().optional(),
   cupFinal: z.boolean().optional(),
@@ -379,7 +405,12 @@ export const matchSearchParamsSchema = z.object({
   sortBy: z.enum(['scheduledAt', 'importance', 'createdAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   page: z.number().int().min(1, 'Page must be at least 1').optional(),
-  limit: z.number().int().min(1, 'Limit must be at least 1').max(100, 'Limit must be at most 100').optional(),
+  limit: z
+    .number()
+    .int()
+    .min(1, 'Limit must be at least 1')
+    .max(100, 'Limit must be at most 100')
+    .optional(),
 });
 
 // Match search response schema

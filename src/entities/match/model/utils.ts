@@ -1,6 +1,6 @@
 /**
  * MATCH ENTITY - Utility Functions
- * 
+ *
  * Common utility functions for Match entity operations
  */
 
@@ -50,7 +50,7 @@ export function getMatchDuration(match: Match): number {
   if (!match.startedAt || !match.finishedAt) {
     return 0;
   }
-  
+
   const start = new Date(match.startedAt);
   const end = new Date(match.finishedAt);
   return Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
@@ -63,7 +63,7 @@ export function getCurrentMatchMinute(match: Match): number {
   if (!isMatchLive(match) || !match.startedAt) {
     return 0;
   }
-  
+
   const start = new Date(match.startedAt);
   const now = new Date();
   return Math.floor((now.getTime() - start.getTime()) / (1000 * 60));
@@ -76,9 +76,9 @@ export function getMatchResult(match: Match): 'home_win' | 'away_win' | 'draw' |
   if (!isMatchFinished(match)) {
     return 'pending';
   }
-  
+
   const { home, away } = match.score;
-  
+
   if (home > away) return 'home_win';
   if (away > home) return 'away_win';
   return 'draw';
@@ -89,7 +89,7 @@ export function getMatchResult(match: Match): 'home_win' | 'away_win' | 'draw' |
  */
 export function getMatchWinner(match: Match): Team | null {
   const result = getMatchResult(match);
-  
+
   if (result === 'home_win') return match.homeTeam;
   if (result === 'away_win') return match.awayTeam;
   return null;
@@ -100,7 +100,7 @@ export function getMatchWinner(match: Match): Team | null {
  */
 export function getMatchLoser(match: Match): Team | null {
   const result = getMatchResult(match);
-  
+
   if (result === 'home_win') return match.awayTeam;
   if (result === 'away_win') return match.homeTeam;
   return null;
@@ -159,7 +159,7 @@ export function isAwayCleanSheet(match: Match): boolean {
  * Get match events by type
  */
 export function getEventsByType(match: Match, eventType: MatchEvent['type']): MatchEvent[] {
-  return match.events.filter(event => event.type === eventType);
+  return match.events.filter((event) => event.type === eventType);
 }
 
 /**
@@ -185,15 +185,14 @@ export function getCards(match: Match): MatchEvent[] {
  * Get substitutions made in match
  */
 export function getSubstitutions(match: Match): MatchEvent[] {
-  return getEventsByType(match, 'substitution')
-    .sort((a, b) => a.minute - b.minute);
+  return getEventsByType(match, 'substitution').sort((a, b) => a.minute - b.minute);
 }
 
 /**
  * Get events for a specific team
  */
 export function getTeamEvents(match: Match, team: 'home' | 'away'): MatchEvent[] {
-  return match.events.filter(event => event.team === team);
+  return match.events.filter((event) => event.team === team);
 }
 
 /**
@@ -246,10 +245,10 @@ export function getTeamShotsOnTarget(match: Match, team: 'home' | 'away'): numbe
  */
 export function getTeamShotAccuracy(match: Match, team: 'home' | 'away'): number {
   if (!match.statistics) return 0;
-  
+
   const shots = match.statistics.shots[team];
   const shotsOnTarget = match.statistics.shotsOnTarget[team];
-  
+
   if (shots === 0) return 0;
   return Math.round((shotsOnTarget / shots) * 100);
 }
@@ -273,7 +272,8 @@ export function getWeatherDescription(weather: WeatherConditions): string {
  */
 export function isFavorableWeather(weather: WeatherConditions): boolean {
   return (
-    weather.temperature >= 10 && weather.temperature <= 30 &&
+    weather.temperature >= 10 &&
+    weather.temperature <= 30 &&
     weather.windSpeed < 20 &&
     !weather.conditions.toLowerCase().includes('rain') &&
     !weather.conditions.toLowerCase().includes('snow')
@@ -284,10 +284,10 @@ export function isFavorableWeather(weather: WeatherConditions): boolean {
  * Get match importance level
  */
 export function getImportanceLevel(
-  metadata: MatchMetadata,
+  metadata: MatchMetadata
 ): 'low' | 'medium' | 'high' | 'very_high' {
   const importance = metadata.importance;
-  
+
   if (importance >= 9) return 'very_high';
   if (importance >= 7) return 'high';
   if (importance >= 5) return 'medium';
@@ -343,7 +343,7 @@ export function getScoreDisplay(match: Match): string {
   if (!isMatchFinished(match) && !isMatchLive(match)) {
     return 'vs';
   }
-  
+
   return `${match.score.home} - ${match.score.away}`;
 }
 
@@ -401,7 +401,7 @@ export function getTimeUntilMatch(match: Match): number {
   if (isMatchLive(match) || isMatchFinished(match)) {
     return 0;
   }
-  
+
   const now = new Date();
   const matchTime = new Date(match.scheduledAt);
   return Math.max(0, Math.floor((matchTime.getTime() - now.getTime()) / (1000 * 60)));
@@ -460,10 +460,13 @@ export function getTeamGoalsConcededPerGame(stats: TeamStats): number {
 /**
  * Compare two teams' recent form
  */
-export function compareTeamForm(team1Form: TeamForm, team2Form: TeamForm): 'team1' | 'team2' | 'equal' {
+export function compareTeamForm(
+  team1Form: TeamForm,
+  team2Form: TeamForm
+): 'team1' | 'team2' | 'equal' {
   const team1Points = calculateFormPoints(team1Form);
   const team2Points = calculateFormPoints(team2Form);
-  
+
   if (team1Points > team2Points) return 'team1';
   if (team2Points > team1Points) return 'team2';
   return 'equal';
@@ -472,25 +475,30 @@ export function compareTeamForm(team1Form: TeamForm, team2Form: TeamForm): 'team
 /**
  * Get head-to-head record between two teams
  */
-export function getHeadToHeadRecord(matches: Match[], team1Id: string, team2Id: string): {
+export function getHeadToHeadRecord(
+  matches: Match[],
+  team1Id: string,
+  team2Id: string
+): {
   team1Wins: number;
   team2Wins: number;
   draws: number;
   totalMatches: number;
 } {
-  const h2hMatches = matches.filter(match => 
-    isMatchFinished(match) &&
-    ((match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
-     (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id))
+  const h2hMatches = matches.filter(
+    (match) =>
+      isMatchFinished(match) &&
+      ((match.homeTeam.id === team1Id && match.awayTeam.id === team2Id) ||
+        (match.homeTeam.id === team2Id && match.awayTeam.id === team1Id))
   );
-  
+
   let team1Wins = 0;
   let team2Wins = 0;
   let draws = 0;
-  
-  h2hMatches.forEach(match => {
+
+  h2hMatches.forEach((match) => {
     const result = getMatchResult(match);
-    
+
     if (result === 'draw') {
       draws++;
     } else if (
@@ -502,7 +510,7 @@ export function getHeadToHeadRecord(matches: Match[], team1Id: string, team2Id: 
       team2Wins++;
     }
   });
-  
+
   return {
     team1Wins,
     team2Wins,
@@ -515,18 +523,18 @@ export function getHeadToHeadRecord(matches: Match[], team1Id: string, team2Id: 
  * Filter matches by status
  */
 export function filterMatchesByStatus(matches: Match[], status: MatchStatus): Match[] {
-  return matches.filter(match => match.status === status);
+  return matches.filter((match) => match.status === status);
 }
 
 /**
  * Filter matches by date range
  */
 export function filterMatchesByDateRange(
-  matches: Match[], 
-  startDate: Date, 
+  matches: Match[],
+  startDate: Date,
   endDate: Date
 ): Match[] {
-  return matches.filter(match => {
+  return matches.filter((match) => {
     const matchDate = new Date(match.scheduledAt);
     return matchDate >= startDate && matchDate <= endDate;
   });
@@ -536,16 +544,14 @@ export function filterMatchesByDateRange(
  * Filter matches by team
  */
 export function filterMatchesByTeam(matches: Match[], teamId: string): Match[] {
-  return matches.filter(match => 
-    match.homeTeam.id === teamId || match.awayTeam.id === teamId
-  );
+  return matches.filter((match) => match.homeTeam.id === teamId || match.awayTeam.id === teamId);
 }
 
 /**
  * Filter matches by competition
  */
 export function filterMatchesByCompetition(matches: Match[], competitionId: string): Match[] {
-  return matches.filter(match => match.competition.id === competitionId);
+  return matches.filter((match) => match.competition.id === competitionId);
 }
 
 /**
@@ -598,7 +604,7 @@ export function getTodaysMatches(matches: Match[]): Match[] {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-  
+
   return filterMatchesByDateRange(matches, startOfDay, endOfDay);
 }
 
@@ -608,6 +614,6 @@ export function getTodaysMatches(matches: Match[]): Match[] {
 export function getMatchesForDate(matches: Match[], date: Date): Match[] {
   const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-  
+
   return filterMatchesByDateRange(matches, startOfDay, endOfDay);
 }

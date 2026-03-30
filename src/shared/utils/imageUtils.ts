@@ -1,6 +1,6 @@
 /**
  * IMAGE UTILITIES
- * 
+ *
  * Utility functions for handling images throughout the application
  */
 
@@ -13,7 +13,7 @@ import { IMAGES } from '@/shared/constants/images';
  */
 export const isValidImageUrl = (url: string | null | undefined): boolean => {
   if (!url) return false;
-  
+
   // Only allow local assets (starting with /)
   return url.startsWith('/');
 };
@@ -25,7 +25,7 @@ export const isValidImageUrl = (url: string | null | undefined): boolean => {
  * @returns string - Safe image URL
  */
 export const getSafeImageUrl = (
-  url: string | null | undefined, 
+  url: string | null | undefined,
   fallback: string = IMAGES.PLACEHOLDERS.NEWS_ARTICLE
 ): string => {
   if (isValidImageUrl(url)) {
@@ -50,19 +50,19 @@ export const getSafeNewsImageUrl = (imageUrl: string | null | undefined): string
  */
 export const isExternalImageUrl = (url: string | null | undefined): boolean => {
   if (!url) return false;
-  
+
   // Local images (relative paths)
   if (url.startsWith('/')) return false;
-  
+
   // Check if it's localhost
   if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
-  
+
   // Check if it's from our API hostname
   if (url.includes('apidev.predictgalore.com') || url.includes('predictgalore.com')) return false;
-  
+
   // Check if it starts with http:// or https:// (external URL)
   if (url.startsWith('http://') || url.startsWith('https://')) return true;
-  
+
   // Default to false for safety
   return false;
 };

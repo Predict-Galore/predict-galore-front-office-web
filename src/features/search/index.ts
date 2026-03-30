@@ -10,7 +10,4 @@ export { useSearchStore } from './model/store';
 export type * from './model/types';
 
 // Components
-export {
-  SearchBar,
-  SearchModal,
-} from './components';
+export { SearchBar, SearchModal } from './components';

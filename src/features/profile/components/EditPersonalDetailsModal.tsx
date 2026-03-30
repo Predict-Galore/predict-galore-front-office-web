@@ -1,7 +1,7 @@
 /**
  * Edit Personal Details Modal Component
  * Allows users to edit their first name, last name, and view email
- * 
+ *
  * @component
  * @description Modal dialog for editing user profile information.
  * Email field is read-only as it cannot be changed.
@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -40,10 +40,10 @@ interface EditPersonalDetailsModalProps {
 
 /**
  * EditPersonalDetailsModal Component
- * 
+ *
  * Provides a form for users to update their personal information.
  * Email is displayed but cannot be edited.
- * 
+ *
  * @example
  * ```tsx
  * <EditPersonalDetailsModal
@@ -63,14 +63,11 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
   const [email, setEmail] = useState('');
   const { mutate: updateProfile, isPending } = useUpdateProfile();
 
-  // Load profile data when modal opens
-  useEffect(() => {
-    if (profile) {
-      setFirstName(profile.firstName || '');
-      setLastName(profile.lastName || '');
-      setEmail(profile.email || '');
-    }
-  }, [profile, open]);
+  const handleDialogEnter = useCallback(() => {
+    setFirstName(profile?.firstName || '');
+    setLastName(profile?.lastName || '');
+    setEmail(profile?.email || '');
+  }, [profile]);
 
   /**
    * Handles form submission to update profile
@@ -95,6 +92,7 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      TransitionProps={{ onEnter: handleDialogEnter }}
       PaperProps={{
         sx: {
           borderRadius: 2.5,
@@ -105,7 +103,13 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
     >
       <DialogTitle
         component="div"
-        sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', p: 4, pb: 2.5 }}
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          p: 4,
+          pb: 2.5,
+        }}
       >
         <Stack spacing={0.5}>
           <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
@@ -115,9 +119,9 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
             Update your name details below. Your email is read-only.
           </Typography>
         </Stack>
-        <IconButton 
-          onClick={onClose} 
-          size="small" 
+        <IconButton
+          onClick={onClose}
+          size="small"
           sx={{ color: 'grey.500', mt: 0.25, '&:hover': { color: 'grey.700' } }}
         >
           <Close />
@@ -173,8 +177,8 @@ const EditPersonalDetailsModal: React.FC<EditPersonalDetailsModalProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 4, pb: 3.5, pt: 1.5, gap: 1 }}>
-        <Button 
-          onClick={onClose} 
+        <Button
+          onClick={onClose}
           disabled={isPending}
           sx={{ textTransform: 'none', color: 'grey.600', minWidth: 110 }}
         >

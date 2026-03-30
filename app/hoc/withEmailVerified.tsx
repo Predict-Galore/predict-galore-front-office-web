@@ -96,10 +96,8 @@ const withEmailVerified = <P extends object>(
             <div className="mb-4">
               <Shield className="w-16 h-16 text-primary mx-auto" />
             </div>
-            
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Email Verification Required
-            </h1>
+
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Email Verification Required</h1>
 
             <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
               Please verify your email address before accessing this page. We&apos;ve sent a
@@ -108,20 +106,12 @@ const withEmailVerified = <P extends object>(
           </div>
 
           <div className="flex gap-4">
-            <Button 
-              variant="primary" 
-              onClick={() => router.push(redirectTo)}
-              className="px-6"
-            >
+            <Button variant="primary" onClick={() => router.push(redirectTo)} className="px-6">
               <Mail className="w-4 h-4" />
               Verify Email
             </Button>
 
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/dashboard')}
-              className="px-6"
-            >
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="px-6">
               Go to Dashboard
             </Button>
           </div>

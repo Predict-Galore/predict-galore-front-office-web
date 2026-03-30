@@ -1,6 +1,6 @@
 /**
  * SHARED ENTITY BASE
- * 
+ *
  * Base interfaces and utilities for all business entities
  */
 
@@ -126,14 +126,14 @@ export abstract class BaseTransformer<TEntity, TApiResponse, TApiRequest = Parti
    * Transform multiple API responses to entities
    */
   toEntities(apiResponses: TApiResponse[], options?: TransformOptions): TEntity[] {
-    return apiResponses.map(response => this.toEntity(response, options));
+    return apiResponses.map((response) => this.toEntity(response, options));
   }
 
   /**
    * Transform multiple entities to API request format
    */
   toApiRequests(entities: TEntity[], options?: TransformOptions): TApiRequest[] {
-    return entities.map(entity => this.toApiRequest(entity, options));
+    return entities.map((entity) => this.toApiRequest(entity, options));
   }
 
   /**
@@ -226,7 +226,7 @@ export abstract class BaseEntityUtils<T extends BaseEntity> {
     if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    
+
     return this.formatDate(dateString);
   }
 
@@ -261,7 +261,7 @@ export abstract class BaseEntityUtils<T extends BaseEntity> {
     endDate: Date,
     dateField: 'createdAt' | 'updatedAt' = 'createdAt'
   ): T[] {
-    return entities.filter(entity => {
+    return entities.filter((entity) => {
       const entityDate = new Date(entity[dateField]);
       return entityDate >= startDate && entityDate <= endDate;
     });
@@ -270,18 +270,24 @@ export abstract class BaseEntityUtils<T extends BaseEntity> {
   /**
    * Group entities by date (day)
    */
-  groupByDate(entities: T[], dateField: 'createdAt' | 'updatedAt' = 'createdAt'): Record<string, T[]> {
-    return entities.reduce((groups, entity) => {
-      const date = new Date(entity[dateField]);
-      const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
-      
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
-      groups[dateKey].push(entity);
-      
-      return groups;
-    }, {} as Record<string, T[]>);
+  groupByDate(
+    entities: T[],
+    dateField: 'createdAt' | 'updatedAt' = 'createdAt'
+  ): Record<string, T[]> {
+    return entities.reduce(
+      (groups, entity) => {
+        const date = new Date(entity[dateField]);
+        const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        if (!groups[dateKey]) {
+          groups[dateKey] = [];
+        }
+        groups[dateKey].push(entity);
+
+        return groups;
+      },
+      {} as Record<string, T[]>
+    );
   }
 
   /**
@@ -406,9 +412,9 @@ export const EntityUtils = {
    * Generate a UUID v4
    */
   generateId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   },
@@ -472,24 +478,18 @@ export const EntityUtils = {
   /**
    * Omit fields from an object
    */
-  omit<T extends Record<string, unknown>, K extends keyof T>(
-    obj: T,
-    keys: K[]
-  ): Omit<T, K> {
+  omit<T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
     const result = { ...obj };
-    keys.forEach(key => delete result[key]);
+    keys.forEach((key) => delete result[key]);
     return result;
   },
 
   /**
    * Pick fields from an object
    */
-  pick<T extends Record<string, unknown>, K extends keyof T>(
-    obj: T,
-    keys: K[]
-  ): Pick<T, K> {
+  pick<T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
     const result = {} as Pick<T, K>;
-    keys.forEach(key => {
+    keys.forEach((key) => {
       if (key in obj) {
         result[key] = obj[key];
       }

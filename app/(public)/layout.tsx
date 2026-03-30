@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
-
 // Lazy load heavy components to improve initial load time
 // We keep `ssr: true` but avoid showing custom gradient placeholders;
 // page-level loading is handled by `app/loading.tsx`.
@@ -33,11 +32,9 @@ const PublicLayout = ({ children }: LayoutProps) => {
       <Suspense fallback={null}>
         <Header />
       </Suspense>
-      
 
-        <main className="grow">{children}</main>
+      <main className="grow">{children}</main>
 
-      
       <Suspense fallback={null}>
         <CTASection />
       </Suspense>

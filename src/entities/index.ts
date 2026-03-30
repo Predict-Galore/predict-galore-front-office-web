@@ -1,6 +1,6 @@
 /**
  * ENTITIES - Public API
- * 
+ *
  * Central export point for all business entities with comprehensive validation,
  * transformers, and utilities
  */
@@ -27,7 +27,7 @@ export type {
   CreateUserRequest,
   UpdateUserRequest,
   UserSearchParams,
-  UserSearchResponse
+  UserSearchResponse,
 } from './user/model/types';
 
 export type {
@@ -50,7 +50,7 @@ export type {
   Person,
   Venue,
   Season,
-  Referee
+  Referee,
 } from './match/model/types';
 
 export type {
@@ -71,7 +71,7 @@ export type {
   PredictionSearchResponse,
   PredictionStats,
   PredictionPortfolio,
-  PerformanceMetrics
+  PerformanceMetrics,
 } from './prediction/model/types';
 
 export type {
@@ -81,7 +81,7 @@ export type {
   Author,
   MediaContent,
   ArticleStatus,
-  ArticlePriority
+  ArticlePriority,
 } from './news/model/types';
 
 // Re-export validation schemas
@@ -92,7 +92,7 @@ export {
   userProfileSchema,
   authUserSchema,
   userSearchParamsSchema,
-  userSearchResponseSchema
+  userSearchResponseSchema,
 } from './user/model/schemas';
 
 export {
@@ -105,7 +105,7 @@ export {
   liveMatchUpdateSchema,
   matchEventSchema,
   matchScoreSchema,
-  matchStatisticsSchema
+  matchStatisticsSchema,
 } from './match/model/schemas';
 
 export {
@@ -114,7 +114,7 @@ export {
   updatePredictionRequestSchema,
   predictionSearchParamsSchema,
   predictionSearchResponseSchema,
-  predictionStatsSchema
+  predictionStatsSchema,
 } from './prediction/model/schemas';
 
 // Re-export transformers
@@ -127,7 +127,7 @@ export {
   transformUserToAuthUser,
   transformApiUsersToSearchResponse,
   transformApiUsersToEntities,
-  transformUsersToProfiles
+  transformUsersToProfiles,
 } from './user/model/transformers';
 
 export {
@@ -136,7 +136,7 @@ export {
   transformCreatePredictionRequestToApi,
   transformUpdatePredictionRequestToApi,
   transformApiPredictionsToSearchResponse,
-  transformApiPredictionsToEntities
+  transformApiPredictionsToEntities,
 } from './prediction/model/transformers';
 
 // Re-export user utility functions

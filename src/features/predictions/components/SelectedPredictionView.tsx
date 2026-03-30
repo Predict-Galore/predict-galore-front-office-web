@@ -15,10 +15,17 @@ interface SelectedPredictionViewProps {
   onBack: () => void;
 }
 
-const SelectedPredictionView: React.FC<SelectedPredictionViewProps> = ({ predictionId, onBack }) => {
+const SelectedPredictionView: React.FC<SelectedPredictionViewProps> = ({
+  predictionId,
+  onBack,
+}) => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const { data: matchData, isLoading, error } = usePredictionById(predictionId, {
+  const {
+    data: matchData,
+    isLoading,
+    error,
+  } = usePredictionById(predictionId, {
     enabled: !!predictionId,
   });
 
@@ -71,7 +78,12 @@ const SelectedPredictionView: React.FC<SelectedPredictionViewProps> = ({ predict
   return (
     <Stack spacing={3}>
       <Paper elevation={1} sx={{ p: { xs: 0, md: 4 }, borderRadius: 0 }}>
-        <MatchHeader prediction={prediction} activeTab={activeTab} onTabChange={setActiveTab} onBack={onBack} />
+        <MatchHeader
+          prediction={prediction}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onBack={onBack}
+        />
       </Paper>
 
       <Paper
@@ -81,10 +93,15 @@ const SelectedPredictionView: React.FC<SelectedPredictionViewProps> = ({ predict
           borderRadius: 0,
         }}
       >
-        {activeTab === 'overview' && <OverviewTab prediction={prediction} detailed={matchData.detailed} />}
-        
+        {activeTab === 'overview' && (
+          <OverviewTab prediction={prediction} detailed={matchData.detailed} />
+        )}
+
         {activeTab === 'predictions' && (
-          <PredictionsTab picks={matchData.picks as Array<Record<string, unknown>>} isLoading={isLoading} />
+          <PredictionsTab
+            picks={matchData.picks as Array<Record<string, unknown>>}
+            isLoading={isLoading}
+          />
         )}
         {activeTab === 'table' && <TableTab leagueId={leagueId} />}
       </Paper>

@@ -11,10 +11,7 @@ import { searchKeys } from './index';
 /**
  * Search query hook — calls GET /api/v1/search?q=&limit=
  */
-export function useSearchQuery(
-  q: string,
-  options?: { enabled?: boolean; limit?: number }
-) {
+export function useSearchQuery(q: string, options?: { enabled?: boolean; limit?: number }) {
   const trimmed = q.trim();
   const limit = options?.limit ?? 5;
 

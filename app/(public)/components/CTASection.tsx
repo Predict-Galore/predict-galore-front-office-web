@@ -44,7 +44,8 @@ const CTASection: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+            background:
+              'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
             borderRadius: 'inherit',
             pointerEvents: 'none',
           },
@@ -53,10 +54,10 @@ const CTASection: React.FC = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              sm: '1fr', 
-              md: '1.2fr 0.8fr' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: '1fr',
+              md: '1.2fr 0.8fr',
             },
             gap: { xs: 4, sm: 5, md: 8, lg: 12, xl: 16 },
             alignItems: 'center',
@@ -75,12 +76,12 @@ const CTASection: React.FC = () => {
             <Typography
               variant="h2"
               sx={{
-                fontSize: { 
+                fontSize: {
                   xs: '1.75rem',
                   sm: '2rem',
                   md: '2.25rem',
                   lg: '2.75rem',
-                  xl: '3rem'
+                  xl: '3rem',
                 },
                 fontWeight: { xs: 700, md: 800 },
                 lineHeight: { xs: 1.2, md: 1.1 },
@@ -95,11 +96,11 @@ const CTASection: React.FC = () => {
             <Typography
               variant="body1"
               sx={{
-                fontSize: { 
+                fontSize: {
                   xs: '0.95rem',
                   sm: '1rem',
                   md: '1.05rem',
-                  lg: '1.125rem'
+                  lg: '1.125rem',
                 },
                 color: alpha('#fff', 0.95),
                 lineHeight: { xs: 1.5, md: 1.6 },
@@ -178,8 +179,6 @@ const CTASection: React.FC = () => {
                 Download our Mobile App
               </Button>
             </Box>
-
-
           </Box>
 
           {/* Phone Mockup Section */}
@@ -212,7 +211,8 @@ const CTASection: React.FC = () => {
                   transform: 'translateX(-50%)',
                   width: '80%',
                   height: '20px',
-                  background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)',
+                  background:
+                    'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)',
                   filter: 'blur(10px)',
                   borderRadius: '50%',
                   zIndex: -1,

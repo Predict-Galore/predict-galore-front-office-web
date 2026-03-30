@@ -25,7 +25,7 @@ const HeroSection: React.FC = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '0.9fr 1.1fr' }, 
+            gridTemplateColumns: { xs: '1fr', lg: '0.9fr 1.1fr' },
             alignItems: 'center',
           }}
         >
@@ -140,10 +140,10 @@ const HeroSection: React.FC = () => {
             sx={{
               position: 'relative',
               display: 'flex',
-              justifyContent: { xs: 'center', lg: 'flex-end' }, 
+              justifyContent: { xs: 'center', lg: 'flex-end' },
               alignItems: 'center',
-              height: { xs: 500, md: 700, lg: 750 }, 
-              mt: { xs: 2, lg: 0 }, 
+              height: { xs: 500, md: 700, lg: 750 },
+              mt: { xs: 2, lg: 0 },
             }}
           >
             {/* PHONE */}
@@ -159,12 +159,12 @@ const HeroSection: React.FC = () => {
                 src={IMAGES.LANDING.HERO_PHONE_MOCKUP}
                 alt="App"
                 fill
+                sizes="(max-width: 600px) 280px, (max-width: 900px) 380px, 450px"
                 style={{ objectFit: 'contain' }}
                 priority
               />
             </Box>
           </Box>
-          
         </Box>
       </Container>
     </Box>

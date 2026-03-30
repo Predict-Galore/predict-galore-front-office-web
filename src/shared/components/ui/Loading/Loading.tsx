@@ -1,6 +1,6 @@
 /**
  * LOADING COMPONENT - Tailwind Implementation
- * 
+ *
  * Comprehensive loading component with multiple variants and animations
  */
 
@@ -75,10 +75,7 @@ const Loading: React.FC<LoadingProps> = ({
 
   const renderPulse = () => (
     <div
-      className={cn(
-        'rounded-full bg-primary animate-pulse',
-        sizeClasses[size]
-      )}
+      className={cn('rounded-full bg-primary animate-pulse', sizeClasses[size])}
       role="status"
       aria-label="Loading"
     />
@@ -105,7 +102,7 @@ const Loading: React.FC<LoadingProps> = ({
             size === 'xl' && 'w-4'
           )}
           style={{
-            height: `${20 + (i * 10)}px`,
+            height: `${20 + i * 10}px`,
             animationDelay: `${i * 0.1}s`,
             animationDuration: '1s',
           }}
@@ -133,11 +130,7 @@ const Loading: React.FC<LoadingProps> = ({
   return (
     <div className={containerClasses}>
       {renderLoadingIndicator()}
-      {message && (
-        <p className="text-sm text-gray-600 text-center max-w-xs">
-          {message}
-        </p>
-      )}
+      {message && <p className="text-sm text-gray-600 text-center max-w-xs">{message}</p>}
     </div>
   );
 };
@@ -158,23 +151,13 @@ export const PageLoading: React.FC<PageLoadingProps> = ({
   ...props
 }) => {
   return (
-    <div className={cn(
-      'min-h-screen flex flex-col items-center justify-center bg-gray-50',
-      className
-    )}>
+    <div
+      className={cn('min-h-screen flex flex-col items-center justify-center bg-gray-50', className)}
+    >
       <div className="text-center space-y-4">
-        {title && (
-          <h1 className="text-2xl font-semibold text-gray-900">
-            {title}
-          </h1>
-        )}
-        
-        <Loading
-          variant={variant}
-          size={size}
-          message={message || description}
-          {...props}
-        />
+        {title && <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>}
+
+        <Loading variant={variant} size={size} message={message || description} {...props} />
       </div>
     </div>
   );
@@ -194,16 +177,8 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Loading
-        variant={variant}
-        size={size}
-        {...props}
-      />
-      {text && (
-        <span className="text-sm text-gray-600">
-          {text}
-        </span>
-      )}
+      <Loading variant={variant} size={size} {...props} />
+      {text && <span className="text-sm text-gray-600">{text}</span>}
     </div>
   );
 };
@@ -214,10 +189,7 @@ export interface ButtonLoadingProps {
   className?: string;
 }
 
-export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
-  size = 'sm',
-  className,
-}) => {
+export const ButtonLoading: React.FC<ButtonLoadingProps> = ({ size = 'sm', className }) => {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-5 h-5',

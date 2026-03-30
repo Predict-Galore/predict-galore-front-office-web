@@ -1,7 +1,7 @@
 /**
  * Cancel Subscription Modal Component
  * Confirmation dialog for subscription cancellation
- * 
+ *
  * @component
  * @description Displays a confirmation dialog when users attempt to cancel their subscription.
  * Warns users about losing access to premium features.
@@ -10,7 +10,15 @@
 'use client';
 
 import React from 'react';
-import { Dialog, DialogContent, DialogActions, Button, Box, Typography, Stack } from '@mui/material';
+import {
+  Dialog,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  Typography,
+  Stack,
+} from '@mui/material';
 import { Cancel } from '@mui/icons-material';
 
 /**
@@ -29,10 +37,10 @@ interface CancelSubscriptionModalProps {
 
 /**
  * CancelSubscriptionModal Component
- * 
+ *
  * Shows a confirmation dialog before canceling a subscription.
  * Displays warning icon and explains what will be lost.
- * 
+ *
  * @example
  * ```tsx
  * <CancelSubscriptionModal

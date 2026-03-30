@@ -64,22 +64,24 @@ const FeaturesSection: React.FC = () => {
         }}
       >
         {/* Section Header */}
-        <Box sx={{ 
-          textAlign: { xs: 'center', md: 'center' }, 
-          mb: { xs: 6, sm: 8, md: 10 },
-          maxWidth: { sm: '90%', md: '80%', lg: '70%' },
-          mx: 'auto'
-        }}>
+        <Box
+          sx={{
+            textAlign: { xs: 'center', md: 'center' },
+            mb: { xs: 6, sm: 8, md: 10 },
+            maxWidth: { sm: '90%', md: '80%', lg: '70%' },
+            mx: 'auto',
+          }}
+        >
           <Typography
             variant="h2"
             sx={{
               color: '#0f172a',
               mb: { xs: 2, sm: 2.5, md: 3 },
-              fontSize: { 
+              fontSize: {
                 xs: '1.75rem',
                 sm: '2.25rem',
                 md: '2.75rem',
-                lg: '3.25rem'
+                lg: '3.25rem',
               },
               fontWeight: { xs: 700, md: 800 },
               lineHeight: { xs: 1.2, md: 1.1 },
@@ -96,11 +98,11 @@ const FeaturesSection: React.FC = () => {
               color: '#475569',
               maxWidth: { xs: '100%', md: '800px' },
               margin: '0 auto',
-              fontSize: { 
+              fontSize: {
                 xs: '0.95rem',
                 sm: '1rem',
                 md: '1.1rem',
-                lg: '1.2rem'
+                lg: '1.2rem',
               },
               lineHeight: { xs: 1.5, md: 1.6 },
               px: { xs: 2, sm: 3, md: 0 },
@@ -116,10 +118,10 @@ const FeaturesSection: React.FC = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              sm: 'repeat(1, 1fr)', 
-              md: 'repeat(2, 1fr)' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(1, 1fr)',
+              md: 'repeat(2, 1fr)',
             },
             gap: { xs: 3, sm: 4, md: 5 },
           }}
@@ -153,11 +155,11 @@ const FeaturesSection: React.FC = () => {
                     fontWeight: 800,
                     color: feature.colorToken,
                     mb: { xs: 1.5, sm: 2, md: 2.5 },
-                    fontSize: { 
+                    fontSize: {
                       xs: '1.35rem',
                       sm: '1.5rem',
                       md: '1.65rem',
-                      lg: '1.85rem'
+                      lg: '1.85rem',
                     },
                     lineHeight: 1.2,
                   }}
@@ -170,11 +172,11 @@ const FeaturesSection: React.FC = () => {
                     color: '#475569',
                     mb: { xs: 3, sm: 4, md: 5 },
                     lineHeight: 1.6,
-                    fontSize: { 
+                    fontSize: {
                       xs: '0.9rem',
                       sm: '0.95rem',
                       md: '1rem',
-                      lg: '1.05rem'
+                      lg: '1.05rem',
                     },
                   }}
                 >
@@ -199,11 +201,11 @@ const FeaturesSection: React.FC = () => {
                   }}
                 >
                   {feature.cta}
-                  <Box 
-                    component="span" 
-                    sx={{ 
+                  <Box
+                    component="span"
+                    sx={{
                       transition: { md: 'transform 0.3s' },
-                      fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' }
+                      fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' },
                     }}
                   >
                     →
@@ -218,12 +220,12 @@ const FeaturesSection: React.FC = () => {
                   width: '100%',
                   mt: 'auto',
                   pt: { xs: 2, sm: 3, md: 4 },
-                  height: { 
-                    xs: '220px', 
-                    sm: '280px', 
-                    md: '320px', 
+                  height: {
+                    xs: '220px',
+                    sm: '280px',
+                    md: '320px',
                     lg: '380px',
-                    xl: '400px' 
+                    xl: '400px',
                   },
                   '& img': {
                     transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',

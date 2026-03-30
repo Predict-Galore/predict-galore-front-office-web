@@ -32,10 +32,10 @@ interface SearchResultsProps {
 const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick }) => {
   const { query, setIsLoading } = useSearchStore();
 
-  const { data, isLoading, isError } = useSearchQuery(
-    query,
-    { enabled: !!query && query.trim().length >= 2, limit: 20 }
-  );
+  const { data, isLoading, isError } = useSearchQuery(query, {
+    enabled: !!query && query.trim().length >= 2,
+    limit: 20,
+  });
 
   useEffect(() => {
     setIsLoading(isLoading);
@@ -75,7 +75,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick 
               </Box>
             ) : results.length > 0 ? (
               <Box sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 2,
+                  }}
+                >
                   <Typography variant="h6" sx={{ fontWeight: 'semibold', color: 'grey.900' }}>
                     Results
                   </Typography>
@@ -109,7 +116,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({ className, onResultClick 
                         />
                       )}
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 500, color: 'grey.900' }} noWrap>
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: 500, color: 'grey.900' }}
+                          noWrap
+                        >
                           {result.title}
                         </Typography>
                         {result.subtitle && (

@@ -76,7 +76,9 @@ const ComingSoon3Page: React.FC = () => {
       });
 
       if (!response?.success) {
-        throw new Error(response?.message || 'Unable to join waitlist right now. Please try again.');
+        throw new Error(
+          response?.message || 'Unable to join waitlist right now. Please try again.'
+        );
       }
 
       const positionText =

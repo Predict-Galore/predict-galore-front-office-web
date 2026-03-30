@@ -41,14 +41,12 @@ const DashboardPage: React.FC = () => {
   const [isTabSwitching, setIsTabSwitching] = useState(false);
 
   // Fetch sports list
-  const { 
-    data: sports = [], 
-    isLoading: loadingSports, 
-    isError: sportsError 
-  } = useSports();
+  const { data: sports = [], isLoading: loadingSports, isError: sportsError } = useSports();
+
+  const activeSport = selectedSport ?? sports[0] ?? null;
 
   // Get selected sport ID
-  const sportId = selectedSport?.id || sports[0]?.id;
+  const sportId = activeSport?.id;
 
   // Fetch predictions for selected sport
   const {
@@ -57,15 +55,11 @@ const DashboardPage: React.FC = () => {
     isFetching: isFetchingPredictions,
     isError: predictionsError,
     refetch: refetchPredictions,
-  } = usePredictions(
-    { sportId, pageSize: 20 },
-    { enabled: !!sportId }
-  );
+  } = usePredictions({ sportId, pageSize: 20 }, { enabled: !!sportId });
 
   // Get sport name for live matches API (convert 'football' to 'soccer')
-  const liveSportName = selectedSport?.name?.toLowerCase() === 'football' 
-    ? 'soccer' 
-    : selectedSport?.name?.toLowerCase();
+  const liveSportName =
+    activeSport?.name?.toLowerCase() === 'football' ? 'soccer' : activeSport?.name?.toLowerCase();
 
   // Fetch live matches for selected sport
   const {
@@ -74,26 +68,17 @@ const DashboardPage: React.FC = () => {
     isFetching: isFetchingLiveMatches,
     isError: liveMatchesError,
     refetch: refetchLiveMatches,
-  } = useLiveScoresQuery(
-    liveSportName ? { sport: liveSportName } : undefined,
-    { enabled: activeTab === 'live-matches' && !!liveSportName }
-  );
+  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName } : undefined, {
+    enabled: activeTab === 'live-matches' && !!liveSportName,
+  });
   const {
     data: detailedLiveMatch,
     isLoading: isDetailedLiveMatchLoading,
     isError: isDetailedLiveMatchError,
     refetch: refetchDetailedLiveMatch,
-  } = useDetailedLiveMatchQuery(
-    selectedLiveMatch ? String(selectedLiveMatch.id) : null,
-    { enabled: !!selectedLiveMatch }
-  );
-
-  // Set default sport when sports load
-  useEffect(() => {
-    if (!selectedSport && sports.length > 0) {
-      setSelectedSport(sports[0]);
-    }
-  }, [selectedSport, sports]);
+  } = useDetailedLiveMatchQuery(selectedLiveMatch ? String(selectedLiveMatch.id) : null, {
+    enabled: !!selectedLiveMatch,
+  });
 
   /**
    * Handle sport selection
@@ -162,9 +147,9 @@ const DashboardPage: React.FC = () => {
    */
   const groupLiveMatchesByCompetition = () => {
     if (!liveMatchesData?.sections) return {};
-    
+
     const grouped: Record<string, Match[]> = {};
-    
+
     liveMatchesData.sections.forEach((section) => {
       section.matches.forEach((match) => {
         const competition = match.competition || section.title || 'Other';
@@ -174,7 +159,7 @@ const DashboardPage: React.FC = () => {
         grouped[competition].push(match);
       });
     });
-    
+
     return grouped;
   };
 
@@ -185,7 +170,7 @@ const DashboardPage: React.FC = () => {
   const liveMatchesByCompetition = groupLiveMatchesByCompetition();
 
   // Get sport name for display
-  const sportName = selectedSport?.name || 'this sport';
+  const sportName = activeSport?.name || 'this sport';
 
   /**
    * Render predictions tab content
@@ -196,7 +181,12 @@ const DashboardPage: React.FC = () => {
     }
 
     if (selectedPredictionId) {
-      return <SelectedPredictionView predictionId={selectedPredictionId} onBack={() => setSelectedPredictionId(null)} />;
+      return (
+        <SelectedPredictionView
+          predictionId={selectedPredictionId}
+          onBack={() => setSelectedPredictionId(null)}
+        />
+      );
     }
 
     // Loading state
@@ -356,7 +346,7 @@ const DashboardPage: React.FC = () => {
         {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={selectedSport}
+          selectedSport={activeSport}
           onSelectSport={handleSportChange}
           isLoading={loadingSports}
         />
@@ -365,10 +355,7 @@ const DashboardPage: React.FC = () => {
         <Box>
           <Stack spacing={2}>
             {/* Content Tabs (Predictions / Live Matches) */}
-            <ContentTabs 
-              activeTab={activeTab} 
-              onTabChange={handleTabChange} 
-            />
+            <ContentTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
             {/* Tab Content */}
             {activeTab === 'predictions' ? renderPredictions() : renderLiveMatches()}

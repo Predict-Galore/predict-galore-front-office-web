@@ -1,6 +1,6 @@
 /**
  * PREDICTION ENTITY - API Transformers
- * 
+ *
  * Utilities for transforming between API responses and Prediction entities
  */
 
@@ -33,11 +33,11 @@ import {
   TypeStats,
   SourceStats,
 } from './types';
-import { 
-  predictionSchema, 
-  createPredictionRequestSchema, 
+import {
+  predictionSchema,
+  createPredictionRequestSchema,
   updatePredictionRequestSchema,
-  predictionSearchResponseSchema
+  predictionSearchResponseSchema,
 } from './schemas';
 
 interface ApiPredictionStats {
@@ -328,7 +328,9 @@ export function transformApiMarketOptionToEntity(apiOption: ApiMarketOptionRespo
 /**
  * Transform API prediction market response to PredictionMarket entity
  */
-export function transformApiPredictionMarketToEntity(apiMarket: ApiPredictionMarketResponse): PredictionMarket {
+export function transformApiPredictionMarketToEntity(
+  apiMarket: ApiPredictionMarketResponse
+): PredictionMarket {
   return {
     name: apiMarket.name,
     type: apiMarket.type as PredictionMarket['type'],
@@ -343,7 +345,9 @@ export function transformApiPredictionMarketToEntity(apiMarket: ApiPredictionMar
 /**
  * Transform API prediction outcome response to PredictionOutcome entity
  */
-export function transformApiPredictionOutcomeToEntity(apiOutcome: ApiPredictionOutcomeResponse): PredictionOutcome {
+export function transformApiPredictionOutcomeToEntity(
+  apiOutcome: ApiPredictionOutcomeResponse
+): PredictionOutcome {
   return {
     selection: apiOutcome.selection,
     value: apiOutcome.value,
@@ -384,7 +388,9 @@ export function transformApiFormDataToEntity(apiFormData: ApiFormDataResponse): 
 /**
  * Transform API form comparison response to FormComparison entity
  */
-export function transformApiFormComparisonToEntity(apiComparison: ApiFormComparisonResponse): FormComparison {
+export function transformApiFormComparisonToEntity(
+  apiComparison: ApiFormComparisonResponse
+): FormComparison {
   return {
     goalsScoredAdvantage: apiComparison.goals_scored_advantage,
     goalsConcededAdvantage: apiComparison.goals_conceded_advantage,
@@ -396,7 +402,9 @@ export function transformApiFormComparisonToEntity(apiComparison: ApiFormCompari
 /**
  * Transform API team form analysis response to TeamFormAnalysis entity
  */
-export function transformApiTeamFormAnalysisToEntity(apiTeamForm: ApiTeamFormAnalysisResponse): TeamFormAnalysis {
+export function transformApiTeamFormAnalysisToEntity(
+  apiTeamForm: ApiTeamFormAnalysisResponse
+): TeamFormAnalysis {
   return {
     home: transformApiFormDataToEntity(apiTeamForm.home),
     away: transformApiFormDataToEntity(apiTeamForm.away),
@@ -407,7 +415,9 @@ export function transformApiTeamFormAnalysisToEntity(apiTeamForm: ApiTeamFormAna
 /**
  * Transform API historical data response to HistoricalData entity
  */
-export function transformApiHistoricalDataToEntity(apiHistorical: ApiHistoricalDataResponse): HistoricalData {
+export function transformApiHistoricalDataToEntity(
+  apiHistorical: ApiHistoricalDataResponse
+): HistoricalData {
   return {
     totalMatches: apiHistorical.total_matches,
     homeWins: apiHistorical.home_wins,
@@ -423,13 +433,17 @@ export function transformApiHistoricalDataToEntity(apiHistorical: ApiHistoricalD
 /**
  * Transform API head to head analysis response to HeadToHeadAnalysis entity
  */
-export function transformApiHeadToHeadAnalysisToEntity(apiH2H: ApiHeadToHeadAnalysisResponse): HeadToHeadAnalysis {
+export function transformApiHeadToHeadAnalysisToEntity(
+  apiH2H: ApiHeadToHeadAnalysisResponse
+): HeadToHeadAnalysis {
   return {
     totalMeetings: apiH2H.total_meetings,
     homeTeamWins: apiH2H.home_team_wins,
     awayTeamWins: apiH2H.away_team_wins,
     draws: apiH2H.draws,
-    lastMeeting: apiH2H.last_meeting ? transformApiGameResultToEntity(apiH2H.last_meeting) : undefined,
+    lastMeeting: apiH2H.last_meeting
+      ? transformApiGameResultToEntity(apiH2H.last_meeting)
+      : undefined,
     averageGoals: apiH2H.average_goals,
     trends: apiH2H.trends,
   };
@@ -453,7 +467,9 @@ export function transformApiInjuryReportToEntity(apiInjury: ApiInjuryReportRespo
 /**
  * Transform API weather impact response to WeatherImpact entity
  */
-export function transformApiWeatherImpactToEntity(apiWeather: ApiWeatherImpactResponse): WeatherImpact {
+export function transformApiWeatherImpactToEntity(
+  apiWeather: ApiWeatherImpactResponse
+): WeatherImpact {
   return {
     conditions: apiWeather.conditions,
     temperature: apiWeather.temperature,
@@ -467,7 +483,9 @@ export function transformApiWeatherImpactToEntity(apiWeather: ApiWeatherImpactRe
 /**
  * Transform API motivation level response to MotivationLevel entity
  */
-export function transformApiMotivationLevelToEntity(apiMotivation: ApiMotivationLevelResponse): MotivationLevel {
+export function transformApiMotivationLevelToEntity(
+  apiMotivation: ApiMotivationLevelResponse
+): MotivationLevel {
   return {
     level: apiMotivation.level as MotivationLevel['level'],
     factors: apiMotivation.factors,
@@ -478,7 +496,9 @@ export function transformApiMotivationLevelToEntity(apiMotivation: ApiMotivation
 /**
  * Transform API motivation factors response to MotivationFactors entity
  */
-export function transformApiMotivationFactorsToEntity(apiMotivationFactors: ApiMotivationFactorsResponse): MotivationFactors {
+export function transformApiMotivationFactorsToEntity(
+  apiMotivationFactors: ApiMotivationFactorsResponse
+): MotivationFactors {
   return {
     homeTeam: transformApiMotivationLevelToEntity(apiMotivationFactors.home_team),
     awayTeam: transformApiMotivationLevelToEntity(apiMotivationFactors.away_team),
@@ -489,24 +509,38 @@ export function transformApiMotivationFactorsToEntity(apiMotivationFactors: ApiM
 /**
  * Transform API prediction analysis response to PredictionAnalysis entity
  */
-export function transformApiPredictionAnalysisToEntity(apiAnalysis: ApiPredictionAnalysisResponse): PredictionAnalysis {
+export function transformApiPredictionAnalysisToEntity(
+  apiAnalysis: ApiPredictionAnalysisResponse
+): PredictionAnalysis {
   return {
     keyFactors: apiAnalysis.key_factors,
     strengths: apiAnalysis.strengths,
     risks: apiAnalysis.risks,
-    historicalData: apiAnalysis.historical_data ? transformApiHistoricalDataToEntity(apiAnalysis.historical_data) : undefined,
-    teamForm: apiAnalysis.team_form ? transformApiTeamFormAnalysisToEntity(apiAnalysis.team_form) : undefined,
-    headToHead: apiAnalysis.head_to_head ? transformApiHeadToHeadAnalysisToEntity(apiAnalysis.head_to_head) : undefined,
+    historicalData: apiAnalysis.historical_data
+      ? transformApiHistoricalDataToEntity(apiAnalysis.historical_data)
+      : undefined,
+    teamForm: apiAnalysis.team_form
+      ? transformApiTeamFormAnalysisToEntity(apiAnalysis.team_form)
+      : undefined,
+    headToHead: apiAnalysis.head_to_head
+      ? transformApiHeadToHeadAnalysisToEntity(apiAnalysis.head_to_head)
+      : undefined,
     injuries: apiAnalysis.injuries?.map(transformApiInjuryReportToEntity),
-    weather: apiAnalysis.weather ? transformApiWeatherImpactToEntity(apiAnalysis.weather) : undefined,
-    motivation: apiAnalysis.motivation ? transformApiMotivationFactorsToEntity(apiAnalysis.motivation) : undefined,
+    weather: apiAnalysis.weather
+      ? transformApiWeatherImpactToEntity(apiAnalysis.weather)
+      : undefined,
+    motivation: apiAnalysis.motivation
+      ? transformApiMotivationFactorsToEntity(apiAnalysis.motivation)
+      : undefined,
   };
 }
 
 /**
  * Transform API algorithm info response to AlgorithmInfo entity
  */
-export function transformApiAlgorithmInfoToEntity(apiAlgorithm: ApiAlgorithmInfoResponse): AlgorithmInfo {
+export function transformApiAlgorithmInfoToEntity(
+  apiAlgorithm: ApiAlgorithmInfoResponse
+): AlgorithmInfo {
   return {
     name: apiAlgorithm.name,
     version: apiAlgorithm.version,
@@ -521,7 +555,9 @@ export function transformApiAlgorithmInfoToEntity(apiAlgorithm: ApiAlgorithmInfo
 /**
  * Transform API prediction result response to PredictionResult entity
  */
-export function transformApiPredictionResultToEntity(apiResult: ApiPredictionResultResponse): PredictionResult {
+export function transformApiPredictionResultToEntity(
+  apiResult: ApiPredictionResultResponse
+): PredictionResult {
   return {
     outcome: apiResult.outcome,
     actualResult: apiResult.actual_result,
@@ -535,7 +571,9 @@ export function transformApiPredictionResultToEntity(apiResult: ApiPredictionRes
 /**
  * Transform API prediction metadata response to PredictionMetadata entity
  */
-export function transformApiPredictionMetadataToEntity(apiMetadata: ApiPredictionMetadataResponse): PredictionMetadata {
+export function transformApiPredictionMetadataToEntity(
+  apiMetadata: ApiPredictionMetadataResponse
+): PredictionMetadata {
   return {
     difficulty: apiMetadata.difficulty as PredictionMetadata['difficulty'],
     popularity: apiMetadata.popularity,
@@ -569,14 +607,20 @@ export function transformApiPredictionToEntity(apiPrediction: ApiPredictionRespo
     potentialReturn: apiPrediction.potential_return,
     status: apiPrediction.status as Prediction['status'],
     reasoning: apiPrediction.reasoning,
-    analysis: apiPrediction.analysis ? transformApiPredictionAnalysisToEntity(apiPrediction.analysis) : undefined,
+    analysis: apiPrediction.analysis
+      ? transformApiPredictionAnalysisToEntity(apiPrediction.analysis)
+      : undefined,
     tags: apiPrediction.tags,
     source: apiPrediction.source as Prediction['source'],
-    algorithm: apiPrediction.algorithm ? transformApiAlgorithmInfoToEntity(apiPrediction.algorithm) : undefined,
+    algorithm: apiPrediction.algorithm
+      ? transformApiAlgorithmInfoToEntity(apiPrediction.algorithm)
+      : undefined,
     createdAt: apiPrediction.created_at,
     updatedAt: apiPrediction.updated_at,
     settledAt: apiPrediction.settled_at,
-    result: apiPrediction.result ? transformApiPredictionResultToEntity(apiPrediction.result) : undefined,
+    result: apiPrediction.result
+      ? transformApiPredictionResultToEntity(apiPrediction.result)
+      : undefined,
     metadata: transformApiPredictionMetadataToEntity(apiPrediction.metadata),
   };
 
@@ -592,7 +636,9 @@ export function transformApiPredictionToEntity(apiPrediction: ApiPredictionRespo
 /**
  * Transform CreatePredictionRequest to API format
  */
-export function transformCreatePredictionRequestToApi(request: CreatePredictionRequest): ApiCreatePredictionRequest {
+export function transformCreatePredictionRequestToApi(
+  request: CreatePredictionRequest
+): ApiCreatePredictionRequest {
   // Validate the request first
   const validationResult = createPredictionRequestSchema.safeParse(request);
   if (!validationResult.success) {
@@ -606,7 +652,7 @@ export function transformCreatePredictionRequestToApi(request: CreatePredictionR
       name: request.market.name,
       type: request.market.type,
       description: request.market.description,
-      options: request.market.options.map(option => ({
+      options: request.market.options.map((option) => ({
         id: option.id,
         name: option.name,
         value: option.value,
@@ -637,7 +683,9 @@ export function transformCreatePredictionRequestToApi(request: CreatePredictionR
 /**
  * Transform UpdatePredictionRequest to API format
  */
-export function transformUpdatePredictionRequestToApi(request: UpdatePredictionRequest): ApiUpdatePredictionRequest {
+export function transformUpdatePredictionRequestToApi(
+  request: UpdatePredictionRequest
+): ApiUpdatePredictionRequest {
   // Validate the request first
   const validationResult = updatePredictionRequestSchema.safeParse(request);
   if (!validationResult.success) {
@@ -723,7 +771,9 @@ export function transformApiPredictionsToSearchResponse(
 /**
  * Batch transform multiple API predictions to Prediction entities
  */
-export function transformApiPredictionsToEntities(apiPredictions: ApiPredictionResponse[]): Prediction[] {
+export function transformApiPredictionsToEntities(
+  apiPredictions: ApiPredictionResponse[]
+): Prediction[] {
   return apiPredictions.map(transformApiPredictionToEntity);
 }
 
@@ -762,7 +812,7 @@ export function transformPredictionEntityToApi(prediction: Prediction): ApiPredi
       name: prediction.market.name,
       type: prediction.market.type,
       description: prediction.market.description,
-      options: prediction.market.options.map(option => ({
+      options: prediction.market.options.map((option) => ({
         id: option.id,
         name: option.name,
         value: option.value,

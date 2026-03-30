@@ -1,28 +1,28 @@
 /**
  * USER ENTITY - API Transformers
- * 
+ *
  * Utilities for transforming between API responses and User entities
  */
 
-import { 
-  User, 
-  CreateUserRequest, 
-  UpdateUserRequest, 
-  UserProfile, 
+import {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserProfile,
   AuthUser,
   UserSearchResponse,
   UserPreferences,
   UserStats,
   UserSubscription,
-  NotificationPreferences
+  NotificationPreferences,
 } from './types';
-import { 
-  userSchema, 
-  createUserRequestSchema, 
+import {
+  userSchema,
+  createUserRequestSchema,
   updateUserRequestSchema,
   userProfileSchema,
   authUserSchema,
-  userSearchResponseSchema
+  userSearchResponseSchema,
 } from './schemas';
 
 // API response interfaces (what we receive from backend)
@@ -121,7 +121,9 @@ export interface ApiUpdateUserRequest {
 /**
  * Transform API subscription response to UserSubscription entity
  */
-export function transformApiSubscriptionToEntity(apiSubscription: ApiSubscriptionResponse): UserSubscription {
+export function transformApiSubscriptionToEntity(
+  apiSubscription: ApiSubscriptionResponse
+): UserSubscription {
   return {
     id: apiSubscription.id,
     plan: apiSubscription.plan as UserSubscription['plan'],
@@ -154,7 +156,9 @@ export function transformApiNotificationPreferencesToEntity(
 /**
  * Transform API preferences response to UserPreferences entity
  */
-export function transformApiPreferencesToEntity(apiPreferences: ApiPreferencesResponse): UserPreferences {
+export function transformApiPreferencesToEntity(
+  apiPreferences: ApiPreferencesResponse
+): UserPreferences {
   return {
     theme: apiPreferences.theme as UserPreferences['theme'],
     notifications: transformApiNotificationPreferencesToEntity(apiPreferences.notifications),
@@ -208,7 +212,9 @@ export function transformApiUserToEntity(apiUser: ApiUserResponse): User {
     lastLoginAt: apiUser.last_login_at,
     status: apiUser.status as User['status'],
     role: apiUser.role as User['role'],
-    subscription: apiUser.subscription ? transformApiSubscriptionToEntity(apiUser.subscription) : undefined,
+    subscription: apiUser.subscription
+      ? transformApiSubscriptionToEntity(apiUser.subscription)
+      : undefined,
     preferences: transformApiPreferencesToEntity(apiUser.preferences),
     stats: transformApiStatsToEntity(apiUser.stats),
   };
@@ -245,16 +251,18 @@ export function transformUserEntityToApi(user: User): ApiUserResponse {
     last_login_at: user.lastLoginAt,
     status: user.status,
     role: user.role,
-    subscription: user.subscription ? {
-      id: user.subscription.id,
-      plan: user.subscription.plan,
-      status: user.subscription.status,
-      start_date: user.subscription.startDate,
-      end_date: user.subscription.endDate,
-      auto_renew: user.subscription.autoRenew,
-      payment_method: user.subscription.paymentMethod,
-      features: user.subscription.features,
-    } : undefined,
+    subscription: user.subscription
+      ? {
+          id: user.subscription.id,
+          plan: user.subscription.plan,
+          status: user.subscription.status,
+          start_date: user.subscription.startDate,
+          end_date: user.subscription.endDate,
+          auto_renew: user.subscription.autoRenew,
+          payment_method: user.subscription.paymentMethod,
+          features: user.subscription.features,
+        }
+      : undefined,
     preferences: {
       theme: user.preferences.theme,
       notifications: {
@@ -329,24 +337,28 @@ export function transformUpdateUserRequestToApi(request: UpdateUserRequest): Api
     date_of_birth: request.dateOfBirth,
     country: request.country,
     avatar: request.avatar,
-    preferences: request.preferences ? {
-      theme: request.preferences.theme,
-      notifications: request.preferences.notifications ? {
-        email: request.preferences.notifications.email,
-        push: request.preferences.notifications.push,
-        sms: request.preferences.notifications.sms,
-        predictions: request.preferences.notifications.predictions,
-        live_matches: request.preferences.notifications.liveMatches,
-        news: request.preferences.notifications.news,
-        marketing: request.preferences.notifications.marketing,
-      } : undefined,
-      sports: request.preferences.sports,
-      leagues: request.preferences.leagues,
-      default_currency: request.preferences.defaultCurrency,
-      default_odds_format: request.preferences.defaultOddsFormat,
-      language: request.preferences.language,
-      timezone: request.preferences.timezone,
-    } : undefined,
+    preferences: request.preferences
+      ? {
+          theme: request.preferences.theme,
+          notifications: request.preferences.notifications
+            ? {
+                email: request.preferences.notifications.email,
+                push: request.preferences.notifications.push,
+                sms: request.preferences.notifications.sms,
+                predictions: request.preferences.notifications.predictions,
+                live_matches: request.preferences.notifications.liveMatches,
+                news: request.preferences.notifications.news,
+                marketing: request.preferences.notifications.marketing,
+              }
+            : undefined,
+          sports: request.preferences.sports,
+          leagues: request.preferences.leagues,
+          default_currency: request.preferences.defaultCurrency,
+          default_odds_format: request.preferences.defaultOddsFormat,
+          language: request.preferences.language,
+          timezone: request.preferences.timezone,
+        }
+      : undefined,
   };
 }
 
@@ -354,15 +366,17 @@ export function transformUpdateUserRequestToApi(request: UpdateUserRequest): Api
  * Transform User entity to UserProfile (removes sensitive data)
  */
 export function transformUserToProfile(user: User): UserProfile {
-  const displayName = user.firstName && user.lastName 
-    ? `${user.firstName} ${user.lastName}`
-    : user.username || user.email.split('@')[0];
+  const displayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.username || user.email.split('@')[0];
 
-  const initials = user.firstName && user.lastName
-    ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-    : user.username 
-      ? user.username.substring(0, 2).toUpperCase()
-      : user.email.substring(0, 2).toUpperCase();
+  const initials =
+    user.firstName && user.lastName
+      ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+      : user.username
+        ? user.username.substring(0, 2).toUpperCase()
+        : user.email.substring(0, 2).toUpperCase();
 
   const profile: UserProfile = {
     ...user,
@@ -416,7 +430,7 @@ export function transformApiUsersToSearchResponse(
   page: number,
   limit: number
 ): UserSearchResponse {
-  const users = apiUsers.map(apiUser => {
+  const users = apiUsers.map((apiUser) => {
     const user = transformApiUserToEntity(apiUser);
     return transformUserToProfile(user);
   });

@@ -2,7 +2,7 @@
  * LOADING STATE COMPONENT
  *
  * Reusable loading state component with customizable message and variants
- * 
+ *
  * @component
  * @description Displays loading indicators with two variants: spinner or skeleton.
  * Spinner variant shows a circular progress indicator with optional message.
@@ -11,14 +11,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  CircularProgress,
-  Typography,
-  Skeleton,
-  Paper,
-  Stack
-} from '@mui/material';
+import { Box, CircularProgress, Typography, Skeleton, Paper, Stack } from '@mui/material';
 import { SportsSoccer } from '@mui/icons-material';
 
 /**
@@ -39,11 +32,11 @@ interface LoadingStateProps {
 
 /**
  * LoadingState Component
- * 
+ *
  * Displays loading state with either a spinner or skeleton placeholders.
  * Spinner variant is best for initial loads or simple operations.
  * Skeleton variant provides better UX by showing content structure.
- * 
+ *
  * @example
  * ```tsx
  * // Spinner variant
@@ -52,7 +45,7 @@ interface LoadingStateProps {
  *   subMessage="This may take a moment"
  *   variant="spinner"
  * />
- * 
+ *
  * // Skeleton variant
  * <LoadingState variant="skeleton" />
  * ```
@@ -68,27 +61,48 @@ const LoadingState: React.FC<LoadingStateProps> = ({
   if (variant === 'skeleton') {
     return (
       <Stack spacing={3} className={className} aria-label="Loading content">
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
+        <Paper
+          elevation={0}
+          sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}
+        >
           <Stack spacing={2}>
             <Skeleton variant="text" width="33%" height={32} />
             <Skeleton variant="text" width="25%" height={16} />
           </Stack>
         </Paper>
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
+        <Paper
+          elevation={0}
+          sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}
+        >
           <Stack spacing={2}>
             <Skeleton variant="text" width="25%" height={24} />
             <Stack direction="row" spacing={1}>
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} variant="rectangular" width={96} height={40} sx={{ borderRadius: 1 }} />
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  width={96}
+                  height={40}
+                  sx={{ borderRadius: 1 }}
+                />
               ))}
             </Stack>
           </Stack>
         </Paper>
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
+        <Paper
+          elevation={0}
+          sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}
+        >
           <Stack spacing={2}>
             <Skeleton variant="text" width="33%" height={24} />
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} variant="rectangular" width="100%" height={128} sx={{ borderRadius: 1 }} />
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                width="100%"
+                height={128}
+                sx={{ borderRadius: 1 }}
+              />
             ))}
           </Stack>
         </Paper>
@@ -104,7 +118,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         minHeight: 400,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}
       role="status"
       aria-live="polite"

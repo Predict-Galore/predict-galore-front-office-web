@@ -1,7 +1,7 @@
 /**
  * Sport Tabs Component
  * Shared component for sport selection across the application
- * 
+ *
  * @component
  * @description Displays a horizontal list of sport tabs for filtering content by sport.
  * Supports keyboard navigation and accessibility features.
@@ -29,10 +29,10 @@ interface SportTabsProps {
 
 /**
  * SportTabs Component
- * 
+ *
  * Displays a horizontal scrollable list of sport tabs.
  * The selected sport is highlighted with an underline indicator.
- * 
+ *
  * @example
  * ```tsx
  * <SportTabs
@@ -62,24 +62,18 @@ const SportTabs: React.FC<SportTabsProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <Stack 
-        direction="row" 
-        spacing={3} 
-        sx={{ 
-          overflowX: 'auto', 
-          pb: 1, 
-          borderBottom: '1px solid', 
-          borderColor: 'grey.300' 
+      <Stack
+        direction="row"
+        spacing={3}
+        sx={{
+          overflowX: 'auto',
+          pb: 1,
+          borderBottom: '1px solid',
+          borderColor: 'grey.300',
         }}
       >
         {[1, 2, 3].map((i) => (
-          <Skeleton 
-            key={i} 
-            variant="rectangular" 
-            width={80} 
-            height={24} 
-            sx={{ borderRadius: 1 }} 
-          />
+          <Skeleton key={i} variant="rectangular" width={80} height={24} sx={{ borderRadius: 1 }} />
         ))}
       </Stack>
     );
@@ -143,16 +137,19 @@ const SportTabs: React.FC<SportTabsProps> = ({
               outlineOffset: 2,
               borderRadius: 1,
             },
-            '&::after': selectedSport?.id === sport.id ? {
-              content: '""',
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: -1,
-              height: 2,
-              bgcolor: 'error.main',
-              borderRadius: '9999px',
-            } : {},
+            '&::after':
+              selectedSport?.id === sport.id
+                ? {
+                    content: '""',
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: -1,
+                    height: 2,
+                    bgcolor: 'error.main',
+                    borderRadius: '9999px',
+                  }
+                : {},
           }}
         >
           {sport.name}

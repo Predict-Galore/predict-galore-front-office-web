@@ -1,7 +1,7 @@
 /**
  * League Section Component
  * Displays matches grouped by league with expandable/collapsible functionality
- * 
+ *
  * @component
  * @description A collapsible section showing prediction matches for a specific league.
  * Each match displays team information, predicted scores, and match status.
@@ -12,15 +12,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { KeyboardArrowUp, KeyboardArrowDown, Lock, AccessTime } from '@mui/icons-material';
-import {
-  Box,
-  Paper,
-  Typography,
-  IconButton,
-  Avatar,
-  Chip,
-  Divider,
-} from '@mui/material';
+import { Box, Paper, Typography, IconButton, Avatar, Chip, Divider } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import type { Prediction } from '@/features/predictions/model/types';
 
@@ -40,11 +32,11 @@ interface LeagueSectionProps {
 
 /**
  * LeagueSection Component
- * 
+ *
  * Displays a collapsible section of prediction matches for a specific league.
  * Shows match status, team information, and predicted scores.
  * Locked matches display a lock icon instead of the prediction.
- * 
+ *
  * @example
  * ```tsx
  * <LeagueSection
@@ -118,11 +110,7 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           {displayLogo ? (
-            <Avatar
-              src={displayLogo}
-              alt={leagueName}
-              sx={{ width: 32, height: 32 }}
-            />
+            <Avatar src={displayLogo} alt={leagueName} sx={{ width: 32, height: 32 }} />
           ) : (
             <Box
               sx={{
@@ -212,14 +200,26 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
                       height: 32,
                       fontSize: '0.6875rem',
                       fontWeight: 'bold',
-                      bgcolor: match.status === 'FT' ? 'success.light' :
-                             match.status === 'HT' ? 'grey.200' :
-                             match.status === 'ET' ? 'error.light' :
-                             match.status === 'Locked' ? 'grey.200' : 'primary.light',
-                      color: match.status === 'FT' ? 'success.dark' :
-                             match.status === 'HT' ? 'grey.700' :
-                             match.status === 'ET' ? 'error.dark' :
-                             match.status === 'Locked' ? 'grey.600' : 'primary.dark',
+                      bgcolor:
+                        match.status === 'FT'
+                          ? 'success.light'
+                          : match.status === 'HT'
+                            ? 'grey.200'
+                            : match.status === 'ET'
+                              ? 'error.light'
+                              : match.status === 'Locked'
+                                ? 'grey.200'
+                                : 'primary.light',
+                      color:
+                        match.status === 'FT'
+                          ? 'success.dark'
+                          : match.status === 'HT'
+                            ? 'grey.700'
+                            : match.status === 'ET'
+                              ? 'error.dark'
+                              : match.status === 'Locked'
+                                ? 'grey.600'
+                                : 'primary.dark',
                       '& .MuiChip-label': {
                         px: 0,
                         display: 'flex',
@@ -230,9 +230,25 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
                   />
 
                   {/* Teams + score */}
-                  <Box sx={{ flex: 1, ml: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      ml: 2,
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto 1fr',
+                      alignItems: 'center',
+                    }}
+                  >
                     {/* Home */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minWidth: 0 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 0,
+                      }}
+                    >
                       <Avatar
                         src={match.homeTeam.logoUrl}
                         alt={match.homeTeam.name}
@@ -274,7 +290,15 @@ const LeagueSection: React.FC<LeagueSectionProps> = ({
                     </Box>
 
                     {/* Away */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minWidth: 0 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 0,
+                      }}
+                    >
                       <Avatar
                         src={match.awayTeam.logoUrl}
                         alt={match.awayTeam.name}

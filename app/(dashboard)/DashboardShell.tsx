@@ -1,7 +1,7 @@
 /**
  * Dashboard Shell Component
  * Main layout wrapper for dashboard pages
- * 
+ *
  * @component
  * @description Provides the main layout structure for dashboard pages including
  * sidebar navigation, header, news sidebar, and mobile bottom navigation. Handles responsive
@@ -35,10 +35,10 @@ interface DashboardShellProps {
 
 /**
  * DashboardShell Component
- * 
+ *
  * Provides the main layout structure for all dashboard pages.
  * Includes responsive sidebar, header, news sidebar (except on news page), and mobile navigation.
- * 
+ *
  * @example
  * ```tsx
  * <DashboardShell>
@@ -58,15 +58,12 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const isNewsPage = pathname?.startsWith('/dashboard/news');
 
   // Fetch news data for sidebar (only if not on news page)
-  const { 
-    data: newsData, 
-    isLoading: isNewsLoading, 
+  const {
+    data: newsData,
+    isLoading: isNewsLoading,
     isError: isNewsError,
-    refetch: refetchNews 
-  } = useNews(
-    { page: 1, pageSize: 10 },
-    { enabled: !isNewsPage }
-  );
+    refetch: refetchNews,
+  } = useNews({ page: 1, pageSize: 10 }, { enabled: !isNewsPage });
 
   /**
    * Toggles the mobile sidebar open/closed state
@@ -110,9 +107,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             }}
           >
             {/* Main Content */}
-            <Box sx={{ minWidth: 0 }}>
-              {children}
-            </Box>
+            <Box sx={{ minWidth: 0 }}>{children}</Box>
 
             {/* News Sidebar - Hidden on mobile and news page */}
             {!isMobile && !isNewsPage && (
@@ -128,7 +123,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             )}
           </Box>
         </Box>
-        
+
         {isMobile && <MobileBottomNav />}
       </Box>
     </Box>

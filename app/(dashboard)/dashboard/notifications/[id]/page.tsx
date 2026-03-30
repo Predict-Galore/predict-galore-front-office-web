@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Container, Stack, Paper, Box, Typography, Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
@@ -35,22 +35,25 @@ const NotificationDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const notificationId = params?.id as string | null;
-  const [cached, setCached] = useState<NotificationItem | null>(null);
 
   // Check sessionStorage first (when coming from dropdown click)
-  useEffect(() => {
-    if (!notificationId || typeof window === 'undefined') return;
+  const cached = useMemo<NotificationItem | null>(() => {
+    if (!notificationId || typeof window === 'undefined') return null;
     const stored = sessionStorage.getItem(`notification-${notificationId}`);
-    if (stored) {
-      try {
-        setCached(JSON.parse(stored));
-      } catch {
-        // ignore
-      }
+    if (!stored) return null;
+
+    try {
+      return JSON.parse(stored) as NotificationItem;
+    } catch {
+      return null;
     }
   }, [notificationId]);
 
-  const { data: apiData, isLoading, error } = useQuery({
+  const {
+    data: apiData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['notifications', 'detail', notificationId],
     queryFn: async () => {
       const res = await NotificationService.getNotifications({ page: 1, pageSize: 100 });

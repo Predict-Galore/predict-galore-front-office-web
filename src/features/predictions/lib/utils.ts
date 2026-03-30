@@ -11,7 +11,7 @@ import type { Prediction, MatchStatus } from '../model/types';
  */
 export function isUpcomingPrediction(prediction: Prediction): boolean {
   if (!prediction.startTime) return false;
-  
+
   const startTime = new Date(prediction.startTime);
   const now = new Date();
   return startTime > now && prediction.status === 'Prediction';

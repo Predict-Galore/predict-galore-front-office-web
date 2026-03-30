@@ -14,7 +14,7 @@ export class SearchTransformer {
   static transformSearchResponse(response: BackendSearchResponse): SearchResponse {
     // Handle different response formats
     let results: SearchResult[] = [];
-    
+
     if (response.data) {
       if (Array.isArray(response.data)) {
         results = response.data;
@@ -24,7 +24,7 @@ export class SearchTransformer {
     } else if (response.results) {
       results = response.results;
     }
-    
+
     return {
       results,
       total: response.total || 0,

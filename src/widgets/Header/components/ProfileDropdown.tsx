@@ -172,7 +172,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       <IconButton
         ref={triggerRef}
         onClick={toggleDropdown}
-        size={isMobile ? "small" : "medium"}
+        size={isMobile ? 'small' : 'medium'}
         aria-label="Profile menu"
         sx={{
           borderRadius: 999,
@@ -193,7 +193,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         >
           {initials}
         </Avatar>
-        <KeyboardArrowDown 
+        <KeyboardArrowDown
           className={cn('transition-transform', isOpen && 'rotate-180')}
           sx={{ fontSize: { xs: 16, sm: 20 } }}
         />
@@ -203,13 +203,13 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         open={isOpen}
         anchorEl={anchorEl}
         onClose={closeDropdown}
-        anchorOrigin={{ 
-          vertical: 'bottom', 
-          horizontal: isMobile ? 'center' : 'right' 
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: isMobile ? 'center' : 'right',
         }}
-        transformOrigin={{ 
-          vertical: 'top', 
-          horizontal: isMobile ? 'center' : 'right' 
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: isMobile ? 'center' : 'right',
         }}
         slotProps={{
           paper: {
@@ -241,12 +241,12 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             </Avatar>
 
             <div className="flex-1 min-w-0">
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 700, 
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
                   lineHeight: 1.3,
-                  fontSize: { xs: '0.9rem', sm: '1rem' }
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
                 }}
               >
                 {user?.name || 'User'}
@@ -292,9 +292,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
-                    primaryTypographyProps={{ 
-                      fontSize: { xs: '0.85rem', sm: '0.9375rem' }, 
-                      fontWeight: 600 
+                    primaryTypographyProps={{
+                      fontSize: { xs: '0.85rem', sm: '0.9375rem' },
+                      fontWeight: 600,
                     }}
                   />
                   {item.external ? (
@@ -325,8 +325,8 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             }}
           >
             <Logout sx={{ fontSize: { xs: 16, sm: 18 } }} />
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               fontWeight={700}
               sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
             >

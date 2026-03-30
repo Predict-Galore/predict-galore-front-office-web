@@ -8,7 +8,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Container, Typography, Box, IconButton,} from '@mui/material';
+import { Container, Typography, Box, IconButton } from '@mui/material';
 import { Facebook, Twitter, Instagram, YouTube, Email, Apple, Android } from '@mui/icons-material';
 
 /**
@@ -63,36 +63,35 @@ const Footer: React.FC = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              sm: 'repeat(2, 1fr)', 
-              md: 'repeat(7, 1fr)' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(7, 1fr)',
             },
             gap: { xs: 3, sm: 4, md: 3 },
           }}
         >
           {/* Brand & Social Section */}
-          <Box sx={{ 
-            gridColumn: { md: 'span 2' },
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: { xs: 'center', sm: 'flex-start' },
-              mb: 2 
-            }}>
+          <Box
+            sx={{
+              gridColumn: { md: 'span 2' },
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: { xs: 'center', sm: 'flex-start' },
+                mb: 2,
+              }}
+            >
               <Image
                 src="/predict-galore-logo.png"
                 alt="Predict Galore"
                 width={140}
                 height={36}
                 quality={75}
-                style={{ 
-                  height: '36px', 
-                  width: 'auto',
-                  maxWidth: '100%'
-                }}
               />
             </Box>
             {/* tagline */}
@@ -109,11 +108,13 @@ const Footer: React.FC = () => {
             </Typography>
 
             {/* Social Links */}
-            <Box sx={{ 
-              mb: 3,
-              display: 'flex',
-              justifyContent: { xs: 'center', sm: 'flex-start' },
-            }}>
+            <Box
+              sx={{
+                mb: 3,
+                display: 'flex',
+                justifyContent: { xs: 'center', sm: 'flex-start' },
+              }}
+            >
               <Box sx={{ display: 'flex', gap: { xs: 0.75, sm: 1 }, flexWrap: 'wrap' }}>
                 {socialLinks.map((social) =>
                   social.icon ? (
@@ -170,9 +171,11 @@ const Footer: React.FC = () => {
           </Box>
 
           {/* PRODUCT Section */}
-          <Box sx={{
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
+          <Box
+            sx={{
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
             <Typography
               variant="subtitle1"
               sx={{
@@ -185,13 +188,15 @@ const Footer: React.FC = () => {
             >
               Download our App
             </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: 1.5, 
-              fontSize: { xs: '0.8rem', sm: '0.875rem' },
-              alignItems: { xs: 'center', sm: 'flex-start' },
-            }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                alignItems: { xs: 'center', sm: 'flex-start' },
+              }}
+            >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Apple fontSize="small" sx={{ fontSize: { xs: 18, sm: 20 } }} />
                 <Typography variant="body2" sx={{ color: 'white' }}>
@@ -208,9 +213,11 @@ const Footer: React.FC = () => {
           </Box>
 
           {/* COMPANY Section */}
-          <Box sx={{
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
+          <Box
+            sx={{
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
             <Typography
               variant="subtitle1"
               sx={{
@@ -223,15 +230,15 @@ const Footer: React.FC = () => {
             >
               COMPANY
             </Typography>
-            <Box 
-              component="ul" 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: { xs: 0.75, sm: 1 }, 
-                fontSize: { xs: '0.8rem', sm: '0.875rem' }, 
-                listStyle: 'none', 
-                p: 0, 
+            <Box
+              component="ul"
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: { xs: 0.75, sm: 1 },
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                listStyle: 'none',
+                p: 0,
                 m: 0,
                 alignItems: { xs: 'center', sm: 'flex-start' },
               }}
@@ -240,7 +247,13 @@ const Footer: React.FC = () => {
                 <Box component="li" key={item}>
                   <Box
                     component={Link}
-                    href={index === 0 ? '/docs/predict-galore-about-us.pdf' : index === 1 ? '/careers' : '/faqs'}
+                    href={
+                      index === 0
+                        ? '/docs/predict-galore-about-us.pdf'
+                        : index === 1
+                          ? '/careers'
+                          : '/faqs'
+                    }
                     {...(index === 0 && { target: '_blank', rel: 'noopener noreferrer' })}
                     sx={{
                       color: 'white',
@@ -260,9 +273,11 @@ const Footer: React.FC = () => {
           </Box>
 
           {/* LEGAL Section */}
-          <Box sx={{
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
+          <Box
+            sx={{
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
             <Typography
               variant="subtitle1"
               sx={{
@@ -275,15 +290,15 @@ const Footer: React.FC = () => {
             >
               LEGAL
             </Typography>
-            <Box 
-              component="ul" 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: { xs: 0.75, sm: 1 }, 
-                fontSize: { xs: '0.8rem', sm: '0.875rem' }, 
-                listStyle: 'none', 
-                p: 0, 
+            <Box
+              component="ul"
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: { xs: 0.75, sm: 1 },
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                listStyle: 'none',
+                p: 0,
                 m: 0,
                 alignItems: { xs: 'center', sm: 'flex-start' },
               }}
@@ -291,7 +306,7 @@ const Footer: React.FC = () => {
               {[
                 { name: 'Privacy Policy', file: 'privacy-policy' },
                 { name: 'Terms of Use', file: 'terms-of-use' },
-                { name: 'Cookie Policy', file: 'cookie-policy' }
+                { name: 'Cookie Policy', file: 'cookie-policy' },
               ].map((item) => (
                 <Box component="li" key={item.name}>
                   <Box
@@ -317,10 +332,12 @@ const Footer: React.FC = () => {
           </Box>
 
           {/* Get in Touch */}
-          <Box sx={{ 
-            gridColumn: { md: 'span 2' },
-            textAlign: { xs: 'center', sm: 'left' }
-          }}>
+          <Box
+            sx={{
+              gridColumn: { md: 'span 2' },
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
             <Typography
               variant="subtitle1"
               sx={{
@@ -333,10 +350,10 @@ const Footer: React.FC = () => {
             >
               Get in Touch
             </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: 'white', 
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'white',
                 mb: 1,
                 fontSize: { xs: '0.8rem', sm: '0.875rem' },
                 display: 'flex',
@@ -348,10 +365,10 @@ const Footer: React.FC = () => {
             >
               +2349068192247
             </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: 'white', 
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'white',
                 mb: 1,
                 fontSize: { xs: '0.75rem', sm: '0.875rem' },
                 display: 'flex',
@@ -362,7 +379,7 @@ const Footer: React.FC = () => {
                 wordBreak: 'break-all',
               }}
             >
-              <Email fontSize="small" sx={{ fontSize: { xs: 16, sm: 18 } }} /> 
+              <Email fontSize="small" sx={{ fontSize: { xs: 16, sm: 18 } }} />
               customerservice@predictgalore.com
             </Typography>
           </Box>
@@ -393,15 +410,20 @@ const Footer: React.FC = () => {
               Gambling Problem? Call GambleAlert.
             </Typography>
 
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: { xs: 'column', sm: 'row' },
-              flexWrap: 'wrap',
-              gap: { xs: 1, sm: 2, md: 3 },
-              justifyContent: { xs: 'center', sm: 'flex-start' },
-              fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' },
-            }}>
-              <Typography variant="body2" sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                flexWrap: 'wrap',
+                gap: { xs: 1, sm: 2, md: 3 },
+                justifyContent: { xs: 'center', sm: 'flex-start' },
+                fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' },
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}
+              >
                 Support Email:{' '}
                 <Box
                   component={Link}
@@ -418,7 +440,10 @@ const Footer: React.FC = () => {
                   support@gamblealert.org
                 </Box>
               </Typography>
-              <Typography variant="body2" sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}>
+              <Typography
+                variant="body2"
+                sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}
+              >
                 Website:{' '}
                 <Box
                   component={Link}
@@ -438,7 +463,10 @@ const Footer: React.FC = () => {
                   https://gamblealert.org/
                 </Box>
               </Typography>
-              <Typography variant="body2" sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}>
+              <Typography
+                variant="body2"
+                sx={{ color: 'white', textAlign: { xs: 'center', sm: 'left' } }}
+              >
                 Helpline: +2347058890073, +2347058890074
               </Typography>
             </Box>

@@ -9,7 +9,17 @@ import React from 'react';
 import Image from 'next/image';
 import { useLeagueTable } from '@/features/predictions';
 import { LoadingState } from '@/shared/components/shared';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
 import type { LeagueTableEntry } from '@/features/predictions';
 
 interface LeagueTableSectionProps {
@@ -28,7 +38,6 @@ const LeagueTableSection: React.FC<LeagueTableSectionProps> = ({
   if (!leagueId) {
     return null;
   }
-
 
   return (
     <Paper
@@ -59,12 +68,24 @@ const LeagueTableSection: React.FC<LeagueTableSectionProps> = ({
               <TableRow sx={{ borderBottom: '2px solid', borderBottomColor: 'grey.200' }}>
                 <TableCell sx={{ fontWeight: 'semibold', color: 'grey.600' }}>#</TableCell>
                 <TableCell sx={{ fontWeight: 'semibold', color: 'grey.600' }}>Team</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>W</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>D</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>L</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>F</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>A</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>GD</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  W
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  D
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  L
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  F
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  A
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'semibold', color: 'grey.600' }}>
+                  GD
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -89,7 +110,15 @@ const LeagueTableSection: React.FC<LeagueTableSectionProps> = ({
                           sizes="20px"
                         />
                       </Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          maxWidth: 120,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
                         {entry.team.shortName || entry.team.name}
                       </Typography>
                       {entry.qualification && (
@@ -99,9 +128,13 @@ const LeagueTableSection: React.FC<LeagueTableSectionProps> = ({
                             height: 6,
                             borderRadius: '50%',
                             bgcolor:
-                              entry.qualification === 'champions-league' ? 'success.main' :
-                              entry.qualification === 'europa-league' ? 'primary.main' :
-                              entry.qualification === 'relegation' ? 'error.main' : 'transparent',
+                              entry.qualification === 'champions-league'
+                                ? 'success.main'
+                                : entry.qualification === 'europa-league'
+                                  ? 'primary.main'
+                                  : entry.qualification === 'relegation'
+                                    ? 'error.main'
+                                    : 'transparent',
                           }}
                         />
                       )}

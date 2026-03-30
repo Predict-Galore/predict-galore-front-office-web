@@ -1,6 +1,6 @@
 /**
  * USER ENTITY - Main Export
- * 
+ *
  * Centralized exports for User entity
  */
 

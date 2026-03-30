@@ -1,7 +1,7 @@
 /**
  * Virtualized List Component
  * Simple scrollable list implementation for Next.js 15/Turbopack compatibility
- * 
+ *
  * @component
  * @description Provides a basic virtualized list using native scrolling.
  * This is a fallback implementation that works reliably with Next.js 15/Turbopack.
@@ -35,10 +35,10 @@ interface VirtualizedListProps<T> {
 
 /**
  * VirtualizedList Component
- * 
+ *
  * Renders a scrollable list of items with smooth scrolling behavior.
  * This is a simplified implementation that renders all items.
- * 
+ *
  * @example
  * ```tsx
  * <VirtualizedList

@@ -57,7 +57,10 @@ const SubscriptionsTab: React.FC = () => {
   };
 
   const renderTableSkeleton = () => (
-    <Paper elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'grey.200', p: 2 }}>
+    <Paper
+      elevation={0}
+      sx={{ borderRadius: 2, border: '1px solid', borderColor: 'grey.200', p: 2 }}
+    >
       <Stack spacing={1.25}>
         {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton key={`subscriptions-table-skeleton-${index}`} variant="rounded" height={46} />
@@ -93,7 +96,11 @@ const SubscriptionsTab: React.FC = () => {
     }
 
     return (
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}
+      >
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: 'grey.50' }}>
@@ -135,7 +142,10 @@ const SubscriptionsTab: React.FC = () => {
   };
 
   const renderDetailSkeleton = () => (
-    <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
+    <Paper
+      elevation={0}
+      sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}
+    >
       <Stack spacing={1.5}>
         <Skeleton variant="text" width={220} height={44} />
         <Skeleton variant="rounded" height={40} />
@@ -156,10 +166,18 @@ const SubscriptionsTab: React.FC = () => {
             Unable to load the selected subscription plan.
           </Typography>
           <Stack direction="row" spacing={1} justifyContent="center">
-            <Button variant="outlined" onClick={() => setSelectedPlanId(null)} sx={{ textTransform: 'none' }}>
+            <Button
+              variant="outlined"
+              onClick={() => setSelectedPlanId(null)}
+              sx={{ textTransform: 'none' }}
+            >
               Back to list
             </Button>
-            <Button variant="contained" onClick={() => refetchSelectedPlan()} sx={{ textTransform: 'none' }}>
+            <Button
+              variant="contained"
+              onClick={() => refetchSelectedPlan()}
+              sx={{ textTransform: 'none' }}
+            >
               Retry
             </Button>
           </Stack>
@@ -175,7 +193,11 @@ const SubscriptionsTab: React.FC = () => {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Subscription plan not found.
           </Typography>
-          <Button variant="outlined" onClick={() => setSelectedPlanId(null)} sx={{ textTransform: 'none' }}>
+          <Button
+            variant="outlined"
+            onClick={() => setSelectedPlanId(null)}
+            sx={{ textTransform: 'none' }}
+          >
             Back to list
           </Button>
         </Paper>
@@ -183,7 +205,15 @@ const SubscriptionsTab: React.FC = () => {
     }
 
     return (
-      <Paper elevation={0} sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'grey.200',
+        }}
+      >
         <Stack spacing={2.25}>
           <Button
             startIcon={<ArrowBack />}
@@ -219,7 +249,13 @@ const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
   <Stack
     direction={{ xs: 'column', sm: 'row' }}
     spacing={{ xs: 0.5, sm: 2 }}
-    sx={{ py: 1.2, px: 1.5, borderRadius: 1.5, bgcolor: 'grey.50', justifyContent: 'space-between' }}
+    sx={{
+      py: 1.2,
+      px: 1.5,
+      borderRadius: 1.5,
+      bgcolor: 'grey.50',
+      justifyContent: 'space-between',
+    }}
   >
     <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
       {label}

@@ -1,6 +1,6 @@
 /**
  * Authentication Initializer Component
- * 
+ *
  * This component handles authentication state initialization on app startup.
  * It validates the user's session via the /me endpoint and hydrates client state.
  */

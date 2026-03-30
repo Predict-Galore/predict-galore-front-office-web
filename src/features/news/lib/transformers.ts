@@ -50,14 +50,18 @@ export class NewsTransformer {
     }
 
     const data = response.data as
-      | { items?: NewsResponse[]; page?: number; pageSize?: number; total?: number; totalPages?: number }
+      | {
+          items?: NewsResponse[];
+          page?: number;
+          pageSize?: number;
+          total?: number;
+          totalPages?: number;
+        }
       | NewsResponse[];
 
     // Backend returns data as array directly (not wrapped in items)
-    const rawItems = Array.isArray(data)
-      ? data
-      : (Array.isArray(data?.items) ? data.items : []);
-    
+    const rawItems = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+
     const items = rawItems.map(this.transformNewsResponse);
 
     // When data is an array, pagination info is not available

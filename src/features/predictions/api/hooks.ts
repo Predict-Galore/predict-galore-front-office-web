@@ -216,14 +216,14 @@ export function usePredictionById(id: number | null, options?: { enabled?: boole
         logger.debug('Skipping prediction by id - no id provided');
         return Promise.resolve(null);
       }
-      
+
       try {
         const result = await PredictionService.getPredictionById(id);
-        logger.info('Prediction by id hook result:', { 
-          id, 
+        logger.info('Prediction by id hook result:', {
+          id,
           hasPrediction: !!result?.prediction,
           hasDetailed: !!result?.detailed,
-          hasPicks: !!result?.picks 
+          hasPicks: !!result?.picks,
         });
         return result;
       } catch (error) {

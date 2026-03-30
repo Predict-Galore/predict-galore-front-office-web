@@ -3,9 +3,9 @@
  * Optimized for performance with code splitting, caching, and bundle optimization
  */
 import type { NextConfig } from 'next';
+import bundleAnalyzer from '@next/bundle-analyzer';
 
-// Bundle analyzer - use require for compatibility
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
@@ -92,16 +92,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache static assets aggressively
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
         // Cache images
         source: '/images/:path*',
         headers: [
@@ -162,7 +152,6 @@ const nextConfig: NextConfig = {
 
   // Production source maps (disabled for better performance)
   productionBrowserSourceMaps: false,
-
 };
 
 export default withBundleAnalyzer(nextConfig);

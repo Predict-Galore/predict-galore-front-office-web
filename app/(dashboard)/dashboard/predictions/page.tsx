@@ -39,8 +39,10 @@ const PredictionsPage: React.FC = () => {
     refetch: refetchSports,
   } = useSports();
 
+  const activeSport = selectedSport ?? sports[0] ?? null;
+
   // Get selected sport ID
-  const sportId = selectedSport?.id || sports[0]?.id;
+  const sportId = activeSport?.id;
 
   // Fetch predictions for selected sport
   const {
@@ -49,17 +51,7 @@ const PredictionsPage: React.FC = () => {
     isFetching: isFetchingPredictions,
     isError: predictionsError,
     refetch: refetchPredictions,
-  } = usePredictions(
-    { sportId, pageSize: 20 },
-    { enabled: !!sportId }
-  );
-
-  // Set default sport when sports load
-  useEffect(() => {
-    if (!selectedSport && sports.length > 0) {
-      setSelectedSport(sports[0]);
-    }
-  }, [selectedSport, sports]);
+  } = usePredictions({ sportId, pageSize: 20 }, { enabled: !!sportId });
 
   /**
    * Handle sport selection
@@ -94,7 +86,7 @@ const PredictionsPage: React.FC = () => {
   const predictions = predictionsData?.predictions || [];
 
   // Get sport name for display
-  const sportName = selectedSport?.name || 'this sport';
+  const sportName = activeSport?.name || 'this sport';
 
   /**
    * Render predictions content
@@ -199,15 +191,13 @@ const PredictionsPage: React.FC = () => {
         {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={selectedSport}
+          selectedSport={activeSport}
           onSelectSport={handleSportChange}
           isLoading={loadingSports}
         />
 
         {/* Predictions Content */}
-        <Box>
-          {renderContent()}
-        </Box>
+        <Box>{renderContent()}</Box>
       </Stack>
 
       {/* Premium Modal */}

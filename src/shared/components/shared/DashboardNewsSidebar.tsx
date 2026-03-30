@@ -8,15 +8,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import {
-  Typography,
-  Paper,
-  Box,
-  Skeleton,
-  Stack,
-  Link,
-  Chip,
-} from '@mui/material';
+import { Typography, Paper, Box, Skeleton, Stack, Link, Chip } from '@mui/material';
 import { Article, Person, Source } from '@mui/icons-material';
 import { ErrorState, EmptyState } from '@/shared/components/shared';
 import type { NewsItem } from '@/features/news/model/types';
@@ -48,38 +40,29 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
   const topNewsItems = isLoading ? [] : topNews;
   const latestItems = isLoading ? [] : laligaNews;
 
-  const handleNewsClick = useCallback(
-    (newsId: number) => {
-      // Toggle expanded state instead of navigating
-      setExpandedNews(prev => ({
-        ...prev,
-        [newsId]: !prev[newsId]
-      }));
-    },
-    []
-  );
+  const handleNewsClick = useCallback((newsId: number) => {
+    // Toggle expanded state instead of navigating
+    setExpandedNews((prev) => ({
+      ...prev,
+      [newsId]: !prev[newsId],
+    }));
+  }, []);
 
-  const handleReadMore = useCallback(
-    (newsId: number, event: React.MouseEvent) => {
-      event.stopPropagation();
-      setExpandedNews(prev => ({
-        ...prev,
-        [newsId]: true
-      }));
-    },
-    []
-  );
+  const handleReadMore = useCallback((newsId: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExpandedNews((prev) => ({
+      ...prev,
+      [newsId]: true,
+    }));
+  }, []);
 
-  const handleReadLess = useCallback(
-    (newsId: number, event: React.MouseEvent) => {
-      event.stopPropagation();
-      setExpandedNews(prev => ({
-        ...prev,
-        [newsId]: false
-      }));
-    },
-    []
-  );
+  const handleReadLess = useCallback((newsId: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExpandedNews((prev) => ({
+      ...prev,
+      [newsId]: false,
+    }));
+  }, []);
 
   const formatTime = (dateString: string) => {
     const date = dayjs(dateString);
@@ -180,7 +163,6 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
         borderColor: 'grey.200',
       }}
     >
-
       {/* Latest News */}
       <Box sx={{ mt: 3, position: 'relative' }}>
         <Typography variant="h6" sx={{ fontWeight: 'semibold', mb: 2 }}>
@@ -229,7 +211,8 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                               mb: 2,
                             }}
                           >
-                            {getSafeNewsImageUrl(item.imageUrl) && !imageFailures[`${item.id}-thumb`] ? (
+                            {getSafeNewsImageUrl(item.imageUrl) &&
+                            !imageFailures[`${item.id}-thumb`] ? (
                               <Box
                                 component="img"
                                 src={getSafeNewsImageUrl(item.imageUrl)}
@@ -261,7 +244,7 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                                 {formatTime(item.publishedAt)}
                               </Typography>
                             </Box>
-                            
+
                             {(item.author || item.source) && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                 {item.author && (
@@ -298,7 +281,11 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
 
                           {/* Summary */}
                           {item.summary && (
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontStyle: 'italic' }}>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mb: 1, fontStyle: 'italic' }}
+                            >
                               {item.summary}
                             </Typography>
                           )}
@@ -326,16 +313,24 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                           )}
 
                           {/* Read less link */}
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'grey.200' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              pt: 1,
+                              borderTop: '1px solid',
+                              borderColor: 'grey.200',
+                            }}
+                          >
                             <Link
                               component="button"
                               variant="caption"
                               onClick={(e) => handleReadLess(item.id, e)}
-                              sx={{ 
-                                color: 'primary.main', 
+                              sx={{
+                                color: 'primary.main',
                                 fontWeight: 600,
                                 textDecoration: 'none',
-                                '&:hover': { textDecoration: 'underline' }
+                                '&:hover': { textDecoration: 'underline' },
                               }}
                             >
                               Read less
@@ -356,7 +351,8 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                               bgcolor: 'white',
                             }}
                           >
-                            {getSafeNewsImageUrl(item.imageUrl) && !imageFailures[`${item.id}-thumb`] ? (
+                            {getSafeNewsImageUrl(item.imageUrl) &&
+                            !imageFailures[`${item.id}-thumb`] ? (
                               <Box
                                 component="img"
                                 src={getSafeNewsImageUrl(item.imageUrl)}
@@ -383,7 +379,13 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                             >
                               {item.title}
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
                               <Typography variant="caption" color="text.secondary">
                                 {formatTime(item.publishedAt)}
                               </Typography>
@@ -391,11 +393,11 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                                 component="button"
                                 variant="caption"
                                 onClick={(e) => handleReadMore(item.id, e)}
-                                sx={{ 
-                                  color: 'error.main', 
+                                sx={{
+                                  color: 'error.main',
                                   fontWeight: 600,
                                   textDecoration: 'none',
-                                  '&:hover': { textDecoration: 'underline' }
+                                  '&:hover': { textDecoration: 'underline' },
                                 }}
                               >
                                 Read more

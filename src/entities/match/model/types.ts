@@ -1,6 +1,6 @@
 /**
  * MATCH ENTITY - Domain Model
- * 
+ *
  * Core match business entity for sports events
  */
 
@@ -157,14 +157,14 @@ export interface Referee extends Person {
   matchesOfficiated: number;
 }
 
-export type MatchStatus = 
-  | 'scheduled' 
-  | 'live' 
-  | 'halftime' 
-  | 'finished' 
-  | 'postponed' 
-  | 'cancelled' 
-  | 'suspended' 
+export type MatchStatus =
+  | 'scheduled'
+  | 'live'
+  | 'halftime'
+  | 'finished'
+  | 'postponed'
+  | 'cancelled'
+  | 'suspended'
   | 'abandoned';
 
 export interface MatchScore {
@@ -238,14 +238,14 @@ export interface MatchEvent {
   };
 }
 
-export type MatchEventType = 
-  | 'goal' 
-  | 'own_goal' 
-  | 'penalty_goal' 
-  | 'yellow_card' 
-  | 'red_card' 
-  | 'substitution' 
-  | 'penalty_miss' 
+export type MatchEventType =
+  | 'goal'
+  | 'own_goal'
+  | 'penalty_goal'
+  | 'yellow_card'
+  | 'red_card'
+  | 'substitution'
+  | 'penalty_miss'
   | 'var_decision';
 
 export interface MatchOdds {
@@ -260,12 +260,12 @@ export interface OddsMarket {
   outcomes: OddsOutcome[];
 }
 
-export type OddsMarketType = 
-  | '1x2' 
-  | 'over_under' 
-  | 'both_teams_score' 
-  | 'correct_score' 
-  | 'handicap' 
+export type OddsMarketType =
+  | '1x2'
+  | 'over_under'
+  | 'both_teams_score'
+  | 'correct_score'
+  | 'handicap'
   | 'double_chance';
 
 export interface OddsOutcome {
@@ -285,11 +285,11 @@ export interface MatchPrediction {
   createdAt: string;
 }
 
-export type PredictionType = 
-  | 'match_result' 
-  | 'over_under' 
-  | 'both_teams_score' 
-  | 'correct_score' 
+export type PredictionType =
+  | 'match_result'
+  | 'over_under'
+  | 'both_teams_score'
+  | 'correct_score'
   | 'first_goal_scorer';
 
 export interface WeatherConditions {

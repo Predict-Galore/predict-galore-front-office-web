@@ -98,8 +98,7 @@ class ApiClient {
       // Only log as error if it's a server error (5xx) or unexpected client error.
       // 401/403 (auth/authz) and 404 are expected and handled in UI.
       const isServerError = response.status >= 500;
-      const isUnexpectedClientError =
-        response.status === 400 || response.status === 409;
+      const isUnexpectedClientError = response.status === 400 || response.status === 409;
 
       if (isServerError || isUnexpectedClientError) {
         this.logger.error('API request failed', {
@@ -139,7 +138,7 @@ class ApiClient {
 
       return data as T;
     } catch (error) {
-      this.logger.error('Failed to parse response', { 
+      this.logger.error('Failed to parse response', {
         error: error instanceof Error ? error.message : 'Unknown error',
         responseText: responseText.substring(0, 200), // Log first 200 chars only
       });

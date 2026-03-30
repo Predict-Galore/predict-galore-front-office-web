@@ -9,12 +9,11 @@
 import { useState, useEffect } from 'react';
 
 export function useWindowHeight(): number {
-  const [height, setHeight] = useState<number>(0);
+  const [height, setHeight] = useState<number>(() =>
+    typeof window === 'undefined' ? 0 : window.innerHeight
+  );
 
   useEffect(() => {
-    // Set initial height
-    setHeight(window.innerHeight);
-
     // Update height on resize
     const handleResize = () => {
       setHeight(window.innerHeight);

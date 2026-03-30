@@ -120,11 +120,11 @@ export class LiveMatchesService {
 
       const fixtures: BackendFixture[] = Array.isArray(response)
         ? response
-        : (response as { data?: BackendFixture[] }).data ?? (response as BackendLiveScoresResponse).data ?? [];
+        : ((response as { data?: BackendFixture[] }).data ??
+          (response as BackendLiveScoresResponse).data ??
+          []);
 
-      const matches = fixtures.map((fixture) =>
-        LiveMatchesTransformer.transformFixture(fixture)
-      );
+      const matches = fixtures.map((fixture) => LiveMatchesTransformer.transformFixture(fixture));
 
       logger.info('League scores fetched successfully', { leagueId, count: matches.length });
       return matches;
@@ -156,7 +156,7 @@ export class LiveMatchesService {
 
       const fixtures: BackendFixture[] = Array.isArray(response)
         ? response
-        : (response as BackendLiveScoresResponse)?.data ?? [];
+        : ((response as BackendLiveScoresResponse)?.data ?? []);
 
       const fixture = fixtures.find((f) => f.providerFixtureId === fixtureId);
 

@@ -1,6 +1,6 @@
 /**
  * USER ENTITY - Validation Schemas
- * 
+ *
  * Zod validation schemas for User entity and related types
  */
 
@@ -19,7 +19,13 @@ export const userRoleSchema = z.enum(['user', 'premium', 'admin', 'moderator']);
 
 // Subscription schemas
 export const subscriptionPlanSchema = z.enum(['free', 'basic', 'premium', 'pro', 'enterprise']);
-export const subscriptionStatusSchema = z.enum(['active', 'cancelled', 'expired', 'trial', 'past_due']);
+export const subscriptionStatusSchema = z.enum([
+  'active',
+  'cancelled',
+  'expired',
+  'trial',
+  'past_due',
+]);
 
 export const userSubscriptionSchema = z.object({
   id: z.string().uuid('Invalid subscription ID'),
@@ -72,11 +78,18 @@ export const userStatsSchema = z.object({
 // Main User schema
 export const userSchema = baseEntitySchema.extend({
   email: z.string().email('Invalid email format').max(100, 'Email too long'),
-  username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username too long').optional(),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username too long')
+    .optional(),
   firstName: z.string().min(1, 'First name required').max(50, 'First name too long').optional(),
   lastName: z.string().min(1, 'Last name required').max(50, 'Last name too long').optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
-  phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format').optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format')
+    .optional(),
   dateOfBirth: z.string().datetime('Invalid date of birth').optional(),
   country: z.string().length(2, 'Country code must be 2 characters').optional(),
   timezone: z.string().min(1, 'Timezone required').optional(),
@@ -94,7 +107,8 @@ export const userSchema = baseEntitySchema.extend({
 // User creation request schema
 export const createUserRequestSchema = z.object({
   email: z.string().email('Invalid email format').max(100, 'Email too long'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password too long')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -103,10 +117,17 @@ export const createUserRequestSchema = z.object({
     .regex(/[@$!%*?&]/, 'Password must contain at least one special character'),
   firstName: z.string().min(1, 'First name required').max(50, 'First name too long').optional(),
   lastName: z.string().min(1, 'Last name required').max(50, 'Last name too long').optional(),
-  username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username too long').optional(),
-  phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format').optional(),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username too long')
+    .optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format')
+    .optional(),
   country: z.string().length(2, 'Country code must be 2 characters').optional(),
-  acceptTerms: z.boolean().refine(val => val === true, 'Must accept terms and conditions'),
+  acceptTerms: z.boolean().refine((val) => val === true, 'Must accept terms and conditions'),
   acceptMarketing: z.boolean().optional(),
 });
 
@@ -114,8 +135,15 @@ export const createUserRequestSchema = z.object({
 export const updateUserRequestSchema = z.object({
   firstName: z.string().min(1, 'First name required').max(50, 'First name too long').optional(),
   lastName: z.string().min(1, 'Last name required').max(50, 'Last name too long').optional(),
-  username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username too long').optional(),
-  phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format').optional(),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username too long')
+    .optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone format')
+    .optional(),
   dateOfBirth: z.string().datetime('Invalid date of birth').optional(),
   country: z.string().length(2, 'Country code must be 2 characters').optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
@@ -123,14 +151,16 @@ export const updateUserRequestSchema = z.object({
 });
 
 // User profile schema (excludes sensitive data)
-export const userProfileSchema = userSchema.omit({ 
-  // Remove any sensitive fields that shouldn't be in public profiles
-}).extend({
-  displayName: z.string().min(1, 'Display name required'),
-  initials: z.string().min(1, 'Initials required').max(3, 'Initials too long'),
-  isOnline: z.boolean(),
-  lastSeen: z.string().datetime('Invalid last seen date').optional(),
-});
+export const userProfileSchema = userSchema
+  .omit({
+    // Remove any sensitive fields that shouldn't be in public profiles
+  })
+  .extend({
+    displayName: z.string().min(1, 'Display name required'),
+    initials: z.string().min(1, 'Initials required').max(3, 'Initials too long'),
+    isOnline: z.boolean(),
+    lastSeen: z.string().datetime('Invalid last seen date').optional(),
+  });
 
 // Auth user schema (subset for authentication)
 export const authUserSchema = z.object({

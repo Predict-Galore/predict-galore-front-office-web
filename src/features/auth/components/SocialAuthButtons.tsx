@@ -2,7 +2,7 @@
  * Social auth buttons shared across auth forms.
  * Matches Figma (centered square icon buttons + divider).
  */
- 
+
 'use client';
 
 import React from 'react';
@@ -52,4 +52,3 @@ const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
 };
 
 export default SocialAuthButtons;
-

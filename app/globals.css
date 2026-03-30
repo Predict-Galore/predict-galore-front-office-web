@@ -79,8 +79,6 @@ html {
   scroll-padding-top: 2rem;
 }
 
-
-
 /* ============================================
  * RESET & BASE STYLES
  * ============================================ */
@@ -141,7 +139,16 @@ a {
 
 /* Update body to use Inter font loaded by Next.js */
 body {
-  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
 }
 
 /* ============================================
@@ -164,9 +171,17 @@ body {
 
 /* Font fallback stack - Inter is loaded via Next.js */
 .font-inter {
-  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
 }
-
 
 /* ============================================
  * CUSTOM UTILITIES
@@ -209,5 +224,3 @@ body {
 ::selection {
   background-color: rgba(54, 177, 94, 0.3); /* green-500 with 30% opacity */
 }
-
-

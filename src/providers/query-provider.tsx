@@ -8,7 +8,8 @@ import dynamic from 'next/dynamic';
 
 // Fix: Simplify the dynamic import
 const ReactQueryDevtools = dynamic(
-  () => import('@tanstack/react-query-devtools').then((mod) => ({ default: mod.ReactQueryDevtools })),
+  () =>
+    import('@tanstack/react-query-devtools').then((mod) => ({ default: mod.ReactQueryDevtools })),
   { ssr: false }
 );
 

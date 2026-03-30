@@ -32,16 +32,16 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
             <div className="mb-4">
               <Mail className="w-16 h-16 text-primary mx-auto" />
             </div>
-            
+
             <Alert variant="info" title="Email Verification">
               You&apos;ve clicked a verification link. The system is verifying your email...
             </Alert>
-            
+
             <p className="text-gray-600">
               If verification doesn&apos;t complete automatically, please use the manual
               verification form.
             </p>
-            
+
             <Button variant="primary" fullWidth size="lg" component="a" href="/verify-email">
               Go to Manual Verification
             </Button>

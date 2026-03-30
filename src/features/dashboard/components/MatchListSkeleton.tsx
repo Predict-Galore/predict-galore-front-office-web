@@ -1,7 +1,7 @@
 /**
  * Match List Skeleton Component
  * Loading skeleton for match lists
- * 
+ *
  * @component
  * @description Displays a skeleton loading state for match lists while data is being fetched.
  * Shows placeholder sections with rows to match the expected layout.
@@ -10,13 +10,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Skeleton,
-  Stack,
-  Divider,
-} from '@mui/material';
+import { Box, Paper, Skeleton, Stack, Divider } from '@mui/material';
 
 /**
  * Props for the MatchListSkeleton component
@@ -32,10 +26,10 @@ interface MatchListSkeletonProps {
 
 /**
  * MatchListSkeleton Component
- * 
+ *
  * Renders a loading skeleton that mimics the structure of the match list.
  * Useful for providing visual feedback while match data is being loaded.
- * 
+ *
  * @example
  * ```tsx
  * <MatchListSkeleton sections={3} rowsPerSection={4} />
@@ -61,7 +55,9 @@ const MatchListSkeleton: React.FC<MatchListSkeletonProps> = ({
           }}
         >
           {/* Section header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Skeleton variant="circular" width={32} height={32} />
               <Skeleton variant="text" width={160} height={16} />
@@ -75,13 +71,29 @@ const MatchListSkeleton: React.FC<MatchListSkeletonProps> = ({
               <Box key={rIdx} sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Skeleton variant="circular" width={36} height={36} />
-                  <Box sx={{ flex: 1, ml: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      ml: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
                       <Skeleton variant="circular" width={28} height={28} />
                       <Skeleton variant="text" width={96} height={12} />
                     </Box>
                     <Skeleton variant="text" width={64} height={16} />
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, justifyContent: 'flex-end' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5,
+                        minWidth: 0,
+                        justifyContent: 'flex-end',
+                      }}
+                    >
                       <Skeleton variant="text" width={96} height={12} />
                       <Skeleton variant="circular" width={28} height={28} />
                     </Box>

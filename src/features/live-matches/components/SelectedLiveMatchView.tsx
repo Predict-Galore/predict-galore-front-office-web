@@ -1,7 +1,7 @@
 /**
  * Selected Live Match View Component
  * Displays detailed information about a selected live match
- * 
+ *
  * This component shows:
  * - Match header with teams, score, and status
  * - Goal scorers for both teams
@@ -84,12 +84,7 @@ interface SectionHeaderProps {
 }
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({ title, icon }) => (
-  <Stack
-    direction="row"
-    alignItems="center"
-    justifyContent="space-between"
-    sx={{ mb: 3 }}
-  >
+  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
     <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
       {title}
     </Typography>
@@ -270,11 +265,7 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           justifyContent="space-between"
           sx={{ px: 2, pt: 2, pb: 1 }}
         >
-          <IconButton
-            onClick={onBack}
-            aria-label="Go back"
-            sx={{ color: 'white' }}
-          >
+          <IconButton onClick={onBack} aria-label="Go back" sx={{ color: 'white' }}>
             <ArrowBack />
           </IconButton>
 
@@ -376,7 +367,6 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           </Stack>
 
           {/* Goal Scorers */}
-   
         </Box>
       </Paper>
 
@@ -399,14 +389,8 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           />
 
           <Stack spacing={2}>
-            <InfoRow
-              icon={<CalendarTodayOutlined sx={{ fontSize: 18 }} />}
-              text={dateTime.date}
-            />
-            <InfoRow
-              icon={<AccessTimeOutlined sx={{ fontSize: 18 }} />}
-              text={dateTime.time}
-            />
+            <InfoRow icon={<CalendarTodayOutlined sx={{ fontSize: 18 }} />} text={dateTime.date} />
+            <InfoRow icon={<AccessTimeOutlined sx={{ fontSize: 18 }} />} text={dateTime.time} />
             <InfoRow
               icon={<LocationOnOutlined sx={{ fontSize: 18 }} />}
               text={match.competition || 'N/A'}
@@ -479,10 +463,7 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
                 {/* Player Avatar with Team Badge */}
                 <Box sx={{ position: 'relative' }}>
                   <Avatar
-                    src={
-                      (detailedLiveMatch.stats.homeTopScorer as { imageUrl?: string })
-                        ?.imageUrl
-                    }
+                    src={(detailedLiveMatch.stats.homeTopScorer as { imageUrl?: string })?.imageUrl}
                     alt={detailedLiveMatch.stats.homeTopScorer.name}
                     sx={{ width: 48, height: 48, bgcolor: 'grey.200' }}
                   >

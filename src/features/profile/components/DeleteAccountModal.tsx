@@ -84,8 +84,21 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ open, onClose }
           className: 'rounded-lg',
         }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, pb: 2 }}>
-          <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: 'error.100', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+        <DialogTitle
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, pb: 2 }}
+        >
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              bgcolor: 'error.100',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 2,
+            }}
+          >
             <Notifications sx={{ fontSize: 32, color: 'error.main' }} />
           </Box>
         </DialogTitle>

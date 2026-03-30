@@ -23,7 +23,7 @@ import {
   Slide,
   Fade,
 } from '@mui/material';
-import { Menu as MenuIcon, Close as CloseIcon,  } from '@mui/icons-material';
+import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
 import { IMAGES } from '@/shared/constants/images';
 
@@ -34,7 +34,7 @@ const Header: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -89,10 +89,10 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <AppBar 
-        position="fixed" 
+      <AppBar
+        position="fixed"
         elevation={scrolled ? 2 : 0}
-        sx={{ 
+        sx={{
           bgcolor: scrolled ? alpha('#fff', 0.95) : 'white',
           backdropFilter: scrolled ? 'blur(10px)' : 'none',
           boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.05)',
@@ -101,17 +101,19 @@ const Header: React.FC = () => {
         }}
       >
         <Container maxWidth="xl" disableGutters>
-          <Toolbar sx={{ 
-            height: { xs: 64, sm: 72, md: 80 }, 
-            px: { xs: 2, sm: 3, md: 4 },
-            transition: 'height 0.3s ease',
-          }}>
+          <Toolbar
+            sx={{
+              height: { xs: 64, sm: 72, md: 80 },
+              px: { xs: 2, sm: 3, md: 4 },
+              transition: 'height 0.3s ease',
+            }}
+          >
             {/* Logo */}
             <Box sx={{ flexGrow: 0, mr: { xs: 1, sm: 2, md: 3 } }}>
               <Box
                 onClick={() => handleNavigate('/')}
-                sx={{ 
-                  cursor: 'pointer', 
+                sx={{
+                  cursor: 'pointer',
                   display: 'inline-flex',
                   transition: 'opacity 0.2s',
                   '&:hover': { opacity: 0.8 },
@@ -132,11 +134,6 @@ const Header: React.FC = () => {
                   width={logoWidth}
                   height={logoHeight}
                   priority
-                  style={{ 
-                    height: `${logoHeight}px`, 
-                    width: 'auto',
-                    maxWidth: '100%',
-                  }}
                   unoptimized
                 />
               </Box>
@@ -147,8 +144,8 @@ const Header: React.FC = () => {
               <>
                 {/* Center Navigation */}
                 <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                  <Stack 
-                    direction="row" 
+                  <Stack
+                    direction="row"
                     spacing={{ md: 3, lg: 4, xl: 5 }}
                     sx={{
                       '& .MuiButton-root': {
@@ -264,10 +261,11 @@ const Header: React.FC = () => {
                     },
                   }}
                 >
-                  {mobileMenuOpen ? 
-                    <CloseIcon sx={{ fontSize: { xs: 24, sm: 28 } }} /> : 
+                  {mobileMenuOpen ? (
+                    <CloseIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                  ) : (
                     <MenuIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
-                  }
+                  )}
                 </IconButton>
               </Box>
             )}
@@ -290,20 +288,22 @@ const Header: React.FC = () => {
           },
         }}
       >
-        <Box sx={{ 
-          p: { xs: 2, sm: 3 },
-          maxWidth: '600px',
-          mx: 'auto',
-          width: '100%',
-        }}>
+        <Box
+          sx={{
+            p: { xs: 2, sm: 3 },
+            maxWidth: '600px',
+            mx: 'auto',
+            width: '100%',
+          }}
+        >
           {/* Navigation Links */}
           <List sx={{ mb: 2 }}>
             {navLinks.map((link, index) => {
               const active = isActive(link.href);
               return (
-                <Slide 
-                  direction="right" 
-                  in={mobileMenuOpen} 
+                <Slide
+                  direction="right"
+                  in={mobileMenuOpen}
                   timeout={300 + index * 50}
                   key={link.href}
                 >
@@ -316,7 +316,9 @@ const Header: React.FC = () => {
                         px: { xs: 2, sm: 2.5 },
                         bgcolor: active ? alpha(theme.palette.success.main, 0.08) : 'transparent',
                         '&:hover': {
-                          bgcolor: active ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.grey[500], 0.05),
+                          bgcolor: active
+                            ? alpha(theme.palette.success.main, 0.12)
+                            : alpha(theme.palette.grey[500], 0.05),
                         },
                       }}
                     >
@@ -352,8 +354,8 @@ const Header: React.FC = () => {
 
           {/* Action Buttons */}
           <Fade in={mobileMenuOpen} timeout={500}>
-            <Stack 
-              direction={{ xs: 'column', sm: 'row' }} 
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
               spacing={{ xs: 1.5, sm: 2 }}
               sx={{ mt: 2 }}
             >
@@ -410,12 +412,19 @@ const Header: React.FC = () => {
                   border: `1px solid ${alpha(theme.palette.success.main, 0.1)}`,
                 }}
               >
-                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1, fontWeight: 600 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: 'text.secondary', mb: 1, fontWeight: 600 }}
+                >
                   Get the app
                 </Typography>
                 <Stack direction="row" spacing={2} justifyContent="center">
-                  <Button size="small" sx={{ textTransform: 'none' }}>App Store</Button>
-                  <Button size="small" sx={{ textTransform: 'none' }}>Google Play</Button>
+                  <Button size="small" sx={{ textTransform: 'none' }}>
+                    App Store
+                  </Button>
+                  <Button size="small" sx={{ textTransform: 'none' }}>
+                    Google Play
+                  </Button>
                 </Stack>
               </Box>
             </Fade>

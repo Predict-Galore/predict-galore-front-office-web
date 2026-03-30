@@ -5,7 +5,6 @@ import { Box, Typography, Chip, Container, alpha } from '@mui/material';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 
 const TermsHero: React.FC = () => {
-
   return (
     <Box
       sx={(theme) => ({

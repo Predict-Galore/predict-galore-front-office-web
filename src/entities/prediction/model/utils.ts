@@ -1,6 +1,6 @@
 /**
  * PREDICTION ENTITY - Utility Functions
- * 
+ *
  * Common utility functions for Prediction entity operations
  */
 
@@ -100,7 +100,9 @@ export function isPredictionPushed(prediction: Prediction): boolean {
 /**
  * Get prediction confidence level
  */
-export function getConfidenceLevel(confidence: number): 'very_low' | 'low' | 'medium' | 'high' | 'very_high' {
+export function getConfidenceLevel(
+  confidence: number
+): 'very_low' | 'low' | 'medium' | 'high' | 'very_high' {
   if (confidence >= 90) return 'very_high';
   if (confidence >= 75) return 'high';
   if (confidence >= 50) return 'medium';
@@ -111,9 +113,11 @@ export function getConfidenceLevel(confidence: number): 'very_low' | 'low' | 'me
 /**
  * Get prediction odds category
  */
-export function getOddsCategory(odds?: number): 'short' | 'medium' | 'long' | 'very_long' | 'unknown' {
+export function getOddsCategory(
+  odds?: number
+): 'short' | 'medium' | 'long' | 'very_long' | 'unknown' {
   if (!odds) return 'unknown';
-  
+
   if (odds <= 1.5) return 'short';
   if (odds <= 3.0) return 'medium';
   if (odds <= 10.0) return 'long';
@@ -146,10 +150,12 @@ export function calculatePotentialProfit(stake: number, odds: number): number {
  */
 export function calculateActualProfit(prediction: Prediction): number {
   if (!prediction.result || !prediction.stake) return 0;
-  
+
   switch (prediction.result.outcome) {
     case 'won':
-      return prediction.result.profit || calculatePotentialProfit(prediction.stake, prediction.odds || 1);
+      return (
+        prediction.result.profit || calculatePotentialProfit(prediction.stake, prediction.odds || 1)
+      );
     case 'lost':
       return -prediction.stake;
     case 'void':
@@ -165,7 +171,7 @@ export function calculateActualProfit(prediction: Prediction): number {
  */
 export function calculatePredictionROI(prediction: Prediction): number {
   if (!prediction.stake || prediction.stake === 0) return 0;
-  
+
   const profit = calculateActualProfit(prediction);
   return Math.round((profit / prediction.stake) * 100 * 100) / 100;
 }
@@ -190,7 +196,7 @@ export function getPredictionTypeDisplayName(type: PredictionType): string {
     combo: 'Combination Bet',
     custom: 'Custom Prediction',
   };
-  
+
   return typeNames[type] || type;
 }
 
@@ -206,7 +212,7 @@ export function getPredictionSourceDisplayName(source: PredictionSource): string
     machine_learning: 'Machine Learning',
     hybrid: 'Hybrid Model',
   };
-  
+
   return sourceNames[source] || source;
 }
 
@@ -248,7 +254,7 @@ export function getPredictionDifficulty(prediction: Prediction): string {
     hard: 'Hard',
     expert: 'Expert',
   };
-  
+
   return difficultyNames[prediction.metadata.difficulty] || prediction.metadata.difficulty;
 }
 
@@ -257,10 +263,10 @@ export function getPredictionDifficulty(prediction: Prediction): string {
  */
 export function calculateValueBetScore(prediction: Prediction): number {
   if (!prediction.odds) return 0;
-  
+
   const impliedProbability = calculateImpliedProbability(prediction.odds);
   const confidenceProbability = prediction.confidence;
-  
+
   return Math.round((confidenceProbability - impliedProbability) * 100) / 100;
 }
 
@@ -337,9 +343,11 @@ export function formatROIDisplay(roi: number): string {
 /**
  * Get team form strength
  */
-export function getTeamFormStrength(form: FormData): 'very_strong' | 'strong' | 'average' | 'weak' | 'very_weak' {
+export function getTeamFormStrength(
+  form: FormData
+): 'very_strong' | 'strong' | 'average' | 'weak' | 'very_weak' {
   const winPercentage = form.winPercentage;
-  
+
   if (winPercentage >= 80) return 'very_strong';
   if (winPercentage >= 60) return 'strong';
   if (winPercentage >= 40) return 'average';
@@ -350,12 +358,15 @@ export function getTeamFormStrength(form: FormData): 'very_strong' | 'strong' | 
 /**
  * Compare team forms
  */
-export function compareTeamForms(homeForm: FormData, awayForm: FormData): 'home_advantage' | 'away_advantage' | 'balanced' {
+export function compareTeamForms(
+  homeForm: FormData,
+  awayForm: FormData
+): 'home_advantage' | 'away_advantage' | 'balanced' {
   const homePts = calculateFormPoints(homeForm.last5Games);
   const awayPts = calculateFormPoints(awayForm.last5Games);
-  
+
   const difference = homePts - awayPts;
-  
+
   if (difference >= 3) return 'home_advantage';
   if (difference <= -3) return 'away_advantage';
   return 'balanced';
@@ -367,10 +378,14 @@ export function compareTeamForms(homeForm: FormData, awayForm: FormData): 'home_
 export function calculateFormPoints(games: GameResult[]): number {
   return games.reduce((points, game) => {
     switch (game.result) {
-      case 'W': return points + 3;
-      case 'D': return points + 1;
-      case 'L': return points + 0;
-      default: return points;
+      case 'W':
+        return points + 3;
+      case 'D':
+        return points + 1;
+      case 'L':
+        return points + 0;
+      default:
+        return points;
     }
   }, 0);
 }
@@ -378,12 +393,14 @@ export function calculateFormPoints(games: GameResult[]): number {
 /**
  * Get head-to-head advantage
  */
-export function getHeadToHeadAdvantage(h2h: HeadToHeadAnalysis): 'home_advantage' | 'away_advantage' | 'balanced' {
+export function getHeadToHeadAdvantage(
+  h2h: HeadToHeadAnalysis
+): 'home_advantage' | 'away_advantage' | 'balanced' {
   const homeWinRate = (h2h.homeTeamWins / h2h.totalMeetings) * 100;
   const awayWinRate = (h2h.awayTeamWins / h2h.totalMeetings) * 100;
-  
+
   const difference = homeWinRate - awayWinRate;
-  
+
   if (difference >= 20) return 'home_advantage';
   if (difference <= -20) return 'away_advantage';
   return 'balanced';
@@ -399,8 +416,8 @@ export function calculateInjuryImpact(injuries: InjuryReport[]): number {
       regular: 2,
       squad: 1,
     };
-    
-    return total + (injury.impact * importanceMultiplier[injury.importance]);
+
+    return total + injury.impact * importanceMultiplier[injury.importance];
   }, 0);
 }
 
@@ -425,18 +442,20 @@ export function calculateMotivationAdvantage(motivation: MotivationFactors): num
 /**
  * Get overall prediction strength
  */
-export function getPredictionStrength(prediction: Prediction): 'very_strong' | 'strong' | 'moderate' | 'weak' {
+export function getPredictionStrength(
+  prediction: Prediction
+): 'very_strong' | 'strong' | 'moderate' | 'weak' {
   let score = 0;
-  
+
   // Confidence score (0-40 points)
   score += (prediction.confidence / 100) * 40;
-  
+
   // Value bet score (0-20 points)
   const valueBetScore = calculateValueBetScore(prediction);
   if (valueBetScore > 0) {
     score += Math.min(valueBetScore, 20);
   }
-  
+
   // Analysis depth score (0-20 points)
   if (prediction.analysis) {
     const analysisFactors = [
@@ -447,15 +466,15 @@ export function getPredictionStrength(prediction: Prediction): 'very_strong' | '
       prediction.analysis.weather,
       prediction.analysis.motivation,
     ].filter(Boolean).length;
-    
+
     score += (analysisFactors / 6) * 20;
   }
-  
+
   // Algorithm reliability score (0-20 points)
   if (prediction.algorithm) {
     score += (prediction.algorithm.accuracy / 100) * 20;
   }
-  
+
   if (score >= 80) return 'very_strong';
   if (score >= 60) return 'strong';
   if (score >= 40) return 'moderate';
@@ -465,34 +484,43 @@ export function getPredictionStrength(prediction: Prediction): 'very_strong' | '
 /**
  * Filter predictions by status
  */
-export function filterPredictionsByStatus(predictions: Prediction[], status: PredictionStatus): Prediction[] {
-  return predictions.filter(prediction => prediction.status === status);
+export function filterPredictionsByStatus(
+  predictions: Prediction[],
+  status: PredictionStatus
+): Prediction[] {
+  return predictions.filter((prediction) => prediction.status === status);
 }
 
 /**
  * Filter predictions by type
  */
-export function filterPredictionsByType(predictions: Prediction[], type: PredictionType): Prediction[] {
-  return predictions.filter(prediction => prediction.type === type);
+export function filterPredictionsByType(
+  predictions: Prediction[],
+  type: PredictionType
+): Prediction[] {
+  return predictions.filter((prediction) => prediction.type === type);
 }
 
 /**
  * Filter predictions by source
  */
-export function filterPredictionsBySource(predictions: Prediction[], source: PredictionSource): Prediction[] {
-  return predictions.filter(prediction => prediction.source === source);
+export function filterPredictionsBySource(
+  predictions: Prediction[],
+  source: PredictionSource
+): Prediction[] {
+  return predictions.filter((prediction) => prediction.source === source);
 }
 
 /**
  * Filter predictions by confidence range
  */
 export function filterPredictionsByConfidence(
-  predictions: Prediction[], 
-  minConfidence: number, 
+  predictions: Prediction[],
+  minConfidence: number,
   maxConfidence: number
 ): Prediction[] {
-  return predictions.filter(prediction => 
-    prediction.confidence >= minConfidence && prediction.confidence <= maxConfidence
+  return predictions.filter(
+    (prediction) => prediction.confidence >= minConfidence && prediction.confidence <= maxConfidence
   );
 }
 
@@ -500,19 +528,22 @@ export function filterPredictionsByConfidence(
  * Filter predictions by odds range
  */
 export function filterPredictionsByOdds(
-  predictions: Prediction[], 
-  minOdds: number, 
+  predictions: Prediction[],
+  minOdds: number,
   maxOdds: number
 ): Prediction[] {
-  return predictions.filter(prediction => 
-    prediction.odds && prediction.odds >= minOdds && prediction.odds <= maxOdds
+  return predictions.filter(
+    (prediction) => prediction.odds && prediction.odds >= minOdds && prediction.odds <= maxOdds
   );
 }
 
 /**
  * Sort predictions by confidence (highest first by default)
  */
-export function sortPredictionsByConfidence(predictions: Prediction[], ascending: boolean = false): Prediction[] {
+export function sortPredictionsByConfidence(
+  predictions: Prediction[],
+  ascending: boolean = false
+): Prediction[] {
   return [...predictions].sort((a, b) => {
     return ascending ? a.confidence - b.confidence : b.confidence - a.confidence;
   });
@@ -521,7 +552,10 @@ export function sortPredictionsByConfidence(predictions: Prediction[], ascending
 /**
  * Sort predictions by odds (lowest first by default)
  */
-export function sortPredictionsByOdds(predictions: Prediction[], ascending: boolean = true): Prediction[] {
+export function sortPredictionsByOdds(
+  predictions: Prediction[],
+  ascending: boolean = true
+): Prediction[] {
   return [...predictions].sort((a, b) => {
     const oddsA = a.odds || 0;
     const oddsB = b.odds || 0;
@@ -532,7 +566,10 @@ export function sortPredictionsByOdds(predictions: Prediction[], ascending: bool
 /**
  * Sort predictions by creation date (newest first by default)
  */
-export function sortPredictionsByDate(predictions: Prediction[], ascending: boolean = false): Prediction[] {
+export function sortPredictionsByDate(
+  predictions: Prediction[],
+  ascending: boolean = false
+): Prediction[] {
   return [...predictions].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
@@ -581,24 +618,26 @@ export function getLosingPredictions(predictions: Prediction[]): Prediction[] {
 export function calculatePortfolioStats(predictions: Prediction[]): PredictionStats {
   const settledPredictions = getSettledPredictions(predictions);
   const wonPredictions = getWinningPredictions(settledPredictions);
-  
+
   const totalPredictions = settledPredictions.length;
   const winRate = totalPredictions > 0 ? (wonPredictions.length / totalPredictions) * 100 : 0;
-  
+
   const totalStaked = settledPredictions.reduce((sum, p) => sum + (p.stake || 0), 0);
   const totalProfit = settledPredictions.reduce((sum, p) => sum + calculateActualProfit(p), 0);
   const roi = totalStaked > 0 ? (totalProfit / totalStaked) * 100 : 0;
-  
-  const averageOdds = settledPredictions.reduce((sum, p) => sum + (p.odds || 0), 0) / totalPredictions || 0;
-  const averageConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length || 0;
-  
+
+  const averageOdds =
+    settledPredictions.reduce((sum, p) => sum + (p.odds || 0), 0) / totalPredictions || 0;
+  const averageConfidence =
+    predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length || 0;
+
   // Calculate streaks
   let currentStreak = 0;
   let bestStreak = 0;
   let tempStreak = 0;
-  
+
   const sortedPredictions = sortPredictionsByDate(settledPredictions, true);
-  
+
   for (const prediction of sortedPredictions) {
     if (isPredictionWon(prediction)) {
       tempStreak++;
@@ -607,7 +646,7 @@ export function calculatePortfolioStats(predictions: Prediction[]): PredictionSt
       tempStreak = 0;
     }
   }
-  
+
   // Current streak (from most recent)
   const recentPredictions = sortPredictionsByDate(settledPredictions, false);
   for (const prediction of recentPredictions) {
@@ -617,12 +656,14 @@ export function calculatePortfolioStats(predictions: Prediction[]): PredictionSt
       break;
     }
   }
-  
+
   // Stats by type and source
   const byType: Record<PredictionType, TypeStats> = {} as Record<PredictionType, TypeStats>;
-  const bySource: Record<PredictionSource, SourceStats> =
-    {} as Record<PredictionSource, SourceStats>;
-  
+  const bySource: Record<PredictionSource, SourceStats> = {} as Record<
+    PredictionSource,
+    SourceStats
+  >;
+
   // Group by type
   for (const type of PREDICTION_TYPES) {
     const typePredictions = filterPredictionsByType(settledPredictions, type);
@@ -630,17 +671,18 @@ export function calculatePortfolioStats(predictions: Prediction[]): PredictionSt
       const typeWon = getWinningPredictions(typePredictions);
       const typeStaked = typePredictions.reduce((sum, p) => sum + (p.stake || 0), 0);
       const typeProfit = typePredictions.reduce((sum, p) => sum + calculateActualProfit(p), 0);
-      
+
       byType[type] = {
         count: typePredictions.length,
         winRate: (typeWon.length / typePredictions.length) * 100,
-        averageOdds: typePredictions.reduce((sum, p) => sum + (p.odds || 0), 0) / typePredictions.length,
+        averageOdds:
+          typePredictions.reduce((sum, p) => sum + (p.odds || 0), 0) / typePredictions.length,
         profit: typeProfit,
         roi: typeStaked > 0 ? (typeProfit / typeStaked) * 100 : 0,
       };
     }
   }
-  
+
   // Group by source
   for (const source of PREDICTION_SOURCES) {
     const sourcePredictions = filterPredictionsBySource(settledPredictions, source);
@@ -648,17 +690,18 @@ export function calculatePortfolioStats(predictions: Prediction[]): PredictionSt
       const sourceWon = getWinningPredictions(sourcePredictions);
       const sourceStaked = sourcePredictions.reduce((sum, p) => sum + (p.stake || 0), 0);
       const sourceProfit = sourcePredictions.reduce((sum, p) => sum + calculateActualProfit(p), 0);
-      
+
       bySource[source] = {
         count: sourcePredictions.length,
         winRate: (sourceWon.length / sourcePredictions.length) * 100,
-        averageConfidence: sourcePredictions.reduce((sum, p) => sum + p.confidence, 0) / sourcePredictions.length,
+        averageConfidence:
+          sourcePredictions.reduce((sum, p) => sum + p.confidence, 0) / sourcePredictions.length,
         profit: sourceProfit,
         roi: sourceStaked > 0 ? (sourceProfit / sourceStaked) * 100 : 0,
       };
     }
   }
-  
+
   return {
     totalPredictions,
     winRate: Math.round(winRate * 100) / 100,
@@ -684,21 +727,18 @@ export function calculateKellyStake(
 ): number {
   const probability = confidence / 100;
   const kellyPercentage = ((odds * probability - 1) / (odds - 1)) * 100;
-  
+
   // Cap at max risk percentage
   const safePercentage = Math.min(Math.max(kellyPercentage, 0), maxRiskPercentage);
-  
-  return Math.round((bankroll * safePercentage / 100) * 100) / 100;
+
+  return Math.round(((bankroll * safePercentage) / 100) * 100) / 100;
 }
 
 /**
  * Calculate recommended stake based on fixed percentage
  */
-export function calculateFixedPercentageStake(
-  bankroll: number,
-  percentage: number
-): number {
-  return Math.round((bankroll * percentage / 100) * 100) / 100;
+export function calculateFixedPercentageStake(bankroll: number, percentage: number): number {
+  return Math.round(((bankroll * percentage) / 100) * 100) / 100;
 }
 
 /**
@@ -711,8 +751,8 @@ export function calculateConfidenceBasedStake(
 ): number {
   const confidenceMultiplier = confidence / 50; // Scale confidence to multiplier
   const adjustedPercentage = Math.min(basePercentage * confidenceMultiplier, 10); // Cap at 10%
-  
-  return Math.round((bankroll * adjustedPercentage / 100) * 100) / 100;
+
+  return Math.round(((bankroll * adjustedPercentage) / 100) * 100) / 100;
 }
 
 /**
@@ -726,19 +766,19 @@ export function getRecommendedStake(
   switch (strategy.type) {
     case 'fixed':
       return strategy.baseAmount;
-    
+
     case 'percentage':
       return calculateFixedPercentageStake(bankroll, strategy.riskPercentage || 2);
-    
+
     case 'kelly':
       if (!prediction.odds) return strategy.baseAmount;
       return calculateKellyStake(
-        bankroll, 
-        prediction.odds, 
-        prediction.confidence, 
+        bankroll,
+        prediction.odds,
+        prediction.confidence,
         strategy.riskPercentage || 5
       );
-    
+
     default:
       return strategy.baseAmount;
   }
@@ -753,7 +793,7 @@ export function meetsBankrollRiskCriteria(
   maxRiskPerBet: number
 ): boolean {
   if (!prediction.stake) return true;
-  
+
   const riskPercentage = (prediction.stake / bankroll.current) * 100;
   return riskPercentage <= maxRiskPerBet;
 }
@@ -766,6 +806,6 @@ export function formatPredictionSummary(prediction: Prediction): string {
   const outcome = formatPredictionOutcome(prediction);
   const confidence = formatConfidenceDisplay(prediction.confidence);
   const odds = formatOddsDisplay(prediction.odds);
-  
+
   return `${matchName} - ${outcome} (${confidence}, ${odds})`;
 }

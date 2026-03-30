@@ -1,7 +1,7 @@
 /**
  * Premium Modal Component
  * Displays when user reaches prediction limit
- * 
+ *
  * @component
  * @description A modal dialog that appears when users reach their free prediction limit,
  * prompting them to upgrade to premium for unlimited access.
@@ -30,10 +30,10 @@ interface PremiumModalProps {
 
 /**
  * PremiumModal Component
- * 
+ *
  * Displays a modal dialog when users reach their prediction limit.
  * Adapts to mobile screens with fullscreen mode and bottom sheet style.
- * 
+ *
  * @example
  * ```tsx
  * <PremiumModal
@@ -44,12 +44,7 @@ interface PremiumModalProps {
  * />
  * ```
  */
-const PremiumModal: React.FC<PremiumModalProps> = ({ 
-  open, 
-  onClose, 
-  onGetPremium, 
-  limit = 5 
-}) => {
+const PremiumModal: React.FC<PremiumModalProps> = ({ open, onClose, onGetPremium, limit = 5 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)');
 
   return (
@@ -68,12 +63,16 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
       aria-labelledby="premium-modal-title"
       aria-describedby="premium-modal-description"
     >
-      <Box 
-        sx={isMobile ? { 
-          height: '100%', 
-          display: 'flex', 
-          alignItems: 'flex-end' 
-        } : undefined}
+      <Box
+        sx={
+          isMobile
+            ? {
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-end',
+              }
+            : undefined
+        }
       >
         <Box
           sx={{
@@ -108,14 +107,14 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
 
           <Stack spacing={3} alignItems="center">
             {/* Lock Icon */}
-            <Box 
-              sx={{ 
-                width: 64, 
-                height: 64, 
-                borderRadius: '50%', 
-                bgcolor: 'success.100', 
-                display: 'flex', 
-                alignItems: 'center', 
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                bgcolor: 'success.100',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 mt: 1,
               }}
@@ -125,16 +124,12 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
 
             {/* Content */}
             <Stack spacing={1.5} alignItems="center" sx={{ textAlign: 'center' }}>
-              <Typography 
-                id="premium-modal-title"
-                variant="h5" 
-                sx={{ fontWeight: 'bold' }}
-              >
+              <Typography id="premium-modal-title" variant="h5" sx={{ fontWeight: 'bold' }}>
                 Unlock Unlimited Predictions
               </Typography>
-              <Typography 
+              <Typography
                 id="premium-modal-description"
-                variant="body1" 
+                variant="body1"
                 sx={{ color: 'text.secondary' }}
               >
                 You have reached your limit of {limit} free predictions. Subscribe to get premium
@@ -144,12 +139,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
 
             {/* CTA Button */}
             <Box sx={{ width: '100%', mt: 2 }}>
-              <Button
-                onClick={onGetPremium}
-                variant="primary"
-                size="lg"
-                fullWidth
-              >
+              <Button onClick={onGetPremium} variant="primary" size="lg" fullWidth>
                 Get premium access
               </Button>
             </Box>

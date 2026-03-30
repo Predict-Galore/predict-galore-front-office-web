@@ -64,11 +64,7 @@ export class ProfileService {
     candidates.push(response.data, response.items, response.results, response.plans);
 
     if (this.isRecord(response.data)) {
-      candidates.push(
-        response.data.items,
-        response.data.results,
-        response.data.plans
-      );
+      candidates.push(response.data.items, response.data.results, response.data.plans);
     }
 
     const list = candidates.find((candidate) => Array.isArray(candidate));

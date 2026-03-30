@@ -94,11 +94,11 @@ const ContactForm: React.FC = () => {
     <>
       {/* Error Message */}
       {localError && (
-        <Alert 
-          severity="error" 
-          icon={<ErrorIcon />} 
-          onClose={handleCloseError} 
-          sx={{ 
+        <Alert
+          severity="error"
+          icon={<ErrorIcon />}
+          onClose={handleCloseError}
+          sx={{
             mb: { xs: 2, sm: 3 },
             borderRadius: { xs: 1.5, sm: 2 },
           }}
@@ -115,10 +115,10 @@ const ContactForm: React.FC = () => {
           onClose={() => setSuccess(false)}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <Alert 
-            severity="success" 
+          <Alert
+            severity="success"
             onClose={() => setSuccess(false)}
-            sx={{ 
+            sx={{
               width: '100%',
               borderRadius: { xs: 1.5, sm: 2 },
             }}
@@ -138,9 +138,9 @@ const ContactForm: React.FC = () => {
       >
         {/* Form Section */}
         <Box sx={{ minWidth: 0 }}>
-          <Paper 
-            elevation={isMobile ? 1 : 2} 
-            sx={{ 
+          <Paper
+            elevation={isMobile ? 1 : 2}
+            sx={{
               p: { xs: 2.5, sm: 3, md: 4 },
               borderRadius: 0,
               transition: 'transform 0.3s',
@@ -150,16 +150,16 @@ const ContactForm: React.FC = () => {
               },
             }}
           >
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                mb: { xs: 2, sm: 2.5, md: 3 }, 
+            <Typography
+              variant="h4"
+              sx={{
+                mb: { xs: 2, sm: 2.5, md: 3 },
                 fontWeight: 700,
-                fontSize: { 
+                fontSize: {
                   xs: '1.35rem',
                   sm: '1.5rem',
                   md: '1.75rem',
-                  lg: '2rem'
+                  lg: '2rem',
                 },
                 color: 'text.primary',
               }}
@@ -167,10 +167,10 @@ const ContactForm: React.FC = () => {
               Send us a Message
             </Typography>
 
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                mb: { xs: 3, sm: 4 }, 
+            <Typography
+              variant="body2"
+              sx={{
+                mb: { xs: 3, sm: 4 },
                 color: 'text.secondary',
                 fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
               }}
@@ -198,7 +198,7 @@ const ContactForm: React.FC = () => {
                       helperText={fieldState.error?.message}
                       disabled={isFormSubmitting}
                       required
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: 1,
@@ -224,7 +224,7 @@ const ContactForm: React.FC = () => {
                       helperText={fieldState.error?.message}
                       disabled={isFormSubmitting}
                       required
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: 1,
@@ -249,7 +249,7 @@ const ContactForm: React.FC = () => {
                       helperText={fieldState.error?.message}
                       disabled={isFormSubmitting}
                       required
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: 1,
@@ -275,7 +275,7 @@ const ContactForm: React.FC = () => {
                       helperText={fieldState.error?.message}
                       disabled={isFormSubmitting}
                       required
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: 1,
@@ -308,7 +308,7 @@ const ContactForm: React.FC = () => {
                       helperText={fieldState.error?.message}
                       disabled={isFormSubmitting}
                       required
-                      size={isMobile ? "small" : "medium"}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: 1,
@@ -324,7 +324,7 @@ const ContactForm: React.FC = () => {
                 type="submit"
                 fullWidth
                 variant="primary"
-                size={isMobile ? "md" : "lg"}
+                size={isMobile ? 'md' : 'lg'}
                 loading={isFormSubmitting}
                 disabled={isFormSubmitting}
                 leftIcon={!isFormSubmitting ? <Send /> : undefined}
@@ -347,23 +347,25 @@ const ContactForm: React.FC = () => {
 
         {/* Contact Information Section */}
         <Box sx={{ minWidth: 0 }}>
-          <Box sx={{ 
-            position: { md: 'sticky' },
-            top: { md: 100 },
-          }}>
-            <Paper 
+          <Box
+            sx={{
+              position: { md: 'sticky' },
+              top: { md: 100 },
+            }}
+          >
+            <Paper
               elevation={isMobile ? 1 : 2}
-              sx={{ 
+              sx={{
                 p: { xs: 2.5, sm: 3, md: 4 },
                 borderRadius: 0,
                 bgcolor: alpha(theme.palette.primary.main, 0.02),
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
               }}
             >
-              <Typography 
-                variant="h5" 
-                sx={{ 
-                  mb: { xs: 2, sm: 3 }, 
+              <Typography
+                variant="h5"
+                sx={{
+                  mb: { xs: 2, sm: 3 },
                   fontWeight: 700,
                   fontSize: { xs: '1.2rem', sm: '1.3rem', md: '1.4rem' },
                 }}
@@ -372,9 +374,9 @@ const ContactForm: React.FC = () => {
               </Typography>
 
               <Box sx={{ mb: 3 }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
+                <Typography
+                  variant="body2"
+                  sx={{
                     color: 'text.secondary',
                     mb: 2,
                     lineHeight: 1.6,
@@ -388,12 +390,14 @@ const ContactForm: React.FC = () => {
               {/* Contact Details */}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                  <Box sx={{ 
-                    p: 1, 
-                    borderRadius: 2, 
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    display: 'flex',
-                  }}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      display: 'flex',
+                    }}
+                  >
                     <Phone sx={{ color: 'primary.main', fontSize: { xs: 20, sm: 24 } }} />
                   </Box>
                   <Box>
@@ -410,31 +414,38 @@ const ContactForm: React.FC = () => {
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                  <Box sx={{ 
-                    p: 1, 
-                    borderRadius: 2, 
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    display: 'flex',
-                  }}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      display: 'flex',
+                    }}
+                  >
                     <Email sx={{ color: 'primary.main', fontSize: { xs: 20, sm: 24 } }} />
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
                       Email
                     </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', wordBreak: 'break-all' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: 'text.secondary', wordBreak: 'break-all' }}
+                    >
                       customerservice@predictgalore.com
                     </Typography>
                   </Box>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                  <Box sx={{ 
-                    p: 1, 
-                    borderRadius: 2, 
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    display: 'flex',
-                  }}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      display: 'flex',
+                    }}
+                  >
                     <AccessTime sx={{ color: 'primary.main', fontSize: { xs: 20, sm: 24 } }} />
                   </Box>
                   <Box>
@@ -450,8 +461,6 @@ const ContactForm: React.FC = () => {
                   </Box>
                 </Box>
               </Box>
-
-
             </Paper>
           </Box>
         </Box>

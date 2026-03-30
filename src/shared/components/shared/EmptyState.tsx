@@ -2,7 +2,7 @@
  * EMPTY STATE COMPONENT
  *
  * Reusable empty state component for displaying when there's no data
- * 
+ *
  * @component
  * @description Displays a centered empty state message with optional icon and action button.
  * Used throughout the application when lists or data sets are empty.
@@ -30,10 +30,10 @@ interface EmptyStateProps {
 
 /**
  * EmptyState Component
- * 
+ *
  * Displays a user-friendly empty state with icon, title, description, and optional action.
  * Includes proper ARIA attributes for accessibility.
- * 
+ *
  * @example
  * ```tsx
  * <EmptyState

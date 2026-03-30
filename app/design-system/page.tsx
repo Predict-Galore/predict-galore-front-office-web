@@ -1,6 +1,6 @@
 /**
  * DESIGN SYSTEM DEMO PAGE
- * 
+ *
  * Showcases all components matching Figma specifications
  */
 

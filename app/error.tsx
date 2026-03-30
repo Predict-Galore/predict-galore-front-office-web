@@ -87,7 +87,11 @@ export default function GlobalError({
           </Button>
 
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <Button variant="outline" leftIcon={<Home className="w-4 h-4" />} sx={{ minWidth: 140 }}>
+            <Button
+              variant="outline"
+              leftIcon={<Home className="w-4 h-4" />}
+              sx={{ minWidth: 140 }}
+            >
               Go Home
             </Button>
           </Link>

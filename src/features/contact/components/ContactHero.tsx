@@ -37,7 +37,12 @@ const ContactHero: React.FC = () => {
             radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 3px),
             radial-gradient(circle at 75% 10%, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 3px)
           `,
-          backgroundSize: { xs: '120px 120px', sm: '160px 160px', md: '200px 200px', lg: '220px 220px' },
+          backgroundSize: {
+            xs: '120px 120px',
+            sm: '160px 160px',
+            md: '200px 200px',
+            lg: '220px 220px',
+          },
           backgroundRepeat: 'repeat',
           pointerEvents: 'none',
         }}
@@ -71,21 +76,23 @@ const ContactHero: React.FC = () => {
         }}
       />
 
-      <Container 
-        maxWidth="lg" 
-        sx={{ 
-          position: 'relative', 
+      <Container
+        maxWidth="lg"
+        sx={{
+          position: 'relative',
           zIndex: 2,
           px: { xs: 2, sm: 3, md: 4 },
         }}
       >
         {/* Themed Chip */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          mb: { xs: 3, sm: 3.5, md: 4 },
-          px: { xs: 2, sm: 0 },
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mb: { xs: 3, sm: 3.5, md: 4 },
+            px: { xs: 2, sm: 0 },
+          }}
+        >
           <Chip
             icon={
               <ContactMail
@@ -126,11 +133,11 @@ const ContactHero: React.FC = () => {
             mb: { xs: 1.5, sm: 2, md: 2.5 },
             color: 'white',
             textShadow: '0 2px 10px rgba(0,0,0,0.15)',
-            fontSize: { 
+            fontSize: {
               xs: '2rem',
               sm: '2.5rem',
               md: '3rem',
-              lg: '3.5rem'
+              lg: '3.5rem',
             },
             fontWeight: { xs: 700, md: 800 },
             lineHeight: { xs: 1.2, md: 1.1 },
@@ -148,11 +155,11 @@ const ContactHero: React.FC = () => {
           sx={{
             textAlign: 'center',
             color: alpha('#fff', 0.95),
-            fontSize: { 
+            fontSize: {
               xs: '0.95rem',
               sm: '1.1rem',
               md: '1.25rem',
-              lg: '1.35rem'
+              lg: '1.35rem',
             },
             maxWidth: { xs: '100%', sm: '600px', md: '700px' },
             mx: 'auto',
@@ -164,8 +171,6 @@ const ContactHero: React.FC = () => {
           Questions, feedback, or partnership ideas? Our team is here to help you get the most out
           of our platform.
         </Typography>
-
-
       </Container>
     </Box>
   );

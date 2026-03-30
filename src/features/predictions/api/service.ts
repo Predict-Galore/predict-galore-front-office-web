@@ -154,12 +154,12 @@ export class PredictionService {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await api.get<any>(API_ENDPOINTS.PREDICTIONS.BY_ID(id));
-      
-      logger.info('Raw API response for prediction by id:', { 
-        id, 
+
+      logger.info('Raw API response for prediction by id:', {
+        id,
         responseKeys: response ? Object.keys(response) : [],
         hasData: !!response?.data,
-        dataKeys: response?.data ? Object.keys(response.data) : []
+        dataKeys: response?.data ? Object.keys(response.data) : [],
       });
 
       // Backend returns: { success, message, errors, data: { id, title, analysis, picks, ... } }
@@ -175,23 +175,23 @@ export class PredictionService {
         // Response is direct data
         data = response.data || response;
       }
-      
+
       if (!data) {
         throw new Error('No prediction data found in response');
       }
-      
-      logger.info('Extracted prediction data:', { 
-        id, 
+
+      logger.info('Extracted prediction data:', {
+        id,
         dataKeys: Object.keys(data),
         hasTitle: !!data.title,
         hasPicks: !!data.picks,
-        picksCount: data.picks?.length || 0
+        picksCount: data.picks?.length || 0,
       });
-      
+
       // Extract team names from title (format: "Prediction for Team A vs Team B")
       let homeTeamName = 'Home Team';
       let awayTeamName = 'Away Team';
-      
+
       if (data.title) {
         const titleMatch = data.title.match(/Prediction for (.+) vs (.+)/i);
         if (titleMatch) {
@@ -199,7 +199,7 @@ export class PredictionService {
           awayTeamName = titleMatch[2].trim();
         }
       }
-      
+
       // Build prediction object from backend data - ensure all required fields have values
       const prediction: Prediction = {
         id: data.id || 0,
@@ -261,15 +261,15 @@ export class PredictionService {
         }),
       };
 
-      logger.info('Prediction by id transformed successfully', { 
-        id, 
+      logger.info('Prediction by id transformed successfully', {
+        id,
         hasPrediction: !!prediction,
         hasDetailed: !!detailed,
         hasPicks: !!data.picks,
         predictionId: prediction.id,
-        detailedKeys: Object.keys(detailed)
+        detailedKeys: Object.keys(detailed),
       });
-      
+
       return {
         prediction,
         detailed,
@@ -337,10 +337,7 @@ export class PredictionService {
   /**
    * Get league table (optional seasonYear query param)
    */
-  static async getLeagueTable(
-    leagueId: number,
-    seasonYear?: number
-  ): Promise<LeagueTableEntry[]> {
+  static async getLeagueTable(leagueId: number, seasonYear?: number): Promise<LeagueTableEntry[]> {
     if (!leagueId || leagueId < 0) {
       throw new Error('Invalid league ID');
     }
@@ -348,14 +345,13 @@ export class PredictionService {
     logger.info('Fetching league table', { leagueId, seasonYear });
 
     try {
-      const queryParams =
-        seasonYear != null ? { seasonYear } : undefined;
+      const queryParams = seasonYear != null ? { seasonYear } : undefined;
       const response = await api.get<{ data: LeagueTableEntry[] } | LeagueTableEntry[]>(
         API_ENDPOINTS.LEAGUES.TABLE(leagueId),
         queryParams
       );
 
-      const entries = Array.isArray(response) ? response : response?.data ?? [];
+      const entries = Array.isArray(response) ? response : (response?.data ?? []);
       logger.info('League table fetched successfully', {
         leagueId,
         count: entries.length,

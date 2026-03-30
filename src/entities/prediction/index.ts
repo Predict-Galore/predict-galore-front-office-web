@@ -1,6 +1,6 @@
 /**
  * PREDICTION ENTITY - Main Export
- * 
+ *
  * Centralized exports for Prediction entity
  */
 

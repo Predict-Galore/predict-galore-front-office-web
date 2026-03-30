@@ -12,7 +12,14 @@ import type {
   NotificationSettings,
 } from '../model/types';
 
-export type { ProfileUser, Subscription, SubscriptionPlan, Transaction, Following, NotificationSettings };
+export type {
+  ProfileUser,
+  Subscription,
+  SubscriptionPlan,
+  Transaction,
+  Following,
+  NotificationSettings,
+};
 
 export interface UpdateProfileRequest {
   firstName?: string;

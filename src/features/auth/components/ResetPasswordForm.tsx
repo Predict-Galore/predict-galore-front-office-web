@@ -19,12 +19,7 @@ import {
   Dialog,
   DialogContent,
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Lock,
-  CheckCircle,
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, Lock, CheckCircle } from '@mui/icons-material';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';

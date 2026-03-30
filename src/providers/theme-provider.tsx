@@ -84,103 +84,103 @@ export const themeColors = {
 
 // Text color tokens - Using Figma neutral palette
 export const textColors = {
-  primary: themeColors.neutral[900],      // #393941
-  secondary: themeColors.neutral[600],   // #5d5e6c
-  tertiary: themeColors.neutral[500],    // #737584
-  muted: themeColors.neutral[400],       // #91939f
-  inverse: '#ffffff',                     // white
+  primary: themeColors.neutral[900], // #393941
+  secondary: themeColors.neutral[600], // #5d5e6c
+  tertiary: themeColors.neutral[500], // #737584
+  muted: themeColors.neutral[400], // #91939f
+  inverse: '#ffffff', // white
 } as const;
 
 // Background color tokens - Using Figma neutral palette
 export const backgroundColors = {
-  primary: themeColors.neutral[0],        // #ffffff
-  secondary: themeColors.neutral[50],     // #f7f7f8
-  tertiary: themeColors.neutral[100],    // #eeeef0
-  elevated: themeColors.neutral[0],      // #ffffff
-  inverse: themeColors.neutral[950],     // #101012
+  primary: themeColors.neutral[0], // #ffffff
+  secondary: themeColors.neutral[50], // #f7f7f8
+  tertiary: themeColors.neutral[100], // #eeeef0
+  elevated: themeColors.neutral[0], // #ffffff
+  inverse: themeColors.neutral[950], // #101012
 } as const;
 
 // Border color tokens - Using Figma neutral palette
 export const borderColors = {
-  light: themeColors.neutral[200],        // #d9d9de
-  medium: themeColors.neutral[300],      // #b8b9c1
+  light: themeColors.neutral[200], // #d9d9de
+  medium: themeColors.neutral[300], // #b8b9c1
   strong: `${themeColors.neutral[900]}1a`, // #393941 with 10% opacity
 } as const;
 
 // Status color tokens - Using exact Figma colors
 export const statusColors = {
   info: {
-    bg: themeColors.neutral[600],        // #5d5e6c
-    bgLight: themeColors.neutral[100],   // #eeeef0
-    text: themeColors.neutral[700],     // #4c4d58
+    bg: themeColors.neutral[600], // #5d5e6c
+    bgLight: themeColors.neutral[100], // #eeeef0
+    text: themeColors.neutral[700], // #4c4d58
     textDark: themeColors.neutral[800], // #41414b
-    border: themeColors.neutral[200],    // #d9d9de
+    border: themeColors.neutral[200], // #d9d9de
   },
   success: {
-    bg: themeColors.green[500],          // #36b15e
-    bgLight: themeColors.green[100],    // #e0f8e7
-    text: themeColors.green[700],       // #22733d
-    textDark: themeColors.green[800],   // #1e5631
-    border: themeColors.green[200],      // #c2f0d0
+    bg: themeColors.green[500], // #36b15e
+    bgLight: themeColors.green[100], // #e0f8e7
+    text: themeColors.green[700], // #22733d
+    textDark: themeColors.green[800], // #1e5631
+    border: themeColors.green[200], // #c2f0d0
   },
   warning: {
-    bg: themeColors.warmRed[500],        // #efbe03
-    bgLight: themeColors.warmRed[100],  // #fffcc2
-    text: themeColors.warmRed[700],     // #a46804
+    bg: themeColors.warmRed[500], // #efbe03
+    bgLight: themeColors.warmRed[100], // #fffcc2
+    text: themeColors.warmRed[700], // #a46804
     textDark: themeColors.warmRed[800], // #88510b
-    border: themeColors.warmRed[200],     // #fff687
+    border: themeColors.warmRed[200], // #fff687
   },
   danger: {
-    bg: themeColors.coolRed[500],        // #ec4751
-    bgLight: themeColors.coolRed[100],   // #fee6e5
-    text: themeColors.coolRed[700],      // #b61a2e
+    bg: themeColors.coolRed[500], // #ec4751
+    bgLight: themeColors.coolRed[100], // #fee6e5
+    text: themeColors.coolRed[700], // #b61a2e
     textDark: themeColors.coolRed[800], // #98192d
-    border: themeColors.coolRed[200],    // #fccfd0
+    border: themeColors.coolRed[200], // #fccfd0
   },
   neutral: {
-    bg: themeColors.neutral[700],        // #4c4d58
-    bgLight: themeColors.neutral[100],   // #eeeef0
-    text: themeColors.neutral[700],      // #4c4d58
+    bg: themeColors.neutral[700], // #4c4d58
+    bgLight: themeColors.neutral[100], // #eeeef0
+    text: themeColors.neutral[700], // #4c4d58
     textDark: themeColors.neutral[900], // #393941
-    border: themeColors.neutral[200],    // #d9d9de
+    border: themeColors.neutral[200], // #d9d9de
   },
 } as const;
 
 // Button color tokens
 export const buttonColors = {
   primary: {
-    bg: '#dc2626',         // red-600
-    text: '#ffffff',       // white
-    bgHover: '#b91c1c',    // red-700
-    ring: '#ef4444',       // red-500
+    bg: '#dc2626', // red-600
+    text: '#ffffff', // white
+    bgHover: '#b91c1c', // red-700
+    ring: '#ef4444', // red-500
   },
   secondary: {
-    bg: '#111827',         // gray-900
-    text: '#ffffff',       // white
-    bgHover: '#1f2937',    // gray-800
-    ring: '#6b7280',       // gray-500
+    bg: '#111827', // gray-900
+    text: '#ffffff', // white
+    bgHover: '#1f2937', // gray-800
+    ring: '#6b7280', // gray-500
   },
   outline: {
-    bg: 'transparent',     // transparent
-    text: '#111827',       // gray-900
-    bgHover: '#f9fafb',    // gray-50
-    ring: '#6b7280',       // gray-500
+    bg: 'transparent', // transparent
+    text: '#111827', // gray-900
+    bgHover: '#f9fafb', // gray-50
+    ring: '#6b7280', // gray-500
   },
 } as const;
 
 // Stat color tokens
 export const statColors = {
   primary: {
-    bg: '#f9fafb',         // gray-50
-    textLarge: '#111827',  // gray-900
+    bg: '#f9fafb', // gray-50
+    textLarge: '#111827', // gray-900
   },
   success: {
-    bg: '#ecfdf5',         // emerald-50
-    textLarge: '#047857',  // emerald-700
+    bg: '#ecfdf5', // emerald-50
+    textLarge: '#047857', // emerald-700
   },
   accent: {
-    bg: '#eff6ff',         // blue-50
-    textLarge: '#1d4ed8',  // blue-700
+    bg: '#eff6ff', // blue-50
+    textLarge: '#1d4ed8', // blue-700
   },
 } as const;
 
@@ -335,9 +335,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={theme}>
-      <div style={cssVariables}>
-        {children}
-      </div>
+      <div style={cssVariables}>{children}</div>
     </ThemeContext.Provider>
   );
 }

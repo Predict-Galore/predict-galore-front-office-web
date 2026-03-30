@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({
   onSearch,
   onDateChange,
   user,
-  isAuthenticated = false
+  isAuthenticated = false,
 }) => {
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -131,8 +131,8 @@ const Header: React.FC<HeaderProps> = ({
             }}
           >
             <div className="w-full max-w-md">
-              <SearchBar 
-                onSearch={handleSearch} 
+              <SearchBar
+                onSearch={handleSearch}
                 onResultClick={handleSearchResultClick}
                 variant="header"
               />
@@ -141,13 +141,25 @@ const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Right Section - Actions */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flex: 1, minWidth: 0 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: { xs: 4, md: 6 } }}>
-            <DatePickerComponent 
-              value={selectedDate} 
-              onDateChange={handleDateChange} 
-            />
-            
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: { xs: 4, md: 6 },
+            }}
+          >
+            <DatePickerComponent value={selectedDate} onDateChange={handleDateChange} />
+
             <NotificationButton />
 
             {isAuthenticated ? (
@@ -161,12 +173,12 @@ const Header: React.FC<HeaderProps> = ({
           </Box>
         </Box>
       </Toolbar>
-      
+
       {/* Mobile Search Bar */}
       {isMobile && (
         <Box sx={{ px: 2, pb: 3 }}>
-          <SearchBar 
-            onSearch={handleSearch} 
+          <SearchBar
+            onSearch={handleSearch}
             onResultClick={handleSearchResultClick}
             variant="header"
           />

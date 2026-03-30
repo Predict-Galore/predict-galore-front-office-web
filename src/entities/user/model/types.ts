@@ -1,6 +1,6 @@
 /**
  * USER ENTITY - Domain Model
- * 
+ *
  * Core user business entity with comprehensive type definitions
  */
 

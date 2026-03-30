@@ -83,12 +83,12 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBa
       await submitForgotPassword(cleanFormData, {
         onSuccess: () => {
           setIsRedirecting(true);
-          
+
           // Redirect to OTP verification page with email
           setTimeout(() => {
             router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
           }, 500);
-          
+
           if (onSuccess) {
             onSuccess();
           }

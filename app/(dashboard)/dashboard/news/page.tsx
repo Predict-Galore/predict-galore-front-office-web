@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Container, Stack, Box, Paper, Typography, Chip } from '@mui/material';
 import ArticleIcon from '@mui/icons-material/Article';
 import { SportTabs } from '@/shared/components/shared';
@@ -52,6 +52,8 @@ const NewsPage: React.FC = () => {
     refetch: refetchNews,
   } = useNews({ page: 1, pageSize: 20 });
 
+  const activeSport = selectedSport ?? sports[0] ?? null;
+
   // Get soccer sport for Premier League table
   const soccerSport = sports.find(
     (s) => s.name.toLowerCase() === 'soccer' || s.name.toLowerCase() === 'football'
@@ -63,13 +65,6 @@ const NewsPage: React.FC = () => {
   });
 
   const premierLeague = leagues.find((l) => l.name === 'Premier League');
-
-  // Set default sport when sports load
-  useEffect(() => {
-    if (!selectedSport && sports.length > 0) {
-      setSelectedSport(sports[0]);
-    }
-  }, [selectedSport, sports]);
 
   /**
    * Handle sport selection
@@ -104,11 +99,11 @@ const NewsPage: React.FC = () => {
    * Filter news by selected sport
    */
   const filterNewsBySport = (newsItems: NewsItem[]): NewsItem[] => {
-    if (!selectedSport || selectedSport.name === 'All Sports') {
+    if (!activeSport || activeSport.name === 'All Sports') {
       return newsItems;
     }
 
-    const categories = getSportCategories(selectedSport.name);
+    const categories = getSportCategories(activeSport.name);
     return newsItems.filter((item) =>
       categories.some((cat) => item.category?.toLowerCase().includes(cat))
     );
@@ -130,7 +125,7 @@ const NewsPage: React.FC = () => {
   const isLoading = loadingFeatured || loadingNews;
   const isError = featuredError || newsError;
   const hasContent = featuredArticle || allNews.length > 0;
-  const sportName = selectedSport?.name || 'this sport';
+  const sportName = activeSport?.name || 'this sport';
 
   /**
    * Render loading skeleton
@@ -292,7 +287,7 @@ const NewsPage: React.FC = () => {
         {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={selectedSport}
+          selectedSport={activeSport}
           onSelectSport={handleSportChange}
           isLoading={loadingSports}
         />
@@ -303,79 +298,84 @@ const NewsPage: React.FC = () => {
             <SelectedNewsView articleId={selectedNewsId} onBack={() => setSelectedNewsId(null)} />
           ) : (
             <>
-          {/* Loading state */}
-          {isLoading && !hasContent ? (
-            renderLoading()
-          ) : /* Error state */
-          isError && !hasContent ? (
-            <ErrorState
-              title={`Unable to load news for ${sportName}`}
-              error="News is temporarily unavailable"
-              onRetry={() => {
-                refetchFeatured();
-                refetchNews();
-              }}
-            />
-          ) : /* Empty state */
-          !hasContent ? (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <ArticleIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                No news available for {sportName}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Check back later for new articles
-              </Typography>
-            </Box>
-          ) : (
-            /* Content */
-            <Stack spacing={6}>
-              {/* Featured Article Hero */}
-              {renderFeaturedArticle()}
-
-              {/* News Grid with League Table */}
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-                  gap: 4,
-                }}
-              >
-                {/* News Articles */}
-                <Box>
-                  {allNews.length > 0 ? (
-                    <SportsArticleSection
-                      articles={allNews}
-                      showViewMore={false}
-                      onReadMore={(article: NewsItem) => setSelectedNewsId(article.id)}
-                    />
-                  ) : (
-                    <Paper sx={{ p: 3, textAlign: 'center', border: 1, borderColor: 'divider' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        No news available for {sportName}
-                      </Typography>
-                    </Paper>
-                  )}
+              {/* Loading state */}
+              {isLoading && !hasContent ? (
+                renderLoading()
+              ) : /* Error state */
+              isError && !hasContent ? (
+                <ErrorState
+                  title={`Unable to load news for ${sportName}`}
+                  error="News is temporarily unavailable"
+                  onRetry={() => {
+                    refetchFeatured();
+                    refetchNews();
+                  }}
+                />
+              ) : /* Empty state */
+              !hasContent ? (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <ArticleIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    No news available for {sportName}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Check back later for new articles
+                  </Typography>
                 </Box>
+              ) : (
+                /* Content */
+                <Stack spacing={6}>
+                  {/* Featured Article Hero */}
+                  {renderFeaturedArticle()}
 
-                {/* Premier League Table */}
-                {premierLeague && (
-                  <Paper
-                    elevation={0}
+                  {/* News Grid with League Table */}
+                  <Box
                     sx={{
-                      p: 2.5,
-                      borderRadius: 2,
-                      border: 1,
-                      borderColor: 'divider',
-                      display: { xs: 'none', lg: 'block' },
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
+                      gap: 4,
                     }}
                   >
-                    <LeagueTableSection leagueId={premierLeague.id} title="Premier League Table" />
-                  </Paper>
-                )}
-              </Box>
-            </Stack>
-          )}
+                    {/* News Articles */}
+                    <Box>
+                      {allNews.length > 0 ? (
+                        <SportsArticleSection
+                          articles={allNews}
+                          showViewMore={false}
+                          onReadMore={(article: NewsItem) => setSelectedNewsId(article.id)}
+                        />
+                      ) : (
+                        <Paper
+                          sx={{ p: 3, textAlign: 'center', border: 1, borderColor: 'divider' }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            No news available for {sportName}
+                          </Typography>
+                        </Paper>
+                      )}
+                    </Box>
+
+                    {/* Premier League Table */}
+                    {premierLeague && (
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 2.5,
+                          borderRadius: 2,
+                          border: 1,
+                          borderColor: 'divider',
+                          display: { xs: 'none', lg: 'block' },
+                        }}
+                      >
+                        <LeagueTableSection
+                          leagueId={premierLeague.id}
+                          title="Premier League Table"
+                        />
+                      </Paper>
+                    )}
+                  </Box>
+                </Stack>
+              )}
             </>
           )}
         </Paper>

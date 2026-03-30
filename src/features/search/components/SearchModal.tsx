@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Menu, MenuItem, ListItemText, ListItemIcon, Avatar } from '@mui/material';
 import { useSearchStore } from '../model/store';
 import { getSafeImageUrl } from '@/shared/utils/imageUtils';
@@ -19,7 +19,7 @@ interface SearchModalProps {
 
 const SearchModal: React.FC<SearchModalProps> = ({ onResultClick, onClose }) => {
   const { isOpen, setIsOpen } = useSearchStore();
-  const anchorRef = useRef<HTMLInputElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLInputElement | null>(null);
   const results: SearchResult[] = [];
   // TODO: Replace with actual search results from store/query
 
@@ -27,11 +27,14 @@ const SearchModal: React.FC<SearchModalProps> = ({ onResultClick, onClose }) => 
 
   return (
     <>
-      <SearchBar ref={anchorRef} />
+      <SearchBar ref={setAnchorEl} />
       <Menu
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         open={isOpen}
-        onClose={() => { setIsOpen(false); onClose?.(); }}
+        onClose={() => {
+          setIsOpen(false);
+          onClose?.();
+        }}
         PaperProps={{ sx: { minWidth: 340, maxHeight: 400 } }}
       >
         {results.length === 0 ? (
@@ -46,10 +49,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ onResultClick, onClose }) => 
                   <Avatar src={getSafeImageUrl(result.imageUrl)} alt={result.title} />
                 </ListItemIcon>
               )}
-              <ListItemText
-                primary={result.title}
-                secondary={result.subtitle}
-              />
+              <ListItemText primary={result.title} secondary={result.subtitle} />
             </MenuItem>
           ))
         )}

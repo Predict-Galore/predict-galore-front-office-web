@@ -16,10 +16,7 @@ import Banner from '@/features/dashboard/components/Banner';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
 import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
 import { useSports } from '@/features/predictions/api/hooks';
-import {
-  useLiveMatchesStore,
-  useSelectedLiveMatch,
-} from '@/features/live-matches/model/store';
+import { useLiveMatchesStore, useSelectedLiveMatch } from '@/features/live-matches/model/store';
 import withAuth from '../../../hoc/withAuth';
 import type { Match } from '@/features/live-matches/model/types';
 import type { Sport } from '@/features/predictions/model/types';
@@ -37,16 +34,13 @@ const LiveMatchesPage: React.FC = () => {
   const selectedMatch = useSelectedLiveMatch();
 
   // Fetch sports list
-  const {
-    data: sports = [],
-    isLoading: loadingSports,
-    isError: sportsError,
-  } = useSports();
+  const { data: sports = [], isLoading: loadingSports, isError: sportsError } = useSports();
+
+  const activeSport = selectedSport ?? sports[0] ?? null;
 
   // Get sport name for live matches API (convert 'football' to 'soccer')
-  const liveSportName = selectedSport?.name?.toLowerCase() === 'football'
-    ? 'soccer'
-    : selectedSport?.name?.toLowerCase();
+  const liveSportName =
+    activeSport?.name?.toLowerCase() === 'football' ? 'soccer' : activeSport?.name?.toLowerCase();
 
   // Fetch live matches for selected sport
   const {
@@ -55,10 +49,9 @@ const LiveMatchesPage: React.FC = () => {
     isFetching: isFetchingMatches,
     isError: matchesError,
     refetch: refetchMatches,
-  } = useLiveScoresQuery(
-    liveSportName ? { sport: liveSportName } : undefined,
-    { enabled: !!liveSportName }
-  );
+  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName } : undefined, {
+    enabled: !!liveSportName,
+  });
 
   // Fetch detailed match data when a match is selected
   const {
@@ -67,13 +60,6 @@ const LiveMatchesPage: React.FC = () => {
     isError: detailedError,
     refetch: refetchDetailed,
   } = useDetailedLiveMatchQuery(selectedMatch?.id || null);
-
-  // Set default sport when sports load
-  useEffect(() => {
-    if (!selectedSport && sports.length > 0) {
-      setSelectedSport(sports[0]);
-    }
-  }, [selectedSport, sports]);
 
   /**
    * Handle sport selection
@@ -132,7 +118,7 @@ const LiveMatchesPage: React.FC = () => {
 
   const matchesByCompetition = groupMatchesByCompetition();
   const hasMatches = Object.keys(matchesByCompetition).length > 0;
-  const sportName = selectedSport?.name || 'this sport';
+  const sportName = activeSport?.name || 'this sport';
 
   /**
    * Render match detail view
@@ -154,9 +140,7 @@ const LiveMatchesPage: React.FC = () => {
 
     // Loading detailed match
     if (isDetailedLoading || !detailedMatchData) {
-      return (
-        <LoadingState variant="skeleton" />
-      );
+      return <LoadingState variant="skeleton" />;
     }
 
     // Show detailed match view
@@ -234,7 +218,7 @@ const LiveMatchesPage: React.FC = () => {
   // Show error if sports failed to load
   if (sportsError) {
     return (
-      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <ErrorState
           title="Unable to load sports"
           error="Failed to load sports data"
@@ -247,7 +231,7 @@ const LiveMatchesPage: React.FC = () => {
   // Show loading skeleton on initial load
   if (loadingSports && sports.length === 0) {
     return (
-      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <Stack spacing={3}>
           <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
           <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
@@ -260,7 +244,7 @@ const LiveMatchesPage: React.FC = () => {
   // Show empty state if no sports available
   if (sports.length === 0) {
     return (
-      <Container  maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
         <Box
           sx={{
             bgcolor: 'background.paper',
@@ -292,15 +276,13 @@ const LiveMatchesPage: React.FC = () => {
         {/* Sport Tabs */}
         <SportTabs
           sports={sports}
-          selectedSport={selectedSport}
+          selectedSport={activeSport}
           onSelectSport={handleSportChange}
           isLoading={loadingSports}
         />
 
         {/* Matches Content */}
-        <Box>
-          {selectedMatch ? renderMatchDetail() : renderMatchesList()}
-        </Box>
+        <Box>{selectedMatch ? renderMatchDetail() : renderMatchesList()}</Box>
       </Stack>
     </Container>
   );

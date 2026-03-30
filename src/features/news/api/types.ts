@@ -42,13 +42,15 @@ export interface NewsListResponse {
   success: boolean;
   message: string;
   errors: string | null;
-  data: NewsResponse[] | {
-    items: NewsResponse[];
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
+  data:
+    | NewsResponse[]
+    | {
+        items: NewsResponse[];
+        total: number;
+        page: number;
+        pageSize: number;
+        totalPages: number;
+      };
 }
 
 export interface NewsDetailResponse {

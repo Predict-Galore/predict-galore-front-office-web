@@ -1,19 +1,19 @@
 /**
  * USER ENTITY - Utility Functions
- * 
+ *
  * Common utility functions for User entity operations
  */
 
-import { 
-  User, 
-  UserProfile, 
-  AuthUser, 
-  UserRole, 
+import {
+  User,
+  UserProfile,
+  AuthUser,
+  UserRole,
   SubscriptionPlan,
   SubscriptionStatus,
   UserPreferences,
   UserStats,
-  NotificationPreferences
+  NotificationPreferences,
 } from './types';
 
 /**
@@ -44,12 +44,14 @@ export function isPremium(user: User | AuthUser): boolean {
   if (hasAnyRole(user, ['premium', 'admin'])) {
     return true;
   }
-  
+
   if ('subscription' in user && user.subscription) {
-    return user.subscription.status === 'active' && 
-           ['premium', 'pro', 'enterprise'].includes(user.subscription.plan);
+    return (
+      user.subscription.status === 'active' &&
+      ['premium', 'pro', 'enterprise'].includes(user.subscription.plan)
+    );
   }
-  
+
   return false;
 }
 
@@ -87,15 +89,15 @@ export function getDisplayName(user: User | AuthUser | UserProfile): string {
   if ('displayName' in user) {
     return user.displayName;
   }
-  
+
   if (user.firstName && user.lastName) {
     return `${user.firstName} ${user.lastName}`;
   }
-  
+
   if (user.username) {
     return user.username;
   }
-  
+
   return user.email.split('@')[0];
 }
 
@@ -106,15 +108,15 @@ export function getInitials(user: User | AuthUser | UserProfile): string {
   if ('initials' in user) {
     return user.initials;
   }
-  
+
   if (user.firstName && user.lastName) {
     return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
   }
-  
+
   if (user.username) {
     return user.username.substring(0, 2).toUpperCase();
   }
-  
+
   return user.email.substring(0, 2).toUpperCase();
 }
 
@@ -132,13 +134,7 @@ export function getFullName(user: User | AuthUser): string | null {
  * Check if user has completed their profile
  */
 export function hasCompleteProfile(user: User): boolean {
-  return !!(
-    user.firstName &&
-    user.lastName &&
-    user.username &&
-    user.country &&
-    user.dateOfBirth
-  );
+  return !!(user.firstName && user.lastName && user.username && user.country && user.dateOfBirth);
 }
 
 /**
@@ -154,8 +150,8 @@ export function getProfileCompletionPercentage(user: User): number {
     user.dateOfBirth,
     user.country,
   ];
-  
-  const completedFields = fields.filter(field => field && field.trim() !== '').length;
+
+  const completedFields = fields.filter((field) => field && field.trim() !== '').length;
   return Math.round((completedFields / fields.length) * 100);
 }
 
@@ -166,7 +162,7 @@ export function hasActiveSubscription(user: User | AuthUser): boolean {
   if (!('subscription' in user) || !user.subscription) {
     return false;
   }
-  
+
   return user.subscription.status === 'active';
 }
 
@@ -177,11 +173,11 @@ export function isSubscriptionExpiringSoon(user: User): boolean {
   if (!user.subscription || !user.subscription.endDate) {
     return false;
   }
-  
+
   const endDate = new Date(user.subscription.endDate);
   const now = new Date();
   const daysUntilExpiry = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   return daysUntilExpiry <= 7 && daysUntilExpiry > 0;
 }
 
@@ -196,7 +192,7 @@ export function getSubscriptionStatusText(status: SubscriptionStatus): string {
     trial: 'Trial',
     past_due: 'Past Due',
   };
-  
+
   return statusMap[status] || 'Unknown';
 }
 
@@ -211,7 +207,7 @@ export function getSubscriptionPlanText(plan: SubscriptionPlan): string {
     pro: 'Pro',
     enterprise: 'Enterprise',
   };
-  
+
   return planMap[plan] || 'Unknown';
 }
 
@@ -222,16 +218,18 @@ export function calculateAccuracy(stats: UserStats): number {
   if (stats.totalPredictions === 0) {
     return 0;
   }
-  
+
   return Math.round((stats.correctPredictions / stats.totalPredictions) * 100);
 }
 
 /**
  * Get user's performance level based on accuracy
  */
-export function getPerformanceLevel(stats: UserStats): 'beginner' | 'intermediate' | 'advanced' | 'expert' {
+export function getPerformanceLevel(
+  stats: UserStats
+): 'beginner' | 'intermediate' | 'advanced' | 'expert' {
   const accuracy = calculateAccuracy(stats);
-  
+
   if (accuracy >= 80) return 'expert';
   if (accuracy >= 65) return 'advanced';
   if (accuracy >= 50) return 'intermediate';
@@ -261,12 +259,12 @@ export function getPreferredTheme(preferences: UserPreferences): 'light' | 'dark
 export function prefersDarkMode(preferences: UserPreferences): boolean {
   if (preferences.theme === 'dark') return true;
   if (preferences.theme === 'light') return false;
-  
+
   // For 'system', check system preference
   if (typeof window !== 'undefined') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
-  
+
   return false;
 }
 
@@ -280,12 +278,12 @@ export function formatLastActivity(lastActivity: string): string {
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMinutes / 60);
   const diffInDays = Math.floor(diffInHours / 24);
-  
+
   if (diffInMinutes < 1) return 'Just now';
   if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
   if (diffInHours < 24) return `${diffInHours} hours ago`;
   if (diffInDays < 7) return `${diffInDays} days ago`;
-  
+
   return activityDate.toLocaleDateString();
 }
 
@@ -294,11 +292,11 @@ export function formatLastActivity(lastActivity: string): string {
  */
 export function isRecentlyActive(user: User): boolean {
   if (!user.stats.lastActivity) return false;
-  
+
   const now = new Date();
   const lastActivity = new Date(user.stats.lastActivity);
   const diffInHours = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
-  
+
   return diffInHours <= 24;
 }
 
@@ -307,10 +305,10 @@ export function isRecentlyActive(user: User): boolean {
  */
 export function getTimezoneOffset(user: User): number {
   if (!user.timezone) return 0;
-  
+
   try {
     const now = new Date();
-    const utc = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
     const userTime = new Date(utc.toLocaleString('en-US', { timeZone: user.timezone }));
     return (userTime.getTime() - utc.getTime()) / (1000 * 60 * 60);
   } catch {
@@ -323,17 +321,17 @@ export function getTimezoneOffset(user: User): number {
  */
 export function formatDateInUserTimezone(date: string | Date, user: User): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (!user.timezone) {
     return dateObj.toLocaleDateString();
   }
-  
+
   try {
-    return dateObj.toLocaleDateString('en-US', { 
+    return dateObj.toLocaleDateString('en-US', {
       timeZone: user.timezone,
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   } catch {
     return dateObj.toLocaleDateString();
@@ -406,7 +404,7 @@ export function sanitizeUserForPublic(user: User): Partial<User> {
   void isPhoneVerified;
   void lastLoginAt;
   void subscription;
-  
+
   const sanitizedPreferences: UserPreferences = {
     theme: preferences.theme,
     notifications: {
@@ -445,17 +443,17 @@ export function canAccessUserData(
   if (currentUser.id === targetUserId) {
     return true;
   }
-  
+
   // Admin can access all data
   if (hasRole(currentUser, 'admin')) {
     return true;
   }
-  
+
   // Moderators can access public and some private data
   if (hasRole(currentUser, 'moderator') && dataType !== 'admin') {
     return true;
   }
-  
+
   // Regular users can only access public data of other users
   return dataType === 'public';
 }

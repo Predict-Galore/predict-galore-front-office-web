@@ -1,11 +1,17 @@
 /**
  * CARD COMPONENT - Material UI Implementation
- * 
+ *
  * Uses Material UI Card/Paper components with custom theme styling
  */
 
 import React, { forwardRef } from 'react';
-import { Card as MuiCard, CardProps as MuiCardProps, Box, Typography, BoxProps } from '@mui/material';
+import {
+  Card as MuiCard,
+  CardProps as MuiCardProps,
+  Box,
+  Typography,
+  BoxProps,
+} from '@mui/material';
 
 export interface CardProps extends Omit<MuiCardProps, 'variant'> {
   variant?: 'default' | 'outlined' | 'elevated' | 'filled';
@@ -126,7 +132,15 @@ const CardHeaderComponent = forwardRef<HTMLDivElement, CardHeaderProps>(
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
           {title && (
-            <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: 'text.primary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               {title}
             </Typography>
           )}
@@ -137,11 +151,7 @@ const CardHeaderComponent = forwardRef<HTMLDivElement, CardHeaderProps>(
           )}
           {children}
         </Box>
-        {action && (
-          <Box sx={{ flexShrink: 0 }}>
-            {action}
-          </Box>
-        )}
+        {action && <Box sx={{ flexShrink: 0 }}>{action}</Box>}
       </Box>
     );
   }

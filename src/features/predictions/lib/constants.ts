@@ -6,8 +6,7 @@
 export const PREDICTIONS_CONSTANTS = {
   /** Static banner content (no backend endpoint). */
   BANNER: {
-    QUOTE:
-      'Bet with your head, not over it. Stay in control and enjoy the game responsibly.',
+    QUOTE: 'Bet with your head, not over it. Stay in control and enjoy the game responsibly.',
     AUTHOR: 'Billy Walters',
   },
 
@@ -47,7 +46,6 @@ export const PREDICTIONS_CONSTANTS = {
       'Champions League',
     ],
   },
-
 } as const;
 
 // Export as DASHBOARD_CONSTANTS for backward compatibility during migration

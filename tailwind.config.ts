@@ -7,18 +7,15 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./app/**/*.{js,ts,jsx,tsx,mdx}', './src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
         // Exact Figma Green palette
         primary: {
           DEFAULT: '#36b15e', // green-500
-          light: '#5ccc80',   // green-400
-          dark: '#22733d',    // green-700
+          light: '#5ccc80', // green-400
+          dark: '#22733d', // green-700
           50: '#f2fbf5',
           100: '#e0f8e7',
           200: '#c2f0d0',
@@ -34,8 +31,8 @@ const config: Config = {
         // Exact Figma Cool Red/Pink palette
         secondary: {
           DEFAULT: '#ec4751', // coolRed-500
-          light: '#f5777b',   // coolRed-400
-          dark: '#b61a2e',    // coolRed-700
+          light: '#f5777b', // coolRed-400
+          dark: '#b61a2e', // coolRed-700
           50: '#fef2f2',
           100: '#fee6e5',
           200: '#fccfd0',

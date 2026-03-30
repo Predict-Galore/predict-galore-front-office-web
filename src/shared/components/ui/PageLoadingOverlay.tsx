@@ -17,17 +17,17 @@ interface PageLoadingOverlayProps {
 
 /**
  * PageLoadingOverlay Component
- * 
+ *
  * Displays a full-screen overlay with a loading spinner when navigating between pages.
- * 
+ *
  * @example
  * ```tsx
  * <PageLoadingOverlay isLoading={isNavigating} message="Loading page..." />
  * ```
  */
-const PageLoadingOverlay: React.FC<PageLoadingOverlayProps> = ({ 
-  isLoading, 
-  message = 'Loading...' 
+const PageLoadingOverlay: React.FC<PageLoadingOverlayProps> = ({
+  isLoading,
+  message = 'Loading...',
 }) => {
   // Don't render anything if not loading (for better performance)
   if (!isLoading) return null;
@@ -51,16 +51,8 @@ const PageLoadingOverlay: React.FC<PageLoadingOverlayProps> = ({
           gap: 2,
         }}
       >
-        <CircularProgress 
-          size={56} 
-          thickness={4}
-          sx={{ color: 'success.main' }}
-        />
-        <Typography 
-          variant="body1" 
-          color="text.secondary"
-          fontWeight={600}
-        >
+        <CircularProgress size={56} thickness={4} sx={{ color: 'success.main' }} />
+        <Typography variant="body1" color="text.secondary" fontWeight={600}>
           {message}
         </Typography>
       </Box>

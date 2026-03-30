@@ -41,11 +41,7 @@ const MatchDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   // Fetch match data
-  const {
-    data: matchData,
-    isLoading,
-    error,
-  } = usePredictionById(matchId, { enabled: !!matchId });
+  const { data: matchData, isLoading, error } = usePredictionById(matchId, { enabled: !!matchId });
 
   // Log for debugging when table tab is active
   React.useEffect(() => {
@@ -155,7 +151,6 @@ const MatchDetailPage: React.FC = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
       {/* Top Navigation Bar */}
- 
 
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 3, pb: isMobile ? 10 : 3 }}>
@@ -179,10 +174,7 @@ const MatchDetailPage: React.FC = () => {
             }}
           >
             {activeTab === 'overview' && (
-              <OverviewTab
-                prediction={prediction}
-                detailed={matchData.detailed}
-              />
+              <OverviewTab prediction={prediction} detailed={matchData.detailed} />
             )}
 
             {activeTab === 'predictions' && (

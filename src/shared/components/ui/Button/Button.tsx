@@ -1,12 +1,16 @@
 /**
  * BUTTON COMPONENT - Material UI Implementation
- * 
+ *
  * Matches Figma design specifications exactly
  * Uses Material UI Button with custom theme styling
  */
 
 import React, { forwardRef } from 'react';
-import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material';
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps,
+  CircularProgress,
+} from '@mui/material';
 import { ChevronRight } from '@mui/icons-material';
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant' | 'size'> {
@@ -43,22 +47,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           : { minHeight: 56, px: 3.5, fontSize: '1.05rem' };
 
     // Map custom variants to MUI variants
-    const muiVariant: 'contained' | 'outlined' | 'text' = 
-      variant === 'primary' || variant === 'danger' ? 'contained' :
-      variant === 'outline' || variant === 'social' ? 'outlined' :
-      'text';
+    const muiVariant: 'contained' | 'outlined' | 'text' =
+      variant === 'primary' || variant === 'danger'
+        ? 'contained'
+        : variant === 'outline' || variant === 'social'
+          ? 'outlined'
+          : 'text';
 
     // Map custom sizes to MUI sizes
-    const muiSize: 'small' | 'medium' | 'large' = 
-      size === 'sm' ? 'small' :
-      size === 'lg' ? 'large' :
-      'medium';
+    const muiSize: 'small' | 'medium' | 'large' =
+      size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'medium';
 
     // Map color based on variant
-    const color: 'primary' | 'secondary' | 'error' = 
-      variant === 'danger' ? 'error' :
-      variant === 'primary' ? 'primary' :
-      'primary';
+    const color: 'primary' | 'secondary' | 'error' =
+      variant === 'danger' ? 'error' : variant === 'primary' ? 'primary' : 'primary';
 
     // For icon-only buttons, use IconButton
     if (variant === 'icon' || (!children && (leftIcon || rightIcon))) {
@@ -167,9 +169,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <CircularProgress 
-              size={muiSize === 'small' ? 16 : muiSize === 'large' ? 24 : 20} 
-              color="inherit" 
+            <CircularProgress
+              size={muiSize === 'small' ? 16 : muiSize === 'large' ? 24 : 20}
+              color="inherit"
               sx={{ mr: 1 }}
             />
             {children}

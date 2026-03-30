@@ -35,9 +35,17 @@ const NoResults: React.FC<NoResultsProps> = ({ query, className }) => {
       </Typography>
 
       {/* Description */}
-      <Typography variant="body1" sx={{ color: 'text.secondary', textAlign: 'center', maxWidth: 400 }}>
+      <Typography
+        variant="body1"
+        sx={{ color: 'text.secondary', textAlign: 'center', maxWidth: 400 }}
+      >
         We couldn&apos;t find any matches to your search
-        {query && <Typography component="span" sx={{ fontWeight: 500 }}> &quot;{query}&quot;</Typography>}
+        {query && (
+          <Typography component="span" sx={{ fontWeight: 500 }}>
+            {' '}
+            &quot;{query}&quot;
+          </Typography>
+        )}
       </Typography>
     </Box>
   );
