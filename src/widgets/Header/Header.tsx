@@ -21,7 +21,6 @@ import { useAuthStore } from '@/features/auth/model/store';
 interface HeaderProps {
   onSearch?: (query: string) => void;
   onDateChange?: (date: Date) => void;
-  onMenuToggle?: () => void;
   user?: {
     id: string;
     email: string;
@@ -114,8 +113,8 @@ const Header: React.FC<HeaderProps> = ({
           alignItems: 'center',
         }}
       >
-        {/* Left Side - Brand Logo */}
-        <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, gap: 3 }}>
+        {/* Left Side - Menu (Mobile) + Brand */}
+        <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
           <BrandLogo />
         </Box>
 
@@ -127,7 +126,7 @@ const Header: React.FC<HeaderProps> = ({
               justifyContent: 'center',
               minWidth: 0,
               mx: { xs: 1, md: 2 },
-              flex: 2,
+              flex: 1,
             }}
           >
             <div className="w-full max-w-md">
@@ -140,28 +139,19 @@ const Header: React.FC<HeaderProps> = ({
           </Box>
         )}
 
-        {/* Right Section - Actions */}
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            flex: 1,
             minWidth: 0,
           }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: { xs: 4, md: 6 },
-            }}
           >
-            <DatePickerComponent value={selectedDate} onDateChange={handleDateChange} />
-
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 } }}>
+            {!isMobile ? (
+              <DatePickerComponent value={selectedDate} onDateChange={handleDateChange} />
+            ) : null}
             <NotificationButton />
-
             {isAuthenticated ? (
               <ProfileDropdown
                 user={user}

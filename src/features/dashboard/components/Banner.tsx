@@ -9,9 +9,9 @@
 
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Share } from '@mui/icons-material';
-import { IconButton, Box, Typography } from '@mui/material';
+import { IconButton, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { PREDICTIONS_CONSTANTS } from '@/features/predictions/lib/constants';
 
 /**
@@ -22,7 +22,60 @@ interface BannerProps {
   className?: string;
 }
 
+const DAILY_QUOTES: Array<{ quote: string; author: string }> = [
+  { quote: 'Predictions are earned: research, stake, repeat.', author: 'Predict Galore' },
+  { quote: 'Good bets start with good data.', author: 'Predict Galore' },
+  { quote: 'Discipline beats excitement—every single ticket.', author: 'Predict Galore' },
+  { quote: 'Your edge is preparation, not luck.', author: 'Predict Galore' },
+  { quote: 'When the odds move, your thinking should too.', author: 'Predict Galore' },
+  { quote: 'Chase value, not wins.', author: 'Predict Galore' },
+  { quote: 'A small edge, consistently applied, compounds.', author: 'Predict Galore' },
+  { quote: 'Bankroll management is the real superpower.', author: 'Predict Galore' },
+  { quote: 'If you can’t explain the pick, don’t place it.', author: 'Predict Galore' },
+  { quote: 'Let the numbers talk; keep emotions quiet.', author: 'Predict Galore' },
+  { quote: 'The best bettors know when to pass.', author: 'Predict Galore' },
+  { quote: 'One game doesn’t define your strategy.', author: 'Predict Galore' },
+  { quote: 'Sharp decisions look boring—until they win long-term.', author: 'Predict Galore' },
+  { quote: 'Form is temporary; process is permanent.', author: 'Predict Galore' },
+  { quote: 'Think in probabilities, not guarantees.', author: 'Predict Galore' },
+  { quote: 'Back your model, but audit your bias.', author: 'Predict Galore' },
+  { quote: 'Your plan matters more than your prediction.', author: 'Predict Galore' },
+  { quote: 'Stay selective: fewer bets, better bets.', author: 'Predict Galore' },
+  { quote: 'Great picks are patient picks.', author: 'Predict Galore' },
+  { quote: 'Track results. Improve the process. Repeat.', author: 'Predict Galore' },
+  { quote: 'Variance is loud; discipline is louder.', author: 'Predict Galore' },
+  { quote: 'The goal is growth, not glory.', author: 'Predict Galore' },
+  { quote: 'Betting is a marathon—pace your stakes.', author: 'Predict Galore' },
+  { quote: 'A calm mind finds better lines.', author: 'Predict Galore' },
+  { quote: 'Protect your bankroll like it’s your trophy.', author: 'Predict Galore' },
+  { quote: 'The strongest move is sometimes no move.', author: 'Predict Galore' },
+  { quote: 'Smart bettors respect uncertainty.', author: 'Predict Galore' },
+  { quote: 'A system you follow beats a hunch you love.', author: 'Predict Galore' },
+  { quote: 'Winning starts before kickoff.', author: 'Predict Galore' },
+  { quote: 'Play it smart. Play it responsible.', author: 'Predict Galore' },
+];
+
+function getLocalDaySeed(date: Date) {
+  const year = date.getFullYear();
+  const startOfYear = new Date(year, 0, 1);
+  const startOfDay = new Date(year, date.getMonth(), date.getDate());
+  const dayOfYear = Math.floor((startOfDay.getTime() - startOfYear.getTime()) / 86400000);
+  return year * 1000 + dayOfYear;
+}
+
 const Banner: React.FC<BannerProps> = ({ className }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const dailyQuote = useMemo(() => {
+    if (DAILY_QUOTES.length === 0) {
+      return { quote: PREDICTIONS_CONSTANTS.BANNER.QUOTE, author: PREDICTIONS_CONSTANTS.BANNER.AUTHOR };
+    }
+    const seed = getLocalDaySeed(new Date());
+    const index = ((seed % DAILY_QUOTES.length) + DAILY_QUOTES.length) % DAILY_QUOTES.length;
+    return DAILY_QUOTES[index];
+  }, []);
+
   /**
    * Handles sharing the banner quote
    * Uses native share API if available, otherwise copies to clipboard
@@ -32,7 +85,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       navigator
         .share({
           title: 'Predict Galore',
-          text: PREDICTIONS_CONSTANTS.BANNER.QUOTE,
+          text: dailyQuote.quote,
           url: window.location.href,
         })
         .catch(() => {
@@ -40,9 +93,9 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
         });
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(PREDICTIONS_CONSTANTS.BANNER.QUOTE);
+      navigator.clipboard.writeText(dailyQuote.quote);
     }
-  }, []);
+  }, [dailyQuote.quote]);
 
   return (
     <Box
@@ -91,7 +144,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
             maxWidth: 980,
           }}
         >
-          “{PREDICTIONS_CONSTANTS.BANNER.QUOTE}”
+          “{dailyQuote.quote}”
         </Typography>
         <Typography
           sx={{
@@ -100,7 +153,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
             fontSize: { xs: '0.875rem', sm: '1rem' },
           }}
         >
-          - {PREDICTIONS_CONSTANTS.BANNER.AUTHOR}
+          - {dailyQuote.author}
         </Typography>
       </Box>
 
@@ -108,9 +161,9 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       <Box
         sx={{
           position: 'absolute',
-          right: 2,
-          top: '50%',
-          transform: 'translateY(-50%)',
+          right: { xs: 8, sm: 10, md: 2 },
+          top: { xs: 8, sm: 10, md: '50%' },
+          transform: { xs: 'none', md: 'translateY(-50%)' },
           zIndex: 10,
         }}
       >
@@ -121,8 +174,9 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
             '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
             color: 'white',
             backdropFilter: 'blur(4px)',
+            p: isMobile ? 1 : 0.75,
           }}
-          size="small"
+          size={isMobile ? 'medium' : 'small'}
           aria-label="Share quote"
         >
           <Share fontSize="small" />

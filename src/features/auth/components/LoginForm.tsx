@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { useForm, Controller, SubmitHandler, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
@@ -51,7 +51,6 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     control,
     handleSubmit,
     setValue,
-    watch,
     trigger,
     formState: { isValid: isFormValid, errors },
   } = useForm<LoginFormData>({
@@ -61,8 +60,8 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   });
 
   // To ensure reactivity for phone/email username and password
-  const watchedUsername = watch('username');
-  const watchedPassword = watch('password');
+  const watchedUsername = useWatch({ control, name: 'username' });
+  const watchedPassword = useWatch({ control, name: 'password' });
 
   // Check if required fields are non-empty (to resolve textbook "button not clickable after filling" bugs)
   const isFieldsFilled =

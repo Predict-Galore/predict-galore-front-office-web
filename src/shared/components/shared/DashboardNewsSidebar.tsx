@@ -183,6 +183,15 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
               <Stack spacing={1.5}>
                 {latestItems.slice(0, 6).map((item) => {
                   const isExpanded = expandedNews[item.id];
+                  const normalizedSource =
+                    item.source?.trim().toLowerCase() === 'betpredict'
+                      ? 'Predict Galore'
+                      : item.source;
+                  const normalizedAuthor =
+                    item.source?.trim().toLowerCase() === 'betpredict' &&
+                    item.author?.trim().toLowerCase() === 'editorial desk'
+                      ? undefined
+                      : item.author;
                   return (
                     <Box
                       key={item.id}
@@ -245,21 +254,21 @@ const DashboardNewsSidebar: React.FC<DashboardNewsSidebarProps> = ({
                               </Typography>
                             </Box>
 
-                            {(item.author || item.source) && (
+                            {(normalizedAuthor || normalizedSource) && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                {item.author && (
+                                {normalizedAuthor && (
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     <Person sx={{ fontSize: 14, color: 'text.secondary' }} />
                                     <Typography variant="caption" color="text.secondary">
-                                      {item.author}
+                                      {normalizedAuthor}
                                     </Typography>
                                   </Box>
                                 )}
-                                {item.source && (
+                                {normalizedSource && (
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     <Source sx={{ fontSize: 14, color: 'text.secondary' }} />
                                     <Typography variant="caption" color="text.secondary">
-                                      {item.source}
+                                      {normalizedSource}
                                     </Typography>
                                   </Box>
                                 )}

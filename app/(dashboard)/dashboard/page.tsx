@@ -7,11 +7,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Container, Stack, Box } from '@mui/material';
+import { Stack, Box } from '@mui/material';
 import { SportTabs } from '@/shared/components/shared';
 import { useSports, usePredictions } from '@/features/predictions/api/hooks';
 import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
-import Banner from '@/features/dashboard/components/Banner';
 import ContentTabs from '@/features/dashboard/components/ContentTabs';
 import PredictionsSection from '@/features/predictions/components/PredictionsList';
 import SelectedPredictionView from '@/features/predictions/components/SelectedPredictionView';
@@ -302,48 +301,42 @@ const DashboardPage: React.FC = () => {
   // Show error if sports failed to load
   if (sportsError) {
     return (
-      <Container maxWidth={false} sx={{ py: 4 }}>
+      <Box sx={{ py: 2 }}>
         <ErrorState
           title="Unable to load sports"
           error="Failed to load sports data"
           onRetry={() => window.location.reload()}
         />
-      </Container>
+      </Box>
     );
   }
 
   // Show loading skeleton on initial load
   if (loadingSports && sports.length === 0) {
     return (
-      <Container maxWidth={false} sx={{ py: 4 }}>
-        <Stack spacing={3}>
-          <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
-          <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
-          <MatchListSkeleton sections={2} rowsPerSection={5} />
-        </Stack>
-      </Container>
+      <Stack spacing={3} sx={{ py: 2 }}>
+        <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
+        <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
+        <MatchListSkeleton sections={2} rowsPerSection={5} />
+      </Stack>
     );
   }
 
   // Show empty state if no sports available
   if (sports.length === 0) {
     return (
-      <Container maxWidth={false} sx={{ py: 4 }}>
+      <Box sx={{ py: 2 }}>
         <EmptyState
           title="No sports available"
           description="Sports data is not available at the moment"
         />
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+    <>
       <Stack spacing={3}>
-        {/* Banner */}
-        <Banner className="h-[150px] sm:h-[170px] md:h-[190px]" />
-
-        {/* Sport Tabs */}
         <SportTabs
           sports={sports}
           selectedSport={activeSport}
@@ -351,26 +344,21 @@ const DashboardPage: React.FC = () => {
           isLoading={loadingSports}
         />
 
-        {/* Content Area */}
         <Box>
           <Stack spacing={2}>
-            {/* Content Tabs (Predictions / Live Matches) */}
             <ContentTabs activeTab={activeTab} onTabChange={handleTabChange} />
-
-            {/* Tab Content */}
             {activeTab === 'predictions' ? renderPredictions() : renderLiveMatches()}
           </Stack>
         </Box>
       </Stack>
 
-      {/* Premium Modal */}
       <PremiumModal
         open={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
         onGetPremium={() => router.push('/dashboard/profile?tab=subscriptions')}
         limit={5}
       />
-    </Container>
+    </>
   );
 };
 

@@ -6,13 +6,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Stack, Box, Typography } from '@mui/material';
+import { Stack, Box, Typography } from '@mui/material';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import { SportTabs } from '@/shared/components/shared';
 import MatchListSection from '@/features/live-matches/components/MatchListSection';
 import SelectedLiveMatchView from '@/features/live-matches/components/SelectedLiveMatchView';
 import { ErrorState, LoadingState } from '@/shared/components/shared';
-import Banner from '@/features/dashboard/components/Banner';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
 import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
 import { useSports } from '@/features/predictions/api/hooks';
@@ -218,33 +217,31 @@ const LiveMatchesPage: React.FC = () => {
   // Show error if sports failed to load
   if (sportsError) {
     return (
-      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Box sx={{ py: 2 }}>
         <ErrorState
           title="Unable to load sports"
           error="Failed to load sports data"
           onRetry={() => window.location.reload()}
         />
-      </Container>
+      </Box>
     );
   }
 
   // Show loading skeleton on initial load
   if (loadingSports && sports.length === 0) {
     return (
-      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
-        <Stack spacing={3}>
-          <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
-          <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
-          <MatchListSkeleton sections={2} rowsPerSection={5} />
-        </Stack>
-      </Container>
+      <Stack spacing={3} sx={{ py: 2 }}>
+        <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
+        <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
+        <MatchListSkeleton sections={2} rowsPerSection={5} />
+      </Stack>
     );
   }
 
   // Show empty state if no sports available
   if (sports.length === 0) {
     return (
-      <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Box sx={{ py: 2 }}>
         <Box
           sx={{
             bgcolor: 'background.paper',
@@ -263,28 +260,21 @@ const LiveMatchesPage: React.FC = () => {
             Sports data is not available at the moment
           </Typography>
         </Box>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth={false} sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5 } }}>
-      <Stack spacing={3}>
-        {/* Banner */}
-        <Banner className="h-37.5 sm:h-47.5 md:h-47.5" />
+    <Stack spacing={3}>
+      <SportTabs
+        sports={sports}
+        selectedSport={activeSport}
+        onSelectSport={handleSportChange}
+        isLoading={loadingSports}
+      />
 
-        {/* Sport Tabs */}
-        <SportTabs
-          sports={sports}
-          selectedSport={activeSport}
-          onSelectSport={handleSportChange}
-          isLoading={loadingSports}
-        />
-
-        {/* Matches Content */}
-        <Box>{selectedMatch ? renderMatchDetail() : renderMatchesList()}</Box>
-      </Stack>
-    </Container>
+      <Box>{selectedMatch ? renderMatchDetail() : renderMatchesList()}</Box>
+    </Stack>
   );
 };
 

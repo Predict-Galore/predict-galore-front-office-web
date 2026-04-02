@@ -112,6 +112,7 @@ const SportTabs: React.FC<SportTabsProps> = ({
         <Button
           key={sport.id}
           onClick={() => onSelectSport(sport)}
+          disableRipple
           aria-label={`Select ${sport.name} sport`}
           role="tab"
           aria-selected={selectedSport?.id === sport.id}
@@ -120,6 +121,7 @@ const SportTabs: React.FC<SportTabsProps> = ({
             pb: 1.5,
             px: 0,
             minWidth: 'auto',
+            borderRadius: 0,
             fontSize: { xs: '0.75rem', sm: '0.875rem' },
             fontWeight: 500,
             whiteSpace: 'nowrap',

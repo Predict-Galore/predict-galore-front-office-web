@@ -24,6 +24,7 @@ const MobileBottomNav = dynamic(() => import('@/widgets/Footer/MobileBottomNav')
 const DashboardNewsSidebar = dynamic(
   () => import('@/shared/components/shared/DashboardNewsSidebar')
 );
+const QuoteBanner = dynamic(() => import('@/features/dashboard/components/Banner'));
 
 /**
  * Props for the DashboardShell component
@@ -49,6 +50,7 @@ interface DashboardShellProps {
 export default function DashboardShell({ children }: DashboardShellProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const pathname = usePathname();
 
   const { user, isAuthenticated } = useAuthStore();
@@ -56,6 +58,11 @@ export default function DashboardShell({ children }: DashboardShellProps) {
 
   // Check if current page is the news page
   const isNewsPage = pathname?.startsWith('/dashboard/news');
+  const isProfilePage = pathname?.startsWith('/dashboard/profile');
+  const isNotificationsPage = pathname?.startsWith('/dashboard/notifications');
+
+  const showNewsSidebar = isDesktop && !isNewsPage;
+  const showQuoteBanner = !isProfilePage && !isNotificationsPage;
 
   // Fetch news data for sidebar (only if not on news page)
   const {
@@ -63,7 +70,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     isLoading: isNewsLoading,
     isError: isNewsError,
     refetch: refetchNews,
-  } = useNews({ page: 1, pageSize: 10 }, { enabled: !isNewsPage });
+  } = useNews({ page: 1, pageSize: 10 }, { enabled: showNewsSidebar });
 
   /**
    * Toggles the mobile sidebar open/closed state
@@ -87,40 +94,67 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           flexGrow: 1,
           width: '100%',
           transition: 'all 0.3s ease-in-out',
+          minHeight: '100vh',
+          height: { xs: '100dvh', md: '100vh' },
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Header onMenuToggle={toggleMobileSidebar} user={user} isAuthenticated={isAuthenticated} />
-
         <Box
-          component="main"
           sx={{
-            p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
-            pb: isMobile ? 12 : { xs: 1.5, sm: 2, md: 3, lg: 4 },
+            flex: 1,
+            minHeight: 0,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
+          <Header user={user} isAuthenticated={isAuthenticated} />
+
           <Box
+            component="main"
             sx={{
-              display: 'grid',
-              gridTemplateColumns: isNewsPage || isMobile ? '1fr' : { xs: '1fr', lg: '1fr 620px' },
-              gap: 3,
-              alignItems: 'flex-start',
+              p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
+              pb: isMobile ? 12 : { xs: 1.5, sm: 2, md: 3, lg: 4 },
             }}
           >
-            {/* Main Content */}
-            <Box sx={{ minWidth: 0 }}>{children}</Box>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: showNewsSidebar
+                  ? { xs: '1fr', lg: 'minmax(0, 2.8fr) minmax(0, 1.2fr)' }
+                  : '1fr',
+                gap: 3,
+                alignItems: 'flex-start',
+              }}
+            >
+              {/* Quote Banner - First row (spans full width) */}
+              {showQuoteBanner && (
+                <Box sx={{ gridColumn: '1 / -1' }}>
+                  <QuoteBanner className="h-[150px] sm:h-[170px] md:h-[190px]" />
+                </Box>
+              )}
 
-            {/* News Sidebar - Hidden on mobile and news page */}
-            {!isMobile && !isNewsPage && (
-              <Box sx={{ minWidth: 0 }}>
-                <DashboardNewsSidebar
-                  topNews={newsData?.items?.slice(0, 1) || []}
-                  laligaNews={newsData?.items?.slice(1, 7) || []}
-                  isLoading={isNewsLoading}
-                  isError={isNewsError}
-                  onRetry={refetchNews}
-                />
-              </Box>
-            )}
+              {/* Main Content */}
+              <Box sx={{ minWidth: 0 }}>{children}</Box>
+
+              {/* News Sidebar - Desktop only, hidden on news page */}
+              {showNewsSidebar && (
+                <Box sx={{ minWidth: 0 }}>
+                  <DashboardNewsSidebar
+                    topNews={newsData?.items?.slice(0, 1) || []}
+                    laligaNews={newsData?.items?.slice(1, 7) || []}
+                    isLoading={isNewsLoading}
+                    isError={isNewsError}
+                    onRetry={refetchNews}
+                  />
+                </Box>
+              )}
+            </Box>
           </Box>
         </Box>
 
