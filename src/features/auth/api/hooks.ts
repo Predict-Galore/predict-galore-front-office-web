@@ -15,6 +15,8 @@ import type {
   LoginRequest,
   RegisterRequest,
   ForgotPasswordRequest,
+  VerifyOtpRequest,
+  VerifyOtpResponse,
   ResetPasswordRequest,
   VerifyEmailRequest,
   ResendVerificationRequest,
@@ -217,6 +219,21 @@ export const useForgotPasswordMutation = () => {
     },
     onError: () => {
       logger.error('Forgot password mutation error');
+    },
+  });
+};
+
+/**
+ * Verify password reset OTP mutation
+ */
+export const useVerifyPasswordResetOtpMutation = () => {
+  return useMutation({
+    mutationFn: async (data: VerifyOtpRequest): Promise<ApiResponse<VerifyOtpResponse>> => {
+      logger.info('Verify password reset OTP mutation called');
+      return AuthService.verifyPasswordResetOtp(data);
+    },
+    onError: () => {
+      logger.error('Verify password reset OTP mutation error');
     },
   });
 };

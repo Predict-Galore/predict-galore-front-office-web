@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
     REGISTER: '/api/v1/auth/user/register',
     LOGOUT: '/api/v1/auth/logout',
     REFRESH: '/api/v1/auth/refresh',
+    CHECK_EMAIL: '/api/v1/auth/user/check-email',
     FORGOT_PASSWORD: '/api/v1/auth/forgot_password/confirm_token',
     RESET_PASSWORD: '/api/v1/auth/forgot_password/reset_password',
     VERIFY_EMAIL: '/api/v1/auth/verify-email',
@@ -100,7 +101,7 @@ export const API_ENDPOINTS = {
     INFO: '/api/v1/contact/info',
     SUBMIT: '/api/v1/contact',
     WAITLIST: '/api/v1/waitlist/join',
-    /** Coming-soon-3 waitlist endpoint */
+    /** Public waitlist endpoint (coming-soon page) */
     WAITLIST_PUBLIC: '/api/v1/waitlist',
   },
 

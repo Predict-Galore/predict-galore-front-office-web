@@ -10,14 +10,22 @@ interface AuthLayoutClientProps {
 
 export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'common.white' }}>
+    <Box
+      sx={{
+        height: { xs: '100dvh', md: '100vh' },
+        minHeight: { xs: '100dvh', md: '100vh' },
+        display: 'flex',
+        bgcolor: 'common.white',
+        overflow: 'hidden',
+      }}
+    >
       {/* LEFT PANEL: Imagery (55% width) */}
       <Box
         sx={{
           display: { xs: 'none', md: 'block' },
           position: 'relative',
           flex: '0 0 55%',
-          height: '100vh',
+          height: '100%',
           overflow: 'hidden',
         }}
       >
@@ -38,13 +46,13 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
             left: 40,
             bgcolor: 'common.white',
             borderRadius: '12px',
-            px: 3,
-            py: 1.5,
+            px: 3.5,
+            py: 2,
             boxShadow: '0px 10px 30px rgba(0,0,0,0.15)',
             zIndex: 10,
           }}
         >
-          <Image src="/predict-galore-logo.png" alt="Predict Galore" width={140} height={40} />
+          <Image src="/predict-galore-logo.png" alt="Predict Galore" width={220} height={56} />
         </Box>
 
         {/* Red Text Overlay Card */}
@@ -94,22 +102,43 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          height: '100%',
+          overflow: 'hidden',
           px: { xs: 3, md: 8 },
           position: 'relative',
+          py: { xs: 6, md: 10 },
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 440 }}>{children}</Box>
-
-        {/* Footer */}
-        <Box sx={{ position: 'absolute', bottom: 30 }}>
-          <Typography
-            variant="body2"
-            sx={{ color: '#667085', display: 'flex', alignItems: 'center', gap: 0.5 }}
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          <Box
+            sx={{
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 6,
+            }}
           >
-            © 2025 Predict Galore. All rights reserved.
-          </Typography>
+            <Box sx={{ width: '100%', maxWidth: 560, mx: 'auto' }}>{children}</Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: '#667085', display: 'flex', alignItems: 'center', gap: 0.5 }}
+              >
+                © 2025 Predict Galore. All rights reserved.
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Box>

@@ -27,6 +27,15 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface VerifyOtpRequest {
+  email: string;
+  token: string;
+}
+
+export interface VerifyOtpResponse {
+  token?: string;
+}
+
 export interface ResetPasswordRequest {
   token: string;
   password: string;

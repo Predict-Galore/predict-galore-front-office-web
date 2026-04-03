@@ -1,391 +1,154 @@
 /**
  * Forgot Password Form Component
- * Updated to match UI design
+ * Matches UI screenshots and routes into verify-otp flow.
  */
 
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-  CircularProgress,
-  Snackbar,
-} from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { Box, Typography, Alert, Snackbar } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { forgotPasswordSchema, ForgotPasswordFormData } from '../validations/schemas';
-import { AUTH_CONSTANTS } from '../lib/constants';
-import { useForgotPasswordMutation } from '../api/hooks';
-import { createLogger } from '@/shared/api';
-import { RedirectLoader } from '@/shared/components/ui';
 
-const logger = createLogger('ForgotPasswordForm');
+import { forgotPasswordSchema, ForgotPasswordFormData } from '../validations/schemas';
+import { useForgotPasswordMutation } from '../api/hooks';
+import { Input } from '@/shared/components/ui/Input/Input';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { RedirectLoader } from '@/shared/components/ui';
 
 interface ForgotPasswordFormProps {
   onSuccess?: () => void;
-  onBackToLogin?: () => void;
 }
 
-const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess, onBackToLogin }) => {
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess }) => {
   const router = useRouter();
 
-  // ===================================================================
-  // STATE
-  // ===================================================================
-  const [isSubmitted, setIsSubmitted] = React.useState(false);
-  const [submittedEmail, setSubmittedEmail] = React.useState<string>('');
   const [isRedirecting, setIsRedirecting] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
-  // ===================================================================
-  // REACT QUERY MUTATION
-  // ===================================================================
-  const {
-    mutate: submitForgotPassword,
-    isPending: isPasswordResetSubmitting,
-    isError: passwordResetHasSubmissionError,
-    error: passwordResetSubmissionError,
-    isSuccess: isPasswordResetSuccessful,
-    reset: resetPasswordResetMutation,
-  } = useForgotPasswordMutation();
+  const { mutate: submitForgotPassword, isPending } = useForgotPasswordMutation();
 
-  // ===================================================================
-  // REACT HOOK FORM
-  // ===================================================================
   const {
     control,
     handleSubmit,
-    formState: { isValid: isFormValid },
+    formState: { isValid },
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: '',
-    },
+    defaultValues: { email: '' },
     mode: 'onChange',
   });
 
-  // ===================================================================
-  // FORM SUBMISSION HANDLER
-  // ===================================================================
-  const handleFormSubmission = async (formData: ForgotPasswordFormData) => {
-    try {
-      const cleanFormData = {
-        email: formData.email.toLowerCase().trim(),
-      };
+  const handleFormSubmission = (formData: ForgotPasswordFormData) => {
+    const normalizedEmail = formData.email.toLowerCase().trim();
 
-      setSubmittedEmail(formData.email);
-
-      await submitForgotPassword(cleanFormData, {
-        onSuccess: () => {
-          setIsRedirecting(true);
-
-          // Redirect to OTP verification page with email
-          setTimeout(() => {
-            router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
-          }, 500);
-
-          if (onSuccess) {
-            onSuccess();
+    submitForgotPassword(
+      { email: normalizedEmail },
+      {
+        onSuccess: (resp) => {
+          const ok = (resp as { success?: boolean })?.success;
+          if (ok === false) {
+            setSnackbar({
+              open: true,
+              severity: 'error',
+              message: 'Email not found. Please check and try again.',
+            });
+            return;
           }
+          setSnackbar({ open: true, severity: 'success', message: 'Verification code sent.' });
+          setIsRedirecting(true);
+          setTimeout(() => {
+            router.push(`/verify-otp?email=${encodeURIComponent(normalizedEmail)}`);
+          }, 400);
+          onSuccess?.();
         },
-      });
-    } catch (error) {
-      logger.error('Forgot password submission error', {
-        error,
-        timestamp: new Date().toISOString(),
-      });
-      throw error;
-    }
-  };
-
-  // ===================================================================
-  // HANDLERS
-  // ===================================================================
-  const handleBackToLogin = () => {
-    if (onBackToLogin) {
-      onBackToLogin();
-    } else {
-      router.push(AUTH_CONSTANTS.ROUTES.LOGIN);
-    }
-  };
-
-  const handleResetForm = () => {
-    setIsSubmitted(false);
-    setSubmittedEmail('');
-    resetPasswordResetMutation();
-  };
-
-  // ===================================================================
-  // SUCCESS SCREEN
-  // ===================================================================
-  if (isSubmitted || isPasswordResetSuccessful) {
-    return (
-      <Box>
-        {/* Header */}
-        <Typography
-          variant="h1"
-          sx={{
-            fontSize: { xs: '2rem', sm: '2.5rem' },
-            fontWeight: 700,
-            color: '#1a1a1a',
-            mb: 2,
-          }}
-        >
-          Check Your Email
-        </Typography>
-
-        <Typography
-          variant="body1"
-          sx={{
-            color: '#667085',
-            fontSize: '1rem',
-            mb: 4,
-          }}
-        >
-          We&apos;ve sent password reset instructions to your email
-        </Typography>
-
-        {/* Success Message */}
-        <Alert
-          severity="success"
-          sx={{
-            mb: 4,
-            borderRadius: '12px',
-            '& .MuiAlert-message': {
-              width: '100%',
-            },
-          }}
-        >
-          <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-            Password Reset Instructions Sent
-          </Typography>
-          <Typography variant="body2">
-            If an account exists with <strong>{submittedEmail}</strong>, you will receive password
-            reset instructions shortly.
-          </Typography>
-        </Alert>
-
-        {/* Action Buttons */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleResetForm}
-            sx={{
-              height: '56px',
-              backgroundColor: '#42A605',
-              color: 'white',
-              borderRadius: '12px',
-              textTransform: 'none',
-              fontSize: '16px',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: '#368005',
-              },
-            }}
-          >
-            Send Another Reset Link
-          </Button>
-
-          <Button
-            fullWidth
-            variant="text"
-            startIcon={<ArrowBack />}
-            onClick={handleBackToLogin}
-            sx={{
-              height: '56px',
-              color: '#667085',
-              textTransform: 'none',
-              fontSize: '16px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: '#1a1a1a',
-              },
-            }}
-          >
-            Back to Login
-          </Button>
-        </Box>
-      </Box>
+        onError: (err: Error) => {
+          setSnackbar({
+            open: true,
+            severity: 'error',
+            message: err.message || 'Unable to continue. Please try again.',
+          });
+        },
+      }
     );
-  }
+  };
 
-  // ===================================================================
-  // MAIN FORM
-  // ===================================================================
   return (
     <Box>
-      {/* Header */}
-      <Typography
-        variant="h1"
-        sx={{
-          fontSize: { xs: '2rem', sm: '2.5rem' },
-          fontWeight: 700,
-          color: '#1a1a1a',
-          mb: 2,
-        }}
-      >
-        Forgot Password
-      </Typography>
-
-      <Typography
-        variant="body1"
-        sx={{
-          color: '#667085',
-          fontSize: '1rem',
-          mb: 4,
-        }}
-      >
-        Enter your registered email address to reset your password
-      </Typography>
-
-      {/* Error Snackbar */}
-      {passwordResetHasSubmissionError && (
-        <Snackbar
-          open={passwordResetHasSubmissionError}
-          autoHideDuration={7000}
-          onClose={resetPasswordResetMutation}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            severity="error"
-            variant="filled"
-            onClose={resetPasswordResetMutation}
-            sx={{ width: '100%' }}
-          >
-            {passwordResetSubmissionError instanceof Error
-              ? passwordResetSubmissionError.message
-              : 'Failed to send reset instructions. Please try again.'}
-          </Alert>
-        </Snackbar>
-      )}
-
-      {/* Form */}
-      <Box component="form" onSubmit={handleSubmit(handleFormSubmission)}>
-        {/* Email Field */}
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="body2"
-            sx={{
-              color: '#1a1a1a',
-              fontSize: '14px',
-              fontWeight: 500,
-              mb: 1,
-            }}
-          >
-            Email address
-          </Typography>
-
-          <Controller
-            name="email"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                fullWidth
-                type="email"
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message}
-                disabled={isPasswordResetSubmitting}
-                placeholder="Enter your email address"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    height: '56px',
-                    fontSize: '16px',
-                    backgroundColor: '#ffffff',
-                    '& fieldset': {
-                      borderColor: '#e5e7eb',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#42A605',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#42A605',
-                      borderWidth: '2px',
-                    },
-                    '&.Mui-error fieldset': {
-                      borderColor: '#ef4444',
-                    },
-                  },
-                  '& .MuiInputBase-input': {
-                    padding: '16px',
-                  },
-                  '& .MuiFormHelperText-root': {
-                    marginLeft: 0,
-                    marginTop: '8px',
-                  },
-                }}
-              />
-            )}
-          />
-        </Box>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          disabled={isPasswordResetSubmitting || !isFormValid}
+      <Box sx={{ mb: { xs: 4, md: 5 } }}>
+        <Typography
           sx={{
-            height: '56px',
-            backgroundColor: '#42A605',
-            color: 'white',
-            borderRadius: '12px',
-            textTransform: 'none',
-            fontSize: '16px',
-            fontWeight: 600,
-            mb: 2,
-            '&:hover': {
-              backgroundColor: '#368005',
-            },
-            '&.Mui-disabled': {
-              backgroundColor: '#9ca3af',
-              color: '#ffffff',
-            },
+            fontSize: { xs: '3rem', sm: '3.5rem', md: '4rem' },
+            fontWeight: 900,
+            color: '#101828',
+            fontFamily: '"Arial Black", sans-serif',
+            lineHeight: 1,
+            mb: 1,
           }}
         >
-          {isPasswordResetSubmitting ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CircularProgress size={20} color="inherit" />
-              <span>Sending...</span>
-            </Box>
-          ) : (
-            'Continue'
-          )}
-        </Button>
-
-        {/* Back to Login Link */}
-        <Box sx={{ textAlign: 'center' }}>
-          <Button
-            variant="text"
-            onClick={handleBackToLogin}
-            disabled={isPasswordResetSubmitting}
-            sx={{
-              color: '#667085',
-              textTransform: 'none',
-              fontSize: '14px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: '#1a1a1a',
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            Back to Login
-          </Button>
-        </Box>
+          Forgot Password
+        </Typography>
+        <Typography sx={{ color: '#667085', fontSize: { xs: '1.25rem', md: '1.35rem' } }}>
+          Enter your registered email address to reset your password
+        </Typography>
       </Box>
 
-      {/* Redirect Loader */}
+      <Box component="form" onSubmit={handleSubmit(handleFormSubmission)}>
+        <Controller
+          name="email"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Input
+              {...field}
+              label="Email address"
+              placeholder="Enter your email address"
+              errorText={fieldState.error?.message}
+              disabled={isPending}
+              autoComplete="email"
+            />
+          )}
+        />
+
+        <Button
+          type="submit"
+          fullWidth
+          disabled={!isValid || isPending}
+          sx={{
+            bgcolor: '#4AA900',
+            height: { xs: 72, md: 64 },
+            fontSize: { xs: '1.25rem', md: '1.1rem' },
+            fontWeight: 700,
+            borderRadius: '14px',
+            mt: 3,
+            '&:hover': { bgcolor: '#3d8a00' },
+            '&:disabled': { bgcolor: '#C8E6B8', color: '#7FB36D' },
+          }}
+        >
+          {isPending ? 'Sending...' : 'Continue'}
+        </Button>
+      </Box>
+
       <RedirectLoader show={isRedirecting} message="Sending verification code..." />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4500}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

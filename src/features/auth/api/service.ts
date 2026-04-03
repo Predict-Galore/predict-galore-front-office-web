@@ -9,6 +9,8 @@ import type {
   LoginRequest,
   RegisterRequest,
   ForgotPasswordRequest,
+  VerifyOtpRequest,
+  VerifyOtpResponse,
   ResetPasswordRequest,
   VerifyEmailRequest,
   ResendVerificationRequest,
@@ -67,12 +69,23 @@ export class AuthService {
   }
 
   /**
-   * Request password reset
+   * Request password reset (checks email + triggers reset flow on backend)
    */
   static async forgotPassword(data: ForgotPasswordRequest): Promise<ApiResponse> {
     logger.info('Forgot password request', { email: data.email });
 
-    return api.post<ApiResponse>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
+    return api.get<ApiResponse>(API_ENDPOINTS.AUTH.CHECK_EMAIL, { email: data.email });
+  }
+
+  /**
+   * Verify OTP for password reset
+   */
+  static async verifyPasswordResetOtp(
+    data: VerifyOtpRequest
+  ): Promise<ApiResponse<VerifyOtpResponse>> {
+    logger.info('Verify password reset OTP request', { email: data.email });
+
+    return api.post<ApiResponse<VerifyOtpResponse>>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
   }
 
   /**
