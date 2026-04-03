@@ -82,6 +82,7 @@ const FAQSection: React.FC = () => {
 
   return (
     <Box
+      id="faq"
       sx={{
         bgcolor: '#ffffff',
         py: { xs: 6, sm: 8, md: 10, lg: 12 },

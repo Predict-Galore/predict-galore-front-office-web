@@ -45,7 +45,7 @@ const ContactPage: React.FC = () => {
       </Suspense>
 
       {/* Contact Form Section */}
-      <Container maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
+      <Container id="contact-form" maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
         <Paper
           elevation={0}
           sx={{

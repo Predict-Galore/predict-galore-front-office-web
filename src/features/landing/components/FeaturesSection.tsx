@@ -18,6 +18,7 @@ const FeaturesSection: React.FC = () => {
       description:
         'Highlights of key statistics, updates, trends, patterns, as well as breakdowns by expert analysts, so predictions are smarter and fact-based, not lucky guesses.',
       cta: 'View predictions',
+      href: '/login?returnUrl=/dashboard/predictions',
       colorToken: '#e72838',
       phoneImage: IMAGES.LANDING.FEATURE_INSIGHTS,
       bgColor: 'rgba(245, 119, 126, 0.05)',
@@ -27,6 +28,8 @@ const FeaturesSection: React.FC = () => {
       title: 'Live Game Centre',
       description:
         'Stay connected to the action no matter where you are. Get real-time scores, play-by-play details, and instant notifications as games unfold. Whether it’s football, basketball, or any other sport.',
+      cta: 'Open live game center',
+      href: '/login?returnUrl=/dashboard/live-matches',
       colorToken: '#42A605',
       phoneImage: IMAGES.LANDING.FEATURE_LIVE,
       bgColor: 'rgba(92, 204, 128, 0.05)',
@@ -37,6 +40,7 @@ const FeaturesSection: React.FC = () => {
       description:
         'Access detailed statistics, player performance analyses, and historical data to fuel your sports knowledge and predictions. Whether you are debating with friends or tracking your team’s progress for your betting needs, we’ve got you covered.',
       cta: 'Check Current Standings',
+      href: '/login?returnUrl=/dashboard/predictions',
       colorToken: '#42A605',
       phoneImage: IMAGES.LANDING.FEATURE_HUB,
       bgColor: 'rgba(92, 204, 128, 0.03)',
@@ -47,6 +51,7 @@ const FeaturesSection: React.FC = () => {
       description:
         'Personalise your experience by selecting the teams, athletes, and competitions you care about most. Your feed automatically adapts to bring you the latest highlights, news, and statistics, based on your choices—all in one place.',
       cta: 'Read Latest Updates',
+      href: '/login?returnUrl=/dashboard/news',
       colorToken: '#e72838',
       phoneImage: IMAGES.LANDING.FEATURE_FEED,
       bgColor: 'rgba(245, 119, 126, 0.03)',
@@ -185,7 +190,7 @@ const FeaturesSection: React.FC = () => {
 
                 <Link
                   component={NextLink}
-                  href="#"
+                  href={feature.href}
                   sx={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -244,7 +249,7 @@ const FeaturesSection: React.FC = () => {
                     objectFit: 'contain',
                     objectPosition: 'bottom center',
                   }}
-                  unoptimized
+                  quality={95}
                   priority={index < 2} // Load first two images with priority
                 />
               </Box>

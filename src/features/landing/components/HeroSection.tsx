@@ -98,40 +98,35 @@ const HeroSection: React.FC = () => {
                 Join Predict Galore Now
               </Button>
 
-              {/* SECONDARY BUTTON */}
-              <Button
-                component={Link}
-                href="/login"
-                variant="outline"
-                sx={{
-                  width: { xs: '100%', sm: 'auto' },
-
-                  px: { xs: 2.5, sm: 3.5, md: 5 },
-                  py: { xs: 0.9, sm: 1.2, md: 1.6 },
-
-                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' },
-                  fontWeight: 700,
-
-                  minHeight: { xs: 40, sm: 44, md: 48 },
-
-                  borderRadius: 1,
-                  borderColor: 'white',
-                  color: 'white',
-                  borderWidth: 2,
-
-                  whiteSpace: 'nowrap',
-
-                  '&:hover': {
+              {/* Download our Mobile App button (disabled for now) */}
+              {/*
+                <Button
+                  component={Link}
+                  href="/login"
+                  variant="outline"
+                  sx={{
+                    width: { xs: '100%', sm: 'auto' },
+                    px: { xs: 2.5, sm: 3.5, md: 5 },
+                    py: { xs: 0.9, sm: 1.2, md: 1.6 },
+                    fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' },
+                    fontWeight: 700,
+                    minHeight: { xs: 40, sm: 44, md: 48 },
+                    borderRadius: 1,
                     borderColor: 'white',
-                    background: alpha('#fff', 0.1),
-                    transform: 'translateY(-1px)',
-                  },
-
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                Download Our Mobile App
-              </Button>
+                    color: 'white',
+                    borderWidth: 2,
+                    whiteSpace: 'nowrap',
+                    '&:hover': {
+                      borderColor: 'white',
+                      background: alpha('#fff', 0.1),
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  Download Our Mobile App
+                </Button>
+              */}
             </Stack>
           </Box>
 

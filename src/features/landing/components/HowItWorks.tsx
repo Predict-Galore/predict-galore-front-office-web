@@ -191,7 +191,7 @@ const HowItWorks: React.FC = () => {
                         objectFit: 'contain',
                         objectPosition: 'bottom center',
                       }}
-                      unoptimized
+                      quality={100}
                       priority={index === 0}
                     />
                   </Box>
@@ -199,18 +199,31 @@ const HowItWorks: React.FC = () => {
                   {/* Black Text Box Container */}
                   <Box
                     sx={{
-                      bgcolor: '#0f172a',
+                      position: 'relative',
+                      background: 'linear-gradient(135deg, #1C4602 0%, #2d6a04 100%)',
                       width: '100%',
                       p: { xs: 3, sm: 3.5, md: 4, lg: 5 },
                       textAlign: 'center',
                       zIndex: 3,
                       mt: { xs: -1, sm: -1.5, md: -2 },
                       borderTop: `1px solid ${alpha('#fff', 0.05)}`,
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background:
+                          'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+                        pointerEvents: 'none',
+                      },
                     }}
                   >
                     <Typography
                       variant="h4"
                       sx={{
+                        position: 'relative',
                         fontWeight: { xs: 700, md: 800 },
                         color: 'white',
                         mb: { xs: 1, sm: 1.25, md: 1.5 },
@@ -228,6 +241,7 @@ const HowItWorks: React.FC = () => {
                     <Typography
                       variant="body2"
                       sx={{
+                        position: 'relative',
                         color: alpha('#fff', 0.8),
                         lineHeight: { xs: 1.5, md: 1.6 },
                         fontSize: {

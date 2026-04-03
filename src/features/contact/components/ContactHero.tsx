@@ -146,7 +146,19 @@ const ContactHero: React.FC = () => {
             mx: 'auto',
           }}
         >
-          {isMobile ? 'Contact Us' : 'Contact Predict Galore'}
+          {isMobile ? (
+            'Contact Us'
+          ) : (
+            <>
+              Contact{' '}
+              <Box component="span" sx={{ color: '#4AA900' }}>
+                Predict
+              </Box>{' '}
+              <Box component="span" sx={{ color: '#e72838' }}>
+                Galore
+              </Box>
+            </>
+          )}
         </Typography>
 
         {/* Subtitle */}

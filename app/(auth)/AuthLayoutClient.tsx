@@ -135,7 +135,30 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
                 variant="body2"
                 sx={{ color: '#667085', display: 'flex', alignItems: 'center', gap: 0.5 }}
               >
-                © 2025 Predict Galore. All rights reserved.
+                <Box component="span" sx={{ fontSize: '1.1rem', color: '#667085' }}>
+                  ©
+                </Box>
+                <Box component="span">Predict Galore. All rights reserved.</Box>
+                <Box
+                  component="span"
+                  aria-label="18 plus"
+                  sx={{
+                    ml: 0.5,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 26,
+                    height: 18,
+                    borderRadius: '999px',
+                    border: '1px solid rgba(102, 112, 133, 0.7)',
+                    color: '#667085',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    lineHeight: 1,
+                  }}
+                >
+                  18+
+                </Box>
               </Typography>
             </Box>
           </Box>

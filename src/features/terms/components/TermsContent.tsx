@@ -78,7 +78,7 @@ const TermsContent: React.FC = () => {
       number: 11,
       title: 'Contact Us',
       content: 'For questions regarding these Terms, please contact us at:',
-      email: 'support@predictgalore.com',
+      email: 'customerservice@predictgalore.com',
     },
   ];
 

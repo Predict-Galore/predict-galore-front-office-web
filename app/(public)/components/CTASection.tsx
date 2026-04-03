@@ -152,32 +152,31 @@ const CTASection: React.FC = () => {
                 Sign Up for Free
               </Button>
 
-              <Button
-                component={Link}
-                href="#"
-                variant="outlined"
-                fullWidth={isMobile}
-                sx={{
-                  borderColor: 'white',
-                  color: 'white',
-                  // py: { xs: 1.25, sm: 1.5, md: 1.75 },
-                  // px: { xs: 3, sm: 4, md: 5, lg: 6 },
-                  // fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-                  // fontWeight: 700,
-                  textTransform: 'none',
-                  borderRadius: 1,
-                  borderWidth: { xs: 2, md: 2.5 },
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
+              {/* Download our Mobile App button (disabled for now) */}
+              {/*
+                <Button
+                  component={Link}
+                  href="#"
+                  variant="outlined"
+                  fullWidth={isMobile}
+                  sx={{
                     borderColor: 'white',
-                    bgcolor: alpha('#fff', 0.1),
-                    transform: { md: 'translateY(-2px)' },
-                    boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-                  },
-                }}
-              >
-                Download our Mobile App
-              </Button>
+                    color: 'white',
+                    textTransform: 'none',
+                    borderRadius: 1,
+                    borderWidth: { xs: 2, md: 2.5 },
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: alpha('#fff', 0.1),
+                      transform: { md: 'translateY(-2px)' },
+                      boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                    },
+                  }}
+                >
+                  Download our Mobile App
+                </Button>
+              */}
             </Box>
           </Box>
 

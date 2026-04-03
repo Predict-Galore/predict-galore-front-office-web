@@ -7,12 +7,20 @@ import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import { alpha } from '@mui/material/styles';
-import { Email, Instagram, X, Facebook, Apple, Android } from '@mui/icons-material';
+import { Instagram, Facebook } from '@mui/icons-material';
 import NextLink from 'next/link';
 import Image from 'next/image';
 import { IMAGES } from '@/shared/constants/images';
+import { FaXTwitter, FaTiktok } from 'react-icons/fa6';
 
 const Footer: React.FC = () => {
+  const socialLinks = [
+    { label: 'Twitter', href: 'https://twitter.com/PredictGalore', kind: 'x' },
+    { label: 'TikTok', href: 'https://tiktok.com/@predict.galore', kind: 'tiktok' },
+    { label: 'Instagram', href: 'https://instagram.com/PredictGalore', kind: 'instagram' },
+    { label: 'Facebook', href: 'https://facebook.com/PredictGalore', kind: 'facebook' },
+  ] as const;
+
   const linkStyle = {
     color: 'white',
     textDecoration: 'none',
@@ -66,19 +74,14 @@ const Footer: React.FC = () => {
 
           {/* Social Icons */}
           <Stack direction="row" spacing={1.5}>
-            {[
-              {
-                icon: <Email fontSize="small" />,
-                href: 'mailto:customerservice@predictgalore.com',
-              },
-              { icon: <Instagram fontSize="small" />, href: '#' },
-              { icon: <X fontSize="small" />, href: '#' },
-              { icon: <Facebook fontSize="small" />, href: '#' },
-            ].map((social, index) => (
+            {socialLinks.map((social) => (
               <IconButton
-                key={index}
+                key={social.label}
                 component="a"
                 href={social.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={social.label}
                 sx={{
                   bgcolor: alpha('#fff', 0.1),
                   color: 'white',
@@ -87,7 +90,15 @@ const Footer: React.FC = () => {
                   '&:hover': { bgcolor: alpha('#fff', 0.2) },
                 }}
               >
-                {social.icon}
+                {social.kind === 'x' ? (
+                  <FaXTwitter size={18} />
+                ) : social.kind === 'tiktok' ? (
+                  <FaTiktok size={18} />
+                ) : social.kind === 'instagram' ? (
+                  <Instagram fontSize="small" />
+                ) : (
+                  <Facebook fontSize="small" />
+                )}
               </IconButton>
             ))}
           </Stack>
@@ -97,53 +108,55 @@ const Footer: React.FC = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+            gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
             gap: { xs: 4, md: 2 },
           }}
         >
-          {/* PRODUCT */}
-          <Box>
-            <Typography sx={headerStyle}>PRODUCT</Typography>
-            <Stack direction="row" spacing={2}>
-              <IconButton
-                component="a"
-                href="#"
-                aria-label="Download on iOS"
-                sx={{
-                  bgcolor: alpha('#fff', 0.1),
-                  color: 'white',
-                  width: 44,
-                  height: 44,
-                  '&:hover': { bgcolor: alpha('#fff', 0.2) },
-                }}
-              >
-                <Apple />
-              </IconButton>
-              <IconButton
-                component="a"
-                href="#"
-                aria-label="Download on Android"
-                sx={{
-                  bgcolor: alpha('#fff', 0.1),
-                  color: 'white',
-                  width: 44,
-                  height: 44,
-                  '&:hover': { bgcolor: alpha('#fff', 0.2) },
-                }}
-              >
-                <Android />
-              </IconButton>
-            </Stack>
-          </Box>
+          {/* PRODUCT column (disabled for now) */}
+          {/*
+            <Box>
+              <Typography sx={headerStyle}>PRODUCT</Typography>
+              <Stack direction="row" spacing={2}>
+                <IconButton
+                  component="a"
+                  href="#"
+                  aria-label="Download on iOS"
+                  sx={{
+                    bgcolor: alpha('#fff', 0.1),
+                    color: 'white',
+                    width: 44,
+                    height: 44,
+                    '&:hover': { bgcolor: alpha('#fff', 0.2) },
+                  }}
+                >
+                  <Apple />
+                </IconButton>
+                <IconButton
+                  component="a"
+                  href="#"
+                  aria-label="Download on Android"
+                  sx={{
+                    bgcolor: alpha('#fff', 0.1),
+                    color: 'white',
+                    width: 44,
+                    height: 44,
+                    '&:hover': { bgcolor: alpha('#fff', 0.2) },
+                  }}
+                >
+                  <Android />
+                </IconButton>
+              </Stack>
+            </Box>
+          */}
 
           {/* SUPPORT */}
           <Box>
             <Typography sx={headerStyle}>SUPPORT</Typography>
             <Stack spacing={1.5}>
-              <Link component={NextLink} href="#" sx={linkStyle}>
+              <Link component={NextLink} href="/#faq" sx={linkStyle}>
                 FAQs
               </Link>
-              <Link component={NextLink} href="#" sx={linkStyle}>
+              <Link component={NextLink} href="/contact-us#contact-form" sx={linkStyle}>
                 Contact Us
               </Link>
             </Stack>
@@ -248,8 +261,28 @@ const Footer: React.FC = () => {
         >
           <Box component="span" sx={{ fontSize: '1.1rem' }}>
             ©
-          </Box>{' '}
-          2025 Predict Galore. All rights reserved.
+          </Box>
+          <Box component="span">Predict Galore. All rights reserved.</Box>
+          <Box
+            component="span"
+            aria-label="18 plus"
+            sx={{
+              ml: 0.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 26,
+              height: 18,
+              borderRadius: '999px',
+              border: `1px solid ${alpha('#fff', 0.65)}`,
+              color: 'white',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              lineHeight: 1,
+            }}
+          >
+            18+
+          </Box>
         </Typography>
       </Box>
     </Box>
