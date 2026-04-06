@@ -157,8 +157,8 @@ const ComingSoonPage: React.FC = () => {
               <Image
                 src="/predict-galore-logo.png"
                 alt="Predict Galore"
-                width={800}
-                height={800}
+                width={1258}
+                height={254}
                 priority
                 quality={100}
                 sizes="(max-width: 600px) 260px, (max-width: 900px) 360px, (max-width: 1200px) 460px, 560px"
@@ -271,8 +271,14 @@ const ComingSoonPage: React.FC = () => {
                         '& .MuiInputBase-input': {
                           px: 3,
                           py: 2,
+                          color: '#fff',
                           fontWeight: 500,
+                          caretColor: '#fff',
                           '&::placeholder': { color: alpha('#fff', 0.85), opacity: 1 },
+                          '&:-webkit-autofill': {
+                            WebkitTextFillColor: '#fff',
+                            transition: 'background-color 9999s ease-out 0s',
+                          },
                         },
                       }}
                     />
@@ -304,8 +310,14 @@ const ComingSoonPage: React.FC = () => {
                         '& .MuiInputBase-input': {
                           px: 3,
                           py: 2,
+                          color: '#fff',
                           fontWeight: 500,
+                          caretColor: '#fff',
                           '&::placeholder': { color: alpha('#fff', 0.85), opacity: 1 },
+                          '&:-webkit-autofill': {
+                            WebkitTextFillColor: '#fff',
+                            transition: 'background-color 9999s ease-out 0s',
+                          },
                         },
                       }}
                     />
