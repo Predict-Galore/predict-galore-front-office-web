@@ -86,7 +86,7 @@ match tracking, advanced prediction algorithms, and premium user experiences.
 - **Vercel** - Deployment platform
 - **GitHub Actions** - CI/CD pipelines
 
-## 📁 Project Structure
+### 📁 Project Structure
 
 ```
 predict-galore-frontoffice/
