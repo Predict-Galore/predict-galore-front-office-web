@@ -40,7 +40,6 @@ import {
   Star,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import { useAuthStore } from '@/features/auth/model/store';
 import { useCurrentSubscription, useSubscriptionPlans } from '@/features/profile';
 import type { UserSubscription, SubscriptionPlan } from '@/features/profile/model/types';
 
@@ -322,15 +321,13 @@ const PlansModal: React.FC<PlansModalProps> = ({ open, onClose }) => {
 const SubscriptionsTab: React.FC = () => {
   const [plansModalOpen, setPlansModalOpen] = useState(false);
 
-  // Get the logged-in user's ID from the auth store
-  const userId = useAuthStore((state) => state.user?.id ?? null);
-
+  // Get the logged-in user's current subscription (token-based, no userId needed)
   const {
     data: subscription,
     isLoading,
     isError,
     refetch,
-  } = useCurrentSubscription(userId);
+  } = useCurrentSubscription();
 
   // ── Loading ──
   if (isLoading) {

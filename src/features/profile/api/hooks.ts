@@ -30,13 +30,12 @@ export function useUpdateProfile() {
   });
 }
 
-// Get current subscription hook — calls GET /api/v1/subscriptions/users/{userId}/current
-export function useCurrentSubscription(userId: string | null | undefined) {
+// Get current subscription hook — calls GET /api/v1/subscriptions/me/current
+export function useCurrentSubscription() {
   return useQuery({
-    queryKey: ['profile', 'subscription', userId],
-    queryFn: () => ProfileService.getCurrentSubscription(userId as string),
+    queryKey: ['profile', 'subscription'],
+    queryFn: () => ProfileService.getCurrentSubscription(),
     staleTime: 2 * 60 * 1000, // 2 minutes
-    enabled: !!userId,
     retry: (failureCount, error) => {
       // Don't retry on 404 (no subscription) or 204 (no content)
       if (error instanceof Error && 'status' in error) {

@@ -121,13 +121,13 @@ export class ProfileService {
 
   /**
    * Get the current user's active subscription
-   * GET /api/v1/subscriptions/users/{userId}/current
+   * GET /api/v1/subscriptions/me/current
    */
-  static async getCurrentSubscription(userId: string): Promise<UserSubscription | null> {
-    logger.info('Get current subscription request', { userId });
+  static async getCurrentSubscription(): Promise<UserSubscription | null> {
+    logger.info('Get current subscription request');
 
     try {
-      const response = await api.get<unknown>(API_ENDPOINTS.PROFILE.CURRENT_SUBSCRIPTION(userId));
+      const response = await api.get<unknown>(API_ENDPOINTS.PROFILE.CURRENT_SUBSCRIPTION);
 
       // Handle envelope: { success, data: {...} } or the object directly
       const raw = this.isRecord(response) && 'data' in response
@@ -138,7 +138,7 @@ export class ProfileService {
 
       return {
         id: Number(raw.id ?? 0),
-        userId: String(raw.userId ?? userId),
+        userId: String(raw.userId ?? ''),
         planId: Number(raw.planId ?? 0),
         planCode: String(raw.planCode ?? ''),
         planName: String(raw.planName ?? raw.name ?? ''),
@@ -152,11 +152,10 @@ export class ProfileService {
       };
     } catch (error) {
       if (error instanceof ApiError && (error.status === 404 || error.status === 204)) {
-        // No active subscription — not an error
-        logger.debug('No active subscription found for user', { userId });
+        logger.debug('No active subscription found');
         return null;
       }
-      logger.error('Failed to fetch current subscription', { error, userId });
+      logger.error('Failed to fetch current subscription', { error });
       throw error;
     }
   }

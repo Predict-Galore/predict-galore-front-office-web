@@ -82,7 +82,7 @@ export const API_ENDPOINTS = {
     DETAILS: '/api/v1/auth/user/me',
     UPDATE: '/api/v1/auth/user/profile/update',
     SUBSCRIPTIONS: '/api/v1/subscriptions/plans',
-    CURRENT_SUBSCRIPTION: (userId: string) => `/api/v1/subscriptions/users/${userId}/current`,
+    CURRENT_SUBSCRIPTION: '/api/v1/subscriptions/me/current',
     SUBSCRIPTION_PLANS: '/api/v1/subscriptions/plans',
     SUBSCRIPTION_PLAN_BY_ID: (id: number) => `/api/v1/subscriptions/plans/${id}`,
     TRANSACTIONS: '/api/v1/transactions',
