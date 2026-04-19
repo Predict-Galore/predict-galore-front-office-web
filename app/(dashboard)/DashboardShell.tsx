@@ -16,14 +16,10 @@ import dynamic from 'next/dynamic';
 import { useMediaQuery, useTheme, Box } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/model/store';
-import { useNews } from '@/features/news/api/hooks';
 
 const Sidebar = dynamic(() => import('@/widgets/Sidebar/Sidebar'));
 const Header = dynamic(() => import('@/widgets/Header/Header'));
 const MobileBottomNav = dynamic(() => import('@/widgets/Footer/MobileBottomNav'));
-const DashboardNewsSidebar = dynamic(
-  () => import('@/shared/components/shared/DashboardNewsSidebar')
-);
 const QuoteBanner = dynamic(() => import('@/features/dashboard/components/Banner'));
 
 /**
@@ -50,27 +46,14 @@ interface DashboardShellProps {
 export default function DashboardShell({ children }: DashboardShellProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const pathname = usePathname();
 
   const { user, isAuthenticated } = useAuthStore();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Check if current page is the news page
-  const isNewsPage = pathname?.startsWith('/dashboard/news');
   const isProfilePage = pathname?.startsWith('/dashboard/profile');
   const isNotificationsPage = pathname?.startsWith('/dashboard/notifications');
-
-  const showNewsSidebar = isDesktop && !isNewsPage;
   const showQuoteBanner = !isProfilePage && !isNotificationsPage;
-
-  // Fetch news data for sidebar (only if not on news page)
-  const {
-    data: newsData,
-    isLoading: isNewsLoading,
-    isError: isNewsError,
-    refetch: refetchNews,
-  } = useNews({ page: 1, pageSize: 10 }, { enabled: showNewsSidebar });
 
   /**
    * Toggles the mobile sidebar open/closed state
@@ -125,9 +108,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: showNewsSidebar
-                  ? { xs: '1fr', lg: 'minmax(0, 2.8fr) minmax(0, 1.2fr)' }
-                  : '1fr',
+                gridTemplateColumns: '1fr',
                 gap: 3,
                 alignItems: 'flex-start',
               }}
@@ -141,19 +122,6 @@ export default function DashboardShell({ children }: DashboardShellProps) {
 
               {/* Main Content */}
               <Box sx={{ minWidth: 0 }}>{children}</Box>
-
-              {/* News Sidebar - Desktop only, hidden on news page */}
-              {showNewsSidebar && (
-                <Box sx={{ minWidth: 0 }}>
-                  <DashboardNewsSidebar
-                    topNews={newsData?.items?.slice(0, 1) || []}
-                    laligaNews={newsData?.items?.slice(1, 7) || []}
-                    isLoading={isNewsLoading}
-                    isError={isNewsError}
-                    onRetry={refetchNews}
-                  />
-                </Box>
-              )}
             </Box>
           </Box>
         </Box>

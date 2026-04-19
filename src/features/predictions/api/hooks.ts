@@ -216,25 +216,12 @@ export function usePredictionById(id: number | null, options?: { enabled?: boole
         logger.debug('Skipping prediction by id - no id provided');
         return Promise.resolve(null);
       }
-
-      try {
-        const result = await PredictionService.getPredictionById(id);
-        logger.info('Prediction by id hook result:', {
-          id,
-          hasPrediction: !!result?.prediction,
-          hasDetailed: !!result?.detailed,
-          hasPicks: !!result?.picks,
-        });
-        return result;
-      } catch (error) {
-        logger.error('Error in usePredictionById hook:', { error, id });
-        throw error;
-      }
+      return PredictionService.getPredictionById(id);
     },
     enabled: options?.enabled !== false && !!id,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
-    retry: 2,
+    retry: 1,
   });
 }
 
@@ -298,6 +285,7 @@ export function useLeagueTable(
     enabled: options?.enabled !== false && !!leagueId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 2,
+    // Never retry — 404 returns [] gracefully, other errors shouldn't spam
+    retry: false,
   });
 }

@@ -6,12 +6,29 @@
  * - Request/response logging
  * - Error handling
  * - Type safety
+ * - 401 → redirect to login
  */
 
 import { API_CONFIG } from './config';
 import { createLogger } from './logger';
 import { ApiError, NetworkError } from '@/shared/lib/errors';
 import { getAuthToken } from '@/shared/lib/auth-token';
+
+export interface ApiClientConfig {
+  baseURL: string;
+  timeout?: number;
+  headers?: Record<string, string>;
+}
+
+/**
+ * Called by the client whenever a 401 is received.
+ * Set this once at app boot via setUnauthorizedHandler().
+ */
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: () => void) {
+  onUnauthorized = handler;
+}
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -94,6 +111,12 @@ class ApiClient {
         (errorData as { error?: string })?.error ||
         response.statusText ||
         'Request failed';
+
+      // 401 — token expired or missing, trigger global logout + redirect
+      if (response.status === 401) {
+        this.logger.debug('Unauthorized (401) — triggering session expiry handler');
+        onUnauthorized?.();
+      }
 
       // Only log as error if it's a server error (5xx) or unexpected client error.
       // 401/403 (auth/authz) and 404 are expected and handled in UI.

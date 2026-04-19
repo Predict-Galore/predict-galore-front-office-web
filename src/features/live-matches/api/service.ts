@@ -37,7 +37,13 @@ export class LiveMatchesService {
     logger.info('Fetching live scores', { filters });
 
     try {
-      const backendData = await api.get<BackendLiveScoresResponse>(API_ENDPOINTS.LIVE.SCORES);
+      const queryParams: Record<string, string | number> = {};
+      if (filters?.sportId) queryParams.sportId = filters.sportId;
+
+      const backendData = await api.get<BackendLiveScoresResponse>(
+        API_ENDPOINTS.LIVE.SCORES,
+        Object.keys(queryParams).length ? queryParams : undefined
+      );
 
       const response = LiveMatchesTransformer.transformBackendResponse(backendData);
 

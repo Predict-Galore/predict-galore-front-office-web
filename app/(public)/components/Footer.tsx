@@ -200,9 +200,6 @@ const Footer: React.FC = () => {
           <Box>
             <Typography sx={headerStyle}>CONTACT</Typography>
             <Stack spacing={1.5}>
-              <Typography sx={{ ...linkStyle, cursor: 'default' }}>
-                New York, United States
-              </Typography>
               <Link
                 href="mailto:customerservice@predictgalore.com"
                 sx={{ ...linkStyle, wordBreak: 'break-all' }}
@@ -218,9 +215,9 @@ const Footer: React.FC = () => {
       {/* Responsible Gambling Notice - Full width below content */}
       <Box
         sx={{
-          bgcolor: '#0d4d0a', // Dark forest green
+            background: 'linear-gradient(135deg, #1C4602 0%, #2d6a04 100%)',
           p: { xs: 3, md: 3 },
-          borderRadius: '4px',
+        borderRadius: { xs: 3, sm: 4 },
           mb: 4,
           width: '100%',
         }}
@@ -262,7 +259,15 @@ const Footer: React.FC = () => {
           <Box component="span" sx={{ fontSize: '1.1rem' }}>
             ©
           </Box>
-          <Box component="span">Predict Galore. All rights reserved.</Box>
+          <Box component="span">
+            <Box component="span" sx={{ color: '#4AA900', fontWeight: 700 }}>
+              Predict
+            </Box>{' '}
+            <Box component="span" sx={{ color: '#e72838', fontWeight: 700 }}>
+              Galore
+            </Box>
+            . All rights reserved.
+          </Box>
           <Box
             component="span"
             aria-label="18 plus"

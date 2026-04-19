@@ -85,6 +85,7 @@ export class NewsTransformer {
     category?: string;
     page?: number;
     pageSize?: number;
+    sportId?: number;
     isFeatured?: boolean;
     isBreaking?: boolean;
     search?: string;
@@ -95,6 +96,7 @@ export class NewsTransformer {
     if (filters.page) params.page = filters.page;
     if (filters.pageSize) params.pageSize = filters.pageSize;
     if (filters.category) params.category = filters.category;
+    if (filters.sportId) params.sportId = filters.sportId;
     if (filters.isFeatured !== undefined) params.isFeatured = String(filters.isFeatured);
     if (filters.isBreaking !== undefined) params.isBreaking = String(filters.isBreaking);
     if (filters.search) params.search = filters.search;

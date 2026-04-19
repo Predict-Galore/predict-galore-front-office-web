@@ -200,6 +200,7 @@ export class PredictionTransformer {
     leagueId?: number;
     page?: number;
     pageSize?: number;
+    status?: string;
   }): Record<string, string | number> {
     const params: Record<string, string | number> = {};
 
@@ -207,6 +208,7 @@ export class PredictionTransformer {
     if (filters.leagueId) params.leagueId = filters.leagueId;
     if (filters.page) params.page = filters.page;
     if (filters.pageSize) params.pageSize = filters.pageSize;
+    if (filters.status) params.status = filters.status;
 
     return params;
   }

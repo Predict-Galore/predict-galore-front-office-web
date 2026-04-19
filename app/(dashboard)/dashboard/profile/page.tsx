@@ -1,7 +1,7 @@
 // app/(dashboard)/dashboard/profile/page.tsx
 'use client';
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, Tab, Box, IconButton, Container, Stack, Paper } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
@@ -26,17 +26,12 @@ const ProfilePage: React.FC = () => {
     return 'profile-details';
   }, [searchParams]);
 
-  const [activeTab, setActiveTab] = useState<ProfileTab>(tabFromUrl);
-
-  // Sync state with URL params when they change
-  useEffect(() => {
-    setActiveTab(tabFromUrl);
-  }, [tabFromUrl]);
+  // Drive active tab purely from URL — no local state needed
+  const activeTab = tabFromUrl;
 
   const handleTabChange = useCallback(
     (_event: React.SyntheticEvent, newValue: ProfileTab) => {
       if (newValue === activeTab) return;
-      setActiveTab(newValue);
       router.replace(`/dashboard/profile?tab=${newValue}`, { scroll: false });
     },
     [activeTab, router]

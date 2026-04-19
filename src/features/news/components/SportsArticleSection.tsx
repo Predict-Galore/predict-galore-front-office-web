@@ -6,7 +6,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Button, Typography, Paper, Chip, Stack, CardMedia } from '@mui/material';
+import { Box, Typography, Paper, Chip, Stack, CardMedia } from '@mui/material';
 import { Image as ImageIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { NewsItem } from '../model/types';
@@ -154,9 +154,9 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles, o
         alignItems: 'start',
       }}
     >
-      {articles.map((article) => (
+      {articles.map((article, index) => (
         <Paper
-          key={article.id}
+          key={`${article.id}-${index}`}
           elevation={1}
           sx={{
             overflow: 'hidden',
@@ -182,10 +182,32 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles, o
             }}
           >
             <ArticleImage imageUrl={article.imageUrl} title={article.title} />
+
+            {/* Sport badge overlaid on the image (top-right corner) */}
+            {(article.sport || article.category) && (
+              <Chip
+                label={article.sport || article.category}
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  bgcolor: 'success.main',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.7rem',
+                  height: 22,
+                  textTransform: 'capitalize',
+                }}
+              />
+            )}
           </Box>
 
-          {/* Article Content */}
-          <Box sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Article Content — clicking anywhere on the card opens the article */}
+          <Box
+            sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column', cursor: onReadMore ? 'pointer' : 'default' }}
+            onClick={() => onReadMore?.(article)}
+          >
             {/* Metadata */}
             <ArticleMetadata publishedAt={article.publishedAt} category={article.category} />
 
@@ -224,30 +246,6 @@ const SportsArticleSection: React.FC<SportsArticleSectionProps> = ({ articles, o
             {/* Footer */}
             <Box sx={{ mt: 'auto', pt: 2 }}>
               <ArticleAuthor author={article.author} source={article.source} />
-
-              {/* View Details Button */}
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => onReadMore?.(article)}
-                sx={{
-                  borderColor: 'success.main',
-                  color: 'success.main',
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  fontSize: '0.9rem',
-                  borderRadius: 1,
-                  px: 2,
-                  py: 0.75,
-                  minWidth: 140,
-                  '&:hover': {
-                    borderColor: 'success.dark',
-                    bgcolor: 'success.50',
-                  },
-                }}
-              >
-                View details
-              </Button>
             </Box>
           </Box>
         </Paper>

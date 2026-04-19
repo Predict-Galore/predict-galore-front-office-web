@@ -4,17 +4,15 @@
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useMemo } from 'react';
+
+// Pre-compute random positions once at module level — Math.random is impure so must not run during render
+const SHAPE_POSITIONS = [...Array(8)].map(() => ({
+  left: `${Math.random() * 100}%`,
+  top: `${Math.random() * 100}%`,
+}));
 
 export default function AppLoading() {
-  const shapes = useMemo(
-    () =>
-      [...Array(8)].map(() => ({
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-      })),
-    []
-  );
+  const shapes = SHAPE_POSITIONS;
 
   return (
     <Box

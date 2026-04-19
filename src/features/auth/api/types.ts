@@ -27,6 +27,17 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface GoogleSocialSignInRequest {
+  idToken: string;
+  sessionId: string;
+}
+
+export interface AppleSocialSignInRequest {
+  identityToken: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface VerifyOtpRequest {
   email: string;
   token: string;

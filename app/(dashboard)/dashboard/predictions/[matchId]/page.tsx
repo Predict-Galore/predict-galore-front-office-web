@@ -146,7 +146,8 @@ const MatchDetailPage: React.FC = () => {
   }
 
   const prediction = matchData.prediction;
-  const leagueId = prediction.leagueId;
+  const raw = matchData.raw;
+  const tableLeagueId = (raw.leagueId as number) || (raw.fixtureId as number) || 0;
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
@@ -174,17 +175,18 @@ const MatchDetailPage: React.FC = () => {
             }}
           >
             {activeTab === 'overview' && (
-              <OverviewTab prediction={prediction} detailed={matchData.detailed} />
+              <OverviewTab raw={raw} />
             )}
 
             {activeTab === 'predictions' && (
               <PredictionsTab
                 picks={matchData.picks as Array<Record<string, unknown>>}
+                raw={raw}
                 isLoading={isLoading}
               />
             )}
 
-            {activeTab === 'table' && <TableTab leagueId={leagueId} />}
+            {activeTab === 'table' && <TableTab leagueId={tableLeagueId} />}
           </Paper>
         </Stack>
       </Container>

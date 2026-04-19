@@ -48,7 +48,7 @@ const LiveMatchesPage: React.FC = () => {
     isFetching: isFetchingMatches,
     isError: matchesError,
     refetch: refetchMatches,
-  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName } : undefined, {
+  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName, sportId: activeSport?.id } : undefined, {
     enabled: !!liveSportName,
   });
 

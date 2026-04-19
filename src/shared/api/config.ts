@@ -32,6 +32,8 @@ export const API_ENDPOINTS = {
     LOGOUT: '/api/v1/auth/logout',
     REFRESH: '/api/v1/auth/refresh',
     CHECK_EMAIL: '/api/v1/auth/user/check-email',
+    SOCIAL_GOOGLE: '/api/v1/auth/social/google',
+    SOCIAL_APPLE: '/api/v1/auth/social/apple',
     FORGOT_PASSWORD: '/api/v1/auth/forgot_password/confirm_token',
     RESET_PASSWORD: '/api/v1/auth/forgot_password/reset_password',
     VERIFY_EMAIL: '/api/v1/auth/verify-email',
@@ -118,5 +120,10 @@ export const API_ENDPOINTS = {
   SEARCH: {
     QUERY: '/api/v1/search',
     POPULAR: '/api/v1/search/popular',
+  },
+
+  // Quotes endpoint
+  QUOTES: {
+    TODAY: '/api/v1/quotes/today',
   },
 } as const;

@@ -16,7 +16,8 @@ import SocialAuthButtons from './SocialAuthButtons';
 
 import { registerSchema, RegisterFormData } from '../validations/schemas';
 import { AUTH_CONSTANTS } from '../lib/constants';
-import { useRegisterMutation } from '../api/hooks';
+import { useRegisterMutation, useGoogleSocialSignInMutation, useAppleSocialSignInMutation } from '../api/hooks';
+import { getGoogleIdToken, getAppleIdentityToken } from '../lib/social';
 import { validatePasswordStrength } from '../lib/utils';
 
 type RegisterStep = 'email' | 'basic';
@@ -35,6 +36,9 @@ const RegisterForm: React.FC = () => {
   }>({ open: false, message: '', severity: 'success' });
 
   const { mutate: submitRegistration, isPending: isSubmitting } = useRegisterMutation();
+  const { mutate: googleSignIn, isPending: isGooglePending } = useGoogleSocialSignInMutation();
+  const { mutate: appleSignIn, isPending: isApplePending } = useAppleSocialSignInMutation();
+  const isSocialPending = isGooglePending || isApplePending;
 
   const {
     control,
@@ -103,6 +107,45 @@ const RegisterForm: React.FC = () => {
     const ok = await trigger('email');
     if (!ok) return;
     setStep('basic');
+  };
+
+  const handleSocialAuth = async (providerName: string) => {
+    setLocalError(null);
+    try {
+      if (providerName === 'Google') {
+        const { idToken, sessionId } = await getGoogleIdToken();
+        googleSignIn(
+          { idToken, sessionId },
+          {
+            onSuccess: () => {
+              router.replace(AUTH_CONSTANTS.ROUTES.DASHBOARD);
+            },
+            onError: (err) => {
+              setLocalError(err.message || 'Google sign-in failed');
+              setSnackbar({ open: true, severity: 'error', message: err.message || 'Google sign-in failed' });
+            },
+          }
+        );
+      } else if (providerName === 'Apple') {
+        const { identityToken, firstName, lastName } = await getAppleIdentityToken();
+        appleSignIn(
+          { identityToken, firstName, lastName },
+          {
+            onSuccess: () => {
+              router.replace(AUTH_CONSTANTS.ROUTES.DASHBOARD);
+            },
+            onError: (err) => {
+              setLocalError(err.message || 'Apple sign-in failed');
+              setSnackbar({ open: true, severity: 'error', message: err.message || 'Apple sign-in failed' });
+            },
+          }
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Social sign-in failed';
+      setLocalError(message);
+      setSnackbar({ open: true, severity: 'error', message });
+    }
   };
 
   const handleFormSubmission: SubmitHandler<RegisterFormData> = (formData) => {
@@ -215,7 +258,11 @@ const RegisterForm: React.FC = () => {
             Continue
           </Button>
 
-          <SocialAuthButtons label="Or sign up with" />
+          <SocialAuthButtons
+            label="Or sign up with"
+            disabled={isSubmitting || isSocialPending}
+            onProviderClick={handleSocialAuth}
+          />
 
           <Typography variant="body2" sx={{ textAlign: 'center', color: '#667085', mt: 1 }}>
             Already have an account?{' '}
@@ -366,7 +413,11 @@ const RegisterForm: React.FC = () => {
               Continue
             </Button>
 
-            <SocialAuthButtons label="Or sign up with" />
+            <SocialAuthButtons
+              label="Or sign up with"
+              disabled={isSubmitting || isSocialPending}
+              onProviderClick={handleSocialAuth}
+            />
 
             <Typography variant="body2" sx={{ textAlign: 'center', color: '#667085', mt: 1 }}>
               Already have an account?{' '}

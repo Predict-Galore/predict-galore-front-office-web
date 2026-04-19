@@ -93,6 +93,7 @@ export class PredictionService {
       leagueId: filters.leagueId,
       page: filters.page || 1,
       pageSize: filters.pageSize || 20,
+      status: filters.status ?? 'active', // always fetch only active predictions
     });
 
     logger.info('Fetching predictions', { filters, queryParams });
@@ -139,11 +140,13 @@ export class PredictionService {
 
   /**
    * Get prediction by id (includes picks)
+   * Returns the raw backend data object alongside the transformed prediction.
    */
   static async getPredictionById(id: number): Promise<{
     prediction: Prediction;
     detailed?: DetailedPrediction;
     picks?: unknown;
+    raw: Record<string, unknown>;
   }> {
     if (!id || id < 0) {
       throw new Error('Invalid prediction ID');
@@ -155,125 +158,58 @@ export class PredictionService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await api.get<any>(API_ENDPOINTS.PREDICTIONS.BY_ID(id));
 
-      logger.info('Raw API response for prediction by id:', {
-        id,
-        responseKeys: response ? Object.keys(response) : [],
-        hasData: !!response?.data,
-        dataKeys: response?.data ? Object.keys(response.data) : [],
-      });
-
-      // Backend returns: { success, message, errors, data: { id, title, analysis, picks, ... } }
-      // Extract the actual data from the nested structure
-      let data;
-      if (response.success !== undefined) {
-        // Response is wrapped in {success, message, errors, data}
-        data = response.data;
-      } else if (response.data && response.data.success !== undefined) {
-        // Response is nested deeper
-        data = response.data.data;
-      } else {
-        // Response is direct data
-        data = response.data || response;
-      }
+      // Backend always returns: { success, message, errors, data: { ... } }
+      // The api client returns the full JSON as-is, so we unwrap .data here.
+      const data: Record<string, unknown> =
+        response?.success !== undefined
+          ? (response.data as Record<string, unknown>)
+          : (response as Record<string, unknown>);
 
       if (!data) {
         throw new Error('No prediction data found in response');
       }
 
-      logger.info('Extracted prediction data:', {
-        id,
-        dataKeys: Object.keys(data),
-        hasTitle: !!data.title,
-        hasPicks: !!data.picks,
-        picksCount: data.picks?.length || 0,
-      });
+      logger.info('Prediction data keys:', { keys: Object.keys(data) });
 
-      // Extract team names from title (format: "Prediction for Team A vs Team B")
+      // Extract team names from matchLabel (e.g. "Burnley vs Brighton")
+      // or fall back to parsing title
       let homeTeamName = 'Home Team';
       let awayTeamName = 'Away Team';
 
-      if (data.title) {
-        const titleMatch = data.title.match(/Prediction for (.+) vs (.+)/i);
-        if (titleMatch) {
-          homeTeamName = titleMatch[1].trim();
-          awayTeamName = titleMatch[2].trim();
+      const matchLabel = data.matchLabel as string | undefined;
+      const title = data.title as string | undefined;
+
+      if (matchLabel && matchLabel.includes(' vs ')) {
+        const parts = matchLabel.split(' vs ');
+        homeTeamName = parts[0].trim();
+        awayTeamName = parts[1].trim();
+      } else if (title) {
+        const m = title.match(/Prediction for (.+) vs (.+)/i);
+        if (m) {
+          homeTeamName = m[1].trim();
+          awayTeamName = m[2].trim();
         }
       }
 
-      // Build prediction object from backend data - ensure all required fields have values
       const prediction: Prediction = {
-        id: data.id || 0,
-        homeTeam: {
-          id: 0,
-          name: homeTeamName,
-          logoUrl: '',
-          shortName: homeTeamName,
-        },
-        awayTeam: {
-          id: 0,
-          name: awayTeamName,
-          logoUrl: '',
-          shortName: awayTeamName,
-        },
+        id: (data.id as number) || 0,
+        homeTeam: { id: 0, name: homeTeamName, logoUrl: '', shortName: homeTeamName },
+        awayTeam: { id: 0, name: awayTeamName, logoUrl: '', shortName: awayTeamName },
         predictedScore: '0-0',
-        status: data.isActive ? 'Prediction' : 'FT',
-        startTime: data.scheduledTime || '',
-        competition: 'N/A',
+        status: ((data.status as string) || ((data.isActive as boolean) ? 'Prediction' : 'FT')) as Prediction['status'],
+        startTime: (data.kickoffUtc as string) || (data.scheduledTime as string) || '',
+        competition: (data.league as string) || 'N/A',
         sportId: 0,
-        leagueId: 0,
-        confidence: data.accuracy || 0,
-        picksCount: data.picks?.length || 0,
-        accuracy: data.accuracy || 0,
+        leagueId: (data.leagueId as number) || 0,
+        confidence: (data.accuracy as number) || 0,
+        picksCount: (data.picks as unknown[])?.length || 0,
+        accuracy: (data.accuracy as number) || 0,
       };
-
-      // Build detailed prediction - only include data that exists in backend response
-      const detailed: DetailedPrediction = {
-        predictedOutcome: data.picks?.[0]?.selectionLabel,
-        reasoning: data.analysis || data.expertAnalysis,
-        confidenceLevel: data.accuracy,
-        expertAnalysis: data.expertAnalysis || data.analysis,
-        totalVotes: 0,
-        // Only include team stats if the flag is true
-        ...(data.includeTeamForm && {
-          homeTeamStats: {
-            recentForm: [],
-            headToHeadWins: [],
-            goalsPerGame: 0,
-            goalsConcededPerGame: 0,
-            winPercentage: 0,
-            possessionPercentage: 0,
-            cleanSheets: 0,
-          },
-          awayTeamStats: {
-            recentForm: [],
-            headToHeadWins: [],
-            goalsPerGame: 0,
-            goalsConcededPerGame: 0,
-            winPercentage: 0,
-            possessionPercentage: 0,
-            cleanSheets: 0,
-          },
-        }),
-        // Only include top scorers if the flag is true
-        ...(data.includeTopScorers && {
-          homeTopScorer: undefined,
-          awayTopScorer: undefined,
-        }),
-      };
-
-      logger.info('Prediction by id transformed successfully', {
-        id,
-        hasPrediction: !!prediction,
-        hasDetailed: !!detailed,
-        hasPicks: !!data.picks,
-        predictionId: prediction.id,
-        detailedKeys: Object.keys(detailed),
-      });
 
       return {
         prediction,
-        detailed,
         picks: data.picks,
+        raw: data,
       };
     } catch (error) {
       logger.error('Failed to fetch prediction by id', { error, id });
@@ -336,6 +272,7 @@ export class PredictionService {
 
   /**
    * Get league table (optional seasonYear query param)
+   * Returns empty array if the league has no standings (404) — not an error.
    */
   static async getLeagueTable(leagueId: number, seasonYear?: number): Promise<LeagueTableEntry[]> {
     if (!leagueId || leagueId < 0) {
@@ -352,13 +289,15 @@ export class PredictionService {
       );
 
       const entries = Array.isArray(response) ? response : (response?.data ?? []);
-      logger.info('League table fetched successfully', {
-        leagueId,
-        count: entries.length,
-      });
+      logger.info('League table fetched successfully', { leagueId, count: entries.length });
       return entries;
     } catch (error) {
-      logger.error('Failed to fetch league table', { error, leagueId });
+      if (isApiError(error) && error.status === 404) {
+        // 404 is expected — league simply has no standings data yet
+        logger.debug('League table not found (404)', { leagueId });
+        return [];
+      }
+      logger.warn('Failed to fetch league table', { leagueId, status: isApiError(error) ? error.status : 'unknown' });
       throw error;
     }
   }

@@ -63,17 +63,16 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: LogData): void {
+    // Only log in the browser — never in the terminal (server/SSR)
+    if (typeof window === 'undefined') return;
+
     const serializedData = data ? this.serializeData(data) : undefined;
     const formattedMessage = this.formatMessage(level, message, serializedData);
 
     switch (level) {
       case 'error':
-        // Only log errors in development, or if explicitly enabled
         if (this.isDevelopment) {
           console.error(formattedMessage, serializedData || '');
-        } else {
-          // In production, silently log or send to error tracking service
-          // You can integrate with services like Sentry, LogRocket, etc. here
         }
         break;
       case 'warn':

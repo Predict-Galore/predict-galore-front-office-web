@@ -11,6 +11,7 @@ export interface GetNewsRequest extends NewsFilter {
   category?: string;
   page?: number;
   pageSize?: number;
+  sportId?: number;
   isFeatured?: boolean;
   isBreaking?: boolean;
   search?: string;

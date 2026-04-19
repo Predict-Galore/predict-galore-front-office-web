@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
 
     // Image quality settings - reduce quality for smaller bundles
+    qualities: [75, 95, 100],
     minimumCacheTTL: 60, // Cache images for 60 seconds
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

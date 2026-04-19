@@ -9,6 +9,8 @@ import type {
   LoginRequest,
   RegisterRequest,
   ForgotPasswordRequest,
+  GoogleSocialSignInRequest,
+  AppleSocialSignInRequest,
   VerifyOtpRequest,
   VerifyOtpResponse,
   ResetPasswordRequest,
@@ -42,6 +44,26 @@ export class AuthService {
     });
 
     return response;
+  }
+
+  /**
+   * Social sign-in (Google)
+   */
+  static async socialGoogle(
+    data: GoogleSocialSignInRequest
+  ): Promise<ApiResponseWithUser<LoginResponse>> {
+    logger.info('Google social sign-in request');
+    return api.post<ApiResponseWithUser<LoginResponse>>(API_ENDPOINTS.AUTH.SOCIAL_GOOGLE, data);
+  }
+
+  /**
+   * Social sign-in (Apple)
+   */
+  static async socialApple(
+    data: AppleSocialSignInRequest
+  ): Promise<ApiResponseWithUser<LoginResponse>> {
+    logger.info('Apple social sign-in request');
+    return api.post<ApiResponseWithUser<LoginResponse>>(API_ENDPOINTS.AUTH.SOCIAL_APPLE, data);
   }
 
   /**

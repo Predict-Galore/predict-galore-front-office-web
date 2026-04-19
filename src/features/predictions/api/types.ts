@@ -18,6 +18,7 @@ export interface GetPredictionsRequest extends PredictionFilter {
   leagueId?: number;
   page?: number;
   pageSize?: number;
+  status?: string;
 }
 
 // ==================== API RESPONSE TYPES ====================

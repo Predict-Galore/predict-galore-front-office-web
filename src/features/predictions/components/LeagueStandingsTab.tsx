@@ -164,25 +164,10 @@ const TableTab: React.FC<TableTabProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Log for debugging
-  React.useEffect(() => {
-    console.log('=== TABLE TAB COMPONENT ===');
-    console.log('League ID:', leagueId);
-    console.log('Prop Table Data:', propTableData);
-    console.log('Prop Is Loading:', propIsLoading);
-  }, [leagueId, propTableData, propIsLoading]);
-
   // Fetch league table data if not provided as props
   const { data: hookTableData = [], isLoading: hookIsLoading } = useLeagueTable(leagueId ?? null, {
     enabled: !!leagueId && !propTableData,
   });
-
-  // Log hook data
-  React.useEffect(() => {
-    console.log('=== TABLE TAB HOOK DATA ===');
-    console.log('Hook Table Data:', hookTableData);
-    console.log('Hook Is Loading:', hookIsLoading);
-  }, [hookTableData, hookIsLoading]);
 
   // Use prop data if available, otherwise use hook data
   const tableData = propTableData || hookTableData;

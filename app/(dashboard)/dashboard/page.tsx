@@ -7,10 +7,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Box } from '@mui/material';
+import { Stack, Box, useMediaQuery, useTheme } from '@mui/material';
 import { SportTabs } from '@/shared/components/shared';
 import { useSports, usePredictions } from '@/features/predictions/api/hooks';
 import { useLiveScoresQuery, useDetailedLiveMatchQuery } from '@/features/live-matches/api/hooks';
+import { useNews } from '@/features/news/api/hooks';
 import ContentTabs from '@/features/dashboard/components/ContentTabs';
 import PredictionsSection from '@/features/predictions/components/PredictionsList';
 import SelectedPredictionView from '@/features/predictions/components/SelectedPredictionView';
@@ -18,10 +19,13 @@ import LiveLeagueSection from '@/features/dashboard/components/LiveLeagueSection
 import SelectedLiveMatchView from '@/features/live-matches/components/SelectedLiveMatchView';
 import MatchListSkeleton from '@/features/dashboard/components/MatchListSkeleton';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/shared';
+import DashboardNewsSidebar from '@/shared/components/shared/DashboardNewsSidebar';
+import NewsDetailView from '@/features/news/components/NewsDetailView';
 import PremiumModal from '@/features/dashboard/components/PremiumModal';
 import withAuth from '../../hoc/withAuth';
 import type { Sport, Prediction } from '@/features/predictions/model/types';
 import type { Match } from '@/features/live-matches/model/types';
+import type { NewsItem } from '@/features/news/model/types';
 
 type TabType = 'predictions' | 'live-matches';
 
@@ -30,6 +34,8 @@ type TabType = 'predictions' | 'live-matches';
  */
 const DashboardPage: React.FC = () => {
   const router = useRouter();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
 
   // UI State
   const [activeTab, setActiveTab] = useState<TabType>('predictions');
@@ -38,6 +44,7 @@ const DashboardPage: React.FC = () => {
   const [selectedPredictionId, setSelectedPredictionId] = useState<number | null>(null);
   const [selectedLiveMatch, setSelectedLiveMatch] = useState<Match | null>(null);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
 
   // Fetch sports list
   const { data: sports = [], isLoading: loadingSports, isError: sportsError } = useSports();
@@ -67,7 +74,7 @@ const DashboardPage: React.FC = () => {
     isFetching: isFetchingLiveMatches,
     isError: liveMatchesError,
     refetch: refetchLiveMatches,
-  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName } : undefined, {
+  } = useLiveScoresQuery(liveSportName ? { sport: liveSportName, sportId: activeSport?.id } : undefined, {
     enabled: activeTab === 'live-matches' && !!liveSportName,
   });
   const {
@@ -78,6 +85,14 @@ const DashboardPage: React.FC = () => {
   } = useDetailedLiveMatchQuery(selectedLiveMatch ? String(selectedLiveMatch.id) : null, {
     enabled: !!selectedLiveMatch,
   });
+
+  // News sidebar data (desktop only)
+  const {
+    data: newsData,
+    isLoading: isNewsLoading,
+    isError: isNewsError,
+    refetch: refetchNews,
+  } = useNews({ page: 1, pageSize: 10 }, { enabled: isDesktop });
 
   /**
    * Handle sport selection
@@ -337,6 +352,7 @@ const DashboardPage: React.FC = () => {
   return (
     <>
       <Stack spacing={3}>
+        {/* Sport tabs — always full width */}
         <SportTabs
           sports={sports}
           selectedSport={activeSport}
@@ -344,11 +360,45 @@ const DashboardPage: React.FC = () => {
           isLoading={loadingSports}
         />
 
-        <Box>
-          <Stack spacing={2}>
-            <ContentTabs activeTab={activeTab} onTabChange={handleTabChange} />
-            {activeTab === 'predictions' ? renderPredictions() : renderLiveMatches()}
-          </Stack>
+        {/* Content area: tabs+content on left, news sidebar on right (desktop only) */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: isDesktop && !selectedNewsItem
+              ? 'minmax(0, 2.8fr) minmax(0, 1.2fr)'
+              : '1fr',
+            gap: 3,
+            alignItems: 'flex-start',
+          }}
+        >
+          {/* Main content column */}
+          <Box sx={{ minWidth: 0 }}>
+            {selectedNewsItem ? (
+              <NewsDetailView
+                newsItem={selectedNewsItem}
+                onBack={() => setSelectedNewsItem(null)}
+              />
+            ) : (
+              <Stack spacing={2}>
+                <ContentTabs activeTab={activeTab} onTabChange={handleTabChange} />
+                {activeTab === 'predictions' ? renderPredictions() : renderLiveMatches()}
+              </Stack>
+            )}
+          </Box>
+
+          {/* News sidebar — desktop only, hidden when reading a news article */}
+          {isDesktop && !selectedNewsItem && (
+            <Box sx={{ minWidth: 0 }}>
+              <DashboardNewsSidebar
+                topNews={newsData?.items?.slice(0, 1) ?? []}
+                laligaNews={newsData?.items?.slice(1, 7) ?? []}
+                isLoading={isNewsLoading}
+                isError={isNewsError}
+                onRetry={refetchNews}
+                onReadMore={(item) => setSelectedNewsItem(item)}
+              />
+            </Box>
+          )}
         </Box>
       </Stack>
 

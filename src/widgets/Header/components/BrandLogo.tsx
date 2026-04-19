@@ -21,6 +21,7 @@ const BrandLogo: React.FC = () => {
         width={logoWidth}
         height={logoHeight}
         priority
+        style={{ width: logoWidth, height: 'auto' }}
       />
     </Link>
   );

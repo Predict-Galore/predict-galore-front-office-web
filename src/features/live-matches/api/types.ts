@@ -9,6 +9,7 @@ import type { LiveSection } from '../model/types';
 // ==================== API REQUEST TYPES ====================
 export interface GetLiveScoresRequest {
   sport?: string;
+  sportId?: number;
   leagueId?: number;
 }
 

@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { Box, Typography } from '@mui/material';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface AuthLayoutClientProps {
   children: ReactNode;
@@ -39,21 +40,24 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
         />
 
         {/* Floating Logo Container */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 40,
-            left: 40,
-            bgcolor: 'common.white',
-            borderRadius: '12px',
-            px: 3.5,
-            py: 2,
-            boxShadow: '0px 10px 30px rgba(0,0,0,0.15)',
-            zIndex: 10,
-          }}
-        >
-          <Image src="/predict-galore-logo.png" alt="Predict Galore" width={220} height={56} />
-        </Box>
+        <Link href="/" aria-label="Go to home" style={{ textDecoration: 'none' }}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 40,
+              left: 40,
+              bgcolor: 'common.white',
+              borderRadius: '12px',
+              px: 3.5,
+              py: 2,
+              boxShadow: '0px 10px 30px rgba(0,0,0,0.15)',
+              zIndex: 10,
+              cursor: 'pointer',
+            }}
+          >
+            <Image src="/predict-galore-logo.png" alt="Predict Galore" width={220} height={56} />
+          </Box>
+        </Link>
 
         {/* Red Text Overlay Card */}
         <Box

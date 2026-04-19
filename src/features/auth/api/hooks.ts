@@ -15,6 +15,8 @@ import type {
   LoginRequest,
   RegisterRequest,
   ForgotPasswordRequest,
+  GoogleSocialSignInRequest,
+  AppleSocialSignInRequest,
   VerifyOtpRequest,
   VerifyOtpResponse,
   ResetPasswordRequest,
@@ -48,6 +50,17 @@ function transformLocalUserToUser(localUser: LocalUser): User {
     createdAt: localUser.createdAt || new Date().toISOString(),
     updatedAt: localUser.updatedAt || new Date().toISOString(),
   };
+}
+
+function extractAuthFromResponse(response: ApiResponseWithUser): { user: LocalUser; token: string | null } {
+  const responseData = response?.data as LoginResponse | undefined;
+  const userData = (responseData?.user as unknown as LocalUser | undefined) || response?.user;
+  const token = (responseData?.token as unknown as string | undefined) || response?.token || null;
+
+  if (!userData) {
+    throw new Error(response?.message || response?.code || 'Authentication failed: Missing user data');
+  }
+  return { user: userData, token };
 }
 
 /**
@@ -106,36 +119,22 @@ export const useLoginMutation = () => {
 
       const response = await AuthService.login(data);
 
-      // Extract user and token from different possible locations
-      const responseData = response?.data as LoginResponse | undefined;
-      const userData = responseData?.user || response?.user;
-      const token = responseData?.token || response?.token || null;
-
-      if (userData) {
-        const appUser = transformLocalUserToUser(userData);
-        storeLogin(appUser, token);
-        if (typeof document !== 'undefined' && token) {
-          setAuthCookie(token);
-        }
-        logger.info('User logged in successfully');
-      } else {
-        logger.error('Login failed: Missing user data');
-        throw new Error(response?.message || response?.code || 'Login failed: Missing user data');
-      }
+      const { user, token } = extractAuthFromResponse(response);
+      const appUser = transformLocalUserToUser(user);
+      storeLogin(appUser, token);
+      if (typeof document !== 'undefined' && token) setAuthCookie(token);
+      logger.info('User logged in successfully');
 
       return response;
     },
     onSuccess: (response) => {
       logger.info('Login mutation onSuccess');
 
-      const responseData = response?.data as LoginResponse | undefined;
-      const userData = responseData?.user || response?.user;
-      if (userData) {
-        const cacheUser = transformLocalUserToUser(userData);
-        queryClient.setQueryData(authKeys.user(), cacheUser);
-        queryClient.invalidateQueries({ queryKey: authKeys.all });
-        logger.info('Auth cache updated');
-      }
+      const { user } = extractAuthFromResponse(response);
+      const cacheUser = transformLocalUserToUser(user);
+      queryClient.setQueryData(authKeys.user(), cacheUser);
+      queryClient.invalidateQueries({ queryKey: authKeys.all });
+      logger.info('Auth cache updated');
     },
     onError: (error: Error) => {
       if (error instanceof ApiError) {
@@ -156,6 +155,54 @@ export const useLoginMutation = () => {
           error: error.message,
         });
       }
+    },
+  });
+};
+
+export const useGoogleSocialSignInMutation = () => {
+  const queryClient = useQueryClient();
+  const { login: storeLogin } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (data: GoogleSocialSignInRequest): Promise<ApiResponseWithUser> => {
+      logger.info('Google social sign-in mutation called');
+      const response = await AuthService.socialGoogle(data);
+      const { user, token } = extractAuthFromResponse(response);
+      storeLogin(transformLocalUserToUser(user), token);
+      if (typeof document !== 'undefined' && token) setAuthCookie(token);
+      return response;
+    },
+    onSuccess: (response) => {
+      const { user } = extractAuthFromResponse(response);
+      queryClient.setQueryData(authKeys.user(), transformLocalUserToUser(user));
+      queryClient.invalidateQueries({ queryKey: authKeys.all });
+    },
+    onError: (error: Error) => {
+      logger.error('Google social sign-in mutation error', { error: error.message });
+    },
+  });
+};
+
+export const useAppleSocialSignInMutation = () => {
+  const queryClient = useQueryClient();
+  const { login: storeLogin } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (data: AppleSocialSignInRequest): Promise<ApiResponseWithUser> => {
+      logger.info('Apple social sign-in mutation called');
+      const response = await AuthService.socialApple(data);
+      const { user, token } = extractAuthFromResponse(response);
+      storeLogin(transformLocalUserToUser(user), token);
+      if (typeof document !== 'undefined' && token) setAuthCookie(token);
+      return response;
+    },
+    onSuccess: (response) => {
+      const { user } = extractAuthFromResponse(response);
+      queryClient.setQueryData(authKeys.user(), transformLocalUserToUser(user));
+      queryClient.invalidateQueries({ queryKey: authKeys.all });
+    },
+    onError: (error: Error) => {
+      logger.error('Apple social sign-in mutation error', { error: error.message });
     },
   });
 };

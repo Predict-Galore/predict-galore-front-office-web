@@ -8,6 +8,7 @@
 export { default as apiClient } from './client';
 export { default as api } from './client';
 export type { ApiClientConfig } from './client';
+export { setUnauthorizedHandler } from './client';
 
 // Config
 export { API_CONFIG, API_ENDPOINTS } from './config';

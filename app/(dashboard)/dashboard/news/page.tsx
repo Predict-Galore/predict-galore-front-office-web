@@ -1,33 +1,88 @@
 /**
  * News Page
- * Shows news articles for selected sport
+ *
+ * Displays sports news filtered by the selected sport tab.
+ * Layout (matches design):
+ *   1. Sport tabs (All, Soccer, Basketball, Tennis, Volleyball, Golf…)
+ *   2. Featured hero article (full-width banner)
+ *   3. Two-column row: Recent News (left) + Premier League Table (right, desktop only)
+ *   4. Sports Articles grid (3 columns desktop / 1 column mobile)
+ *   5. "View More" button
+ *
+ * When a user clicks an article the inline SelectedNewsView replaces the list.
  */
 
 'use client';
 
 import React, { useState } from 'react';
-import { Stack, Box, Paper, Typography, Chip } from '@mui/material';
+import { Stack, Box, Typography, Button, Paper, Skeleton } from '@mui/material';
 import ArticleIcon from '@mui/icons-material/Article';
+
 import { SportTabs } from '@/shared/components/shared';
-import { useLeagues, useSports } from '@/features/predictions/api/hooks';
-import { useFeaturedNews, useNews } from '@/features/news/api/hooks';
-import SportsArticleSection from '@/features/news/components/SportsArticleSection';
-import LeagueTableSection from '@/features/news/components/LeagueTableSection';
-import SelectedNewsView from '@/features/news/components/SelectedNewsView';
+import { useSports } from '@/features/predictions/api/hooks';
+import { useNews } from '@/features/news/api/hooks';
 import { ErrorState, EmptyState } from '@/shared/components/shared';
 import withAuth from '../../../hoc/withAuth';
+
+import FeaturedHero from '@/features/news/components/FeaturedHero';
+import RecentNewsSection from '@/features/news/components/RecentNewsSection';
+import SportsArticleSection from '@/features/news/components/SportsArticleSection';
+import SelectedNewsView from '@/features/news/components/SelectedNewsView';
+
 import type { Sport } from '@/features/predictions/model/types';
 import type { NewsItem } from '@/features/news/model/types';
 
-/**
- * News Page Component
- */
-const NewsPage: React.FC = () => {
-  // UI State
-  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
-  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
+// How many articles to show before the "View More" button
+const INITIAL_ARTICLE_COUNT = 6;
 
-  // Fetch sports list
+// ==================== LOADING SKELETON ====================
+
+const NewsPageSkeleton: React.FC = () => (
+  <Stack spacing={3}>
+    {/* Hero skeleton */}
+    <Skeleton variant="rectangular" height={460} sx={{ borderRadius: 2 }} />
+
+    {/* Recent news + table skeleton */}
+    {/* Recent news skeleton */}
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+      <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 2 }} />
+      <Stack spacing={1.5}>
+        {[1, 2, 3].map((i) => (
+          <Box key={i} sx={{ display: 'flex', gap: 1.5 }}>
+            <Skeleton variant="rectangular" width={56} height={56} sx={{ borderRadius: 1, flexShrink: 0 }} />
+            <Box sx={{ flex: 1 }}>
+              <Skeleton variant="text" width="60%" height={14} />
+              <Skeleton variant="text" width="90%" height={16} />
+              <Skeleton variant="text" width="70%" height={16} />
+            </Box>
+          </Box>
+        ))}
+      </Stack>
+    </Box>
+
+    {/* Articles grid skeleton */}
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2.5 }}>
+      {[1, 2, 3].map((i) => (
+        <Box key={i}>
+          <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2, mb: 1 }} />
+          <Skeleton variant="text" width="40%" height={14} />
+          <Skeleton variant="text" width="90%" height={20} />
+          <Skeleton variant="text" width="70%" height={16} />
+        </Box>
+      ))}
+    </Box>
+  </Stack>
+);
+
+// ==================== MAIN PAGE ====================
+
+const NewsPage: React.FC = () => {
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  // Store the full article object so SelectedNewsView doesn't need to re-fetch
+  const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(null);
+  const [showAll, setShowAll] = useState(false);
+
+  // ── Sports list ──
   const {
     data: sports = [],
     isLoading: loadingSports,
@@ -35,211 +90,63 @@ const NewsPage: React.FC = () => {
     refetch: refetchSports,
   } = useSports();
 
-  // Fetch featured news
-  const {
-    featuredNews = [],
-    isLoading: loadingFeatured,
-    isError: featuredError,
-    refetch: refetchFeatured,
-  } = useFeaturedNews(10);
+  const activeSport = selectedSport ?? sports[0] ?? null;
 
-  // Fetch recent news
+  // ── News for the selected sport ──
+  // The API accepts sportId as a query param: GET /api/v1/news?sportId=1
   const {
     data: newsData,
     isLoading: loadingNews,
     isError: newsError,
     refetch: refetchNews,
-  } = useNews({ page: 1, pageSize: 20 });
-
-  const activeSport = selectedSport ?? sports[0] ?? null;
-
-  // Get soccer sport for Premier League table
-  const soccerSport = sports.find(
-    (s) => s.name.toLowerCase() === 'soccer' || s.name.toLowerCase() === 'football'
+  } = useNews(
+    {
+      page: 1,
+      pageSize: 20,
+      ...(activeSport?.id ? { sportId: activeSport.id } : {}),
+    },
+    { enabled: !!activeSport }
   );
 
-  // Fetch leagues for Premier League table
-  const { data: leagues = [] } = useLeagues(soccerSport?.id, {
-    enabled: !!soccerSport?.id,
-  });
+  // ── Derived data ──
+  const allNews: NewsItem[] = newsData?.items ?? [];
 
-  const premierLeague = leagues.find((l) => l.name === 'Premier League');
+  // First featured article → hero banner
+  const featuredArticle = allNews.find((n) => n.isFeatured) ?? allNews[0] ?? null;
 
-  /**
-   * Handle sport selection
-   */
+  // Next 4 articles → Recent News section
+  const recentArticles = allNews.filter((n) => n !== featuredArticle).slice(0, 4);
+
+  // Remaining articles → Sports Articles grid
+  const remainingArticles = allNews.filter(
+    (n) => n !== featuredArticle && !recentArticles.includes(n)
+  );
+  const visibleArticles = showAll
+    ? remainingArticles
+    : remainingArticles.slice(0, INITIAL_ARTICLE_COUNT);
+
+  const isLoading = loadingSports || loadingNews;
+  const hasContent = allNews.length > 0;
+  const sportName = activeSport?.name ?? 'this sport';
+
+  // ── Handlers ──
   const handleSportChange = (sport: Sport) => {
     setSelectedSport(sport);
-    setSelectedNewsId(null);
+    setSelectedArticle(null);
+    setShowAll(false);
   };
 
-  /**
-   * Map sport name to category for filtering
-   */
-  const getSportCategories = (sportName: string): string[] => {
-    const name = sportName?.toLowerCase();
-
-    if (name === 'all sports') return []; // Show all
-
-    // Map sport names to their category equivalents
-    const categoryMap: Record<string, string[]> = {
-      football: ['soccer', 'football'],
-      soccer: ['soccer', 'football'],
-      basketball: ['basketball'],
-      tennis: ['tennis'],
-      cricket: ['cricket'],
-      hockey: ['hockey'],
-    };
-
-    return categoryMap[name] || [name];
+  const handleArticleClick = (article: NewsItem) => {
+    setSelectedArticle(article);
   };
 
-  /**
-   * Filter news by selected sport
-   */
-  const filterNewsBySport = (newsItems: NewsItem[]): NewsItem[] => {
-    if (!activeSport || activeSport.name === 'All Sports') {
-      return newsItems;
-    }
-
-    const categories = getSportCategories(activeSport.name);
-    return newsItems.filter((item) =>
-      categories.some((cat) => item.category?.toLowerCase().includes(cat))
-    );
+  const handleBackFromArticle = () => {
+    setSelectedArticle(null);
   };
 
-  // Get filtered news
-  const filteredFeaturedNews = filterNewsBySport(featuredNews);
-  const filteredRecentNews = filterNewsBySport(newsData?.items || []);
+  // ==================== RENDER ====================
 
-  // Get featured article (first featured news item)
-  const featuredArticle = filteredFeaturedNews[0];
-
-  // Combine all news (remove duplicates)
-  const allNews = [...filteredRecentNews]
-    .filter((item, index, self) => index === self.findIndex((t) => t.id === item.id))
-    .slice(0, 12);
-
-  // Check states
-  const isLoading = loadingFeatured || loadingNews;
-  const isError = featuredError || newsError;
-  const hasContent = featuredArticle || allNews.length > 0;
-  const sportName = activeSport?.name || 'this sport';
-
-  /**
-   * Render loading skeleton
-   */
-  const renderLoading = () => (
-    <Stack spacing={3}>
-      {/* Hero skeleton */}
-      <Box sx={{ height: 460, bgcolor: 'grey.100', borderRadius: 2 }} />
-
-      {/* News grid skeleton */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-          gap: 2,
-        }}
-      >
-        {[1, 2, 3, 4].map((i) => (
-          <Paper key={i} sx={{ border: 1, borderColor: 'divider' }}>
-            <Box sx={{ height: 192, bgcolor: 'grey.100' }} />
-            <Box sx={{ p: 2 }}>
-              <Box sx={{ height: 16, width: '40%', bgcolor: 'grey.200', borderRadius: 1, mb: 1 }} />
-              <Box sx={{ height: 24, width: '90%', bgcolor: 'grey.200', borderRadius: 1, mb: 1 }} />
-              <Box sx={{ height: 16, width: '70%', bgcolor: 'grey.200', borderRadius: 1 }} />
-            </Box>
-          </Paper>
-        ))}
-      </Box>
-    </Stack>
-  );
-
-  /**
-   * Render featured article hero section
-   */
-  const renderFeaturedArticle = () => {
-    if (!featuredArticle?.imageUrl) return null;
-
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          position: 'relative',
-          overflow: 'hidden',
-          borderRadius: 2,
-          minHeight: { xs: 340, md: 460 },
-          border: 1,
-          borderColor: 'divider',
-        }}
-      >
-        {/* Background image */}
-        <Box
-          component="img"
-          src={featuredArticle.imageUrl}
-          alt={featuredArticle.title}
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            position: 'absolute',
-            inset: 0,
-          }}
-        />
-
-        {/* Overlay with content */}
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.7) 80%)',
-            p: { xs: 2, md: 4 },
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-          }}
-        >
-          {/* Category and author */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-            <Chip
-              label={featuredArticle.category || featuredArticle.sport || 'Highlight'}
-              size="small"
-              sx={{ bgcolor: 'rgba(0,0,0,0.65)', color: 'white' }}
-            />
-            {(featuredArticle.author || featuredArticle.source) && (
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                {featuredArticle.author && `By ${featuredArticle.author}`}
-                {featuredArticle.author && featuredArticle.source && ' • '}
-                {featuredArticle.source}
-              </Typography>
-            )}
-          </Box>
-
-          {/* Title */}
-          <Typography
-            variant="h4"
-            sx={{
-              color: 'white',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              mb: 1,
-              lineHeight: 1.1,
-            }}
-          >
-            {featuredArticle.title}
-          </Typography>
-
-          {/* Summary */}
-          <Typography variant="body2" sx={{ color: 'white', maxWidth: 780 }}>
-            {featuredArticle.summary || featuredArticle.content?.slice(0, 160)}
-          </Typography>
-        </Box>
-      </Paper>
-    );
-  };
-
-  // Show error if sports failed to load
+  // Sports failed to load
   if (sportsError) {
     return (
       <Box sx={{ py: 2 }}>
@@ -252,31 +159,27 @@ const NewsPage: React.FC = () => {
     );
   }
 
-  // Show loading skeleton on initial load
+  // Initial sports loading
   if (loadingSports && sports.length === 0) {
     return (
       <Stack spacing={3} sx={{ py: 2 }}>
-        <Box sx={{ height: 180, bgcolor: 'grey.100', borderRadius: 2 }} />
-        <Box sx={{ height: 40, bgcolor: 'grey.100', borderRadius: 2 }} />
-        <Box sx={{ height: 400, bgcolor: 'grey.100', borderRadius: 2 }} />
+        <Skeleton variant="rectangular" height={48} sx={{ borderRadius: 2 }} />
       </Stack>
     );
   }
 
-  // Show empty state if no sports available
+  // No sports available
   if (sports.length === 0) {
     return (
       <Box sx={{ py: 2 }}>
-        <EmptyState
-          title="No sports available"
-          description="Sports data is not available at the moment"
-        />
+        <EmptyState title="No sports available" description="Sports data is not available at the moment" />
       </Box>
     );
   }
 
   return (
     <Stack spacing={3}>
+      {/* ── Sport tabs ── */}
       <SportTabs
         sports={sports}
         selectedSport={activeSport}
@@ -284,79 +187,101 @@ const NewsPage: React.FC = () => {
         isLoading={loadingSports}
       />
 
-      <Paper elevation={0} sx={{ p: { xs: 2, md: 3 } }}>
-        {selectedNewsId ? (
-          <SelectedNewsView articleId={selectedNewsId} onBack={() => setSelectedNewsId(null)} />
-        ) : (
-          <>
-            {isLoading && !hasContent ? (
-              renderLoading()
-            ) : isError && !hasContent ? (
-              <ErrorState
-                title={`Unable to load news for ${sportName}`}
-                error="News is temporarily unavailable"
-                onRetry={() => {
-                  refetchFeatured();
-                  refetchNews();
-                }}
-              />
-            ) : !hasContent ? (
-              <Box sx={{ textAlign: 'center', py: 6 }}>
-                <ArticleIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  No news available for {sportName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Check back later for new articles
-                </Typography>
-              </Box>
-            ) : (
-              <Stack spacing={6}>
-                {renderFeaturedArticle()}
+      {/* ── Article detail view (replaces list when an article is selected) ── */}
+      {selectedArticle ? (
+        <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+          <SelectedNewsView
+            article={selectedArticle}
+            onBack={handleBackFromArticle}
+          />
+        </Paper>
+      ) : (
+        /* ── News list view ── */
+        <>
+          {/* Loading state */}
+          {isLoading && !hasContent && <NewsPageSkeleton />}
 
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-                    gap: 4,
-                  }}
-                >
-                  <Box>
-                    {allNews.length > 0 ? (
-                      <SportsArticleSection
-                        articles={allNews}
-                        showViewMore={false}
-                        onReadMore={(article: NewsItem) => setSelectedNewsId(article.id)}
-                      />
-                    ) : (
-                      <Paper sx={{ p: 3, textAlign: 'center', border: 1, borderColor: 'divider' }}>
-                        <Typography variant="body2" color="text.secondary">
-                          No news available for {sportName}
-                        </Typography>
-                      </Paper>
-                    )}
-                  </Box>
+          {/* Error state */}
+          {newsError && !hasContent && !isLoading && (
+            <ErrorState
+              title={`Unable to load news for ${sportName}`}
+              error="News is temporarily unavailable"
+              onRetry={refetchNews}
+            />
+          )}
 
-                  {premierLeague && (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2.5,
-                        borderRadius: 2,
-                        border: 1,
-                        borderColor: 'divider',
-                        display: { xs: 'none', lg: 'block' },
-                      }}
-                    >
-                      <LeagueTableSection leagueId={premierLeague.id} title="Premier League Table" />
-                    </Paper>
+          {/* Empty state */}
+          {!isLoading && !newsError && !hasContent && (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <ArticleIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                No news available for {sportName}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Check back later for new articles
+              </Typography>
+            </Box>
+          )}
+
+          {/* ── Main content ── */}
+          {hasContent && (
+            <Stack spacing={4}>
+              {/* 1. Featured hero */}
+              {featuredArticle && (
+                <FeaturedHero
+                  article={featuredArticle}
+                  onClick={handleArticleClick}
+                />
+              )}
+
+              {/* 2. Recent News */}
+              {recentArticles.length > 0 && (
+                <RecentNewsSection
+                  articles={recentArticles}
+                  onArticleClick={handleArticleClick}
+                />
+              )}
+
+              {/* 3. Sports Articles grid */}
+              {visibleArticles.length > 0 && (
+                <Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                    Sports Article
+                  </Typography>
+
+                  <SportsArticleSection
+                    articles={visibleArticles}
+                    onReadMore={handleArticleClick}
+                  />
+
+                  {/* View More button */}
+                  {!showAll && remainingArticles.length > INITIAL_ARTICLE_COUNT && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                      <Button
+                        variant="contained"
+                        onClick={() => setShowAll(true)}
+                        sx={{
+                          bgcolor: 'success.main',
+                          color: 'white',
+                          fontWeight: 700,
+                          px: 5,
+                          py: 1.25,
+                          borderRadius: 1,
+                          textTransform: 'none',
+                          fontSize: '1rem',
+                          '&:hover': { bgcolor: 'success.dark' },
+                        }}
+                      >
+                        View More
+                      </Button>
+                    </Box>
                   )}
                 </Box>
-              </Stack>
-            )}
-          </>
-        )}
-      </Paper>
+              )}
+            </Stack>
+          )}
+        </>
+      )}
     </Stack>
   );
 };

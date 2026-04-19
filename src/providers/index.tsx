@@ -7,6 +7,7 @@ import QueryProvider from './query-provider';
 import ToastProvider from './toast-provider';
 import ThemeProvider from './theme-provider';
 import { AuthInitializer } from '@/features/auth/components';
+import SessionGuard from '@/shared/components/SessionGuard';
 import muiTheme from '../../theme';
 
 interface ProvidersProps {
@@ -34,16 +35,18 @@ export default function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryProvider>
-      <ToastProvider>
-        {/* Custom design-system ThemeProvider for CSS variables & tokens */}
-        <ThemeProvider>
-          {/* MUI ThemeProvider for component-level theming (buttons, inputs, etc.) */}
-          <MuiThemeProvider theme={muiTheme}>
-            <CssBaseline />
-            {skipAuthInitialization ? children : <AuthInitializer>{children}</AuthInitializer>}
-          </MuiThemeProvider>
-        </ThemeProvider>
-      </ToastProvider>
+      <SessionGuard>
+        <ToastProvider>
+          {/* Custom design-system ThemeProvider for CSS variables & tokens */}
+          <ThemeProvider>
+            {/* MUI ThemeProvider for component-level theming (buttons, inputs, etc.) */}
+            <MuiThemeProvider theme={muiTheme}>
+              <CssBaseline />
+              {skipAuthInitialization ? children : <AuthInitializer>{children}</AuthInitializer>}
+            </MuiThemeProvider>
+          </ThemeProvider>
+        </ToastProvider>
+      </SessionGuard>
     </QueryProvider>
   );
 }

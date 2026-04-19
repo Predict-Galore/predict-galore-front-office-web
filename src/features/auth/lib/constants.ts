@@ -3,7 +3,8 @@
  * Feature-specific constants
  */
 
-import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
+import { FaApple } from 'react-icons/fa6';
 
 /** Cookie name used by middleware to allow protected routes */
 export const AUTH_COOKIE_NAME = 'auth-token';
@@ -30,8 +31,7 @@ export const AUTH_CONSTANTS = {
   },
   SOCIAL_PROVIDERS: [
     { name: 'Google', icon: FaGoogle, color: '#DB4437' },
-    { name: 'Facebook', icon: FaFacebook, color: '#4267B2' },
-    { name: 'Twitter', icon: FaTwitter, color: '#1DA1F2' },
+    { name: 'Apple', icon: FaApple, color: '#111111' },
   ],
   DEFAULT_USER_TYPE_ID: 2,
   DEFAULT_COUNTRY_CODE: '234',

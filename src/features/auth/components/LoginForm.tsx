@@ -17,7 +17,8 @@ import { RedirectLoader } from '@/shared/components/ui';
 import SocialAuthButtons from './SocialAuthButtons';
 
 import { loginSchema, LoginFormData, toLoginRequest } from '../validations/schemas';
-import { useLoginMutation } from '../api/hooks';
+import { useLoginMutation, useGoogleSocialSignInMutation, useAppleSocialSignInMutation } from '../api/hooks';
+import { getGoogleIdToken, getAppleIdentityToken } from '../lib/social';
 import { createLogger } from '@/shared/api';
 import { AUTH_CONSTANTS } from '../lib/constants';
 
@@ -51,6 +52,9 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   }>({ open: false, message: '', severity: 'success' });
 
   const { mutate: submitLogin, isPending: isLoginSubmitting } = useLoginMutation();
+  const { mutate: googleSignIn, isPending: isGooglePending } = useGoogleSocialSignInMutation();
+  const { mutate: appleSignIn, isPending: isApplePending } = useAppleSocialSignInMutation();
+  const isSocialPending = isGooglePending || isApplePending;
 
   const {
     control,
@@ -97,6 +101,49 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     setLoginMethod((curr) => (curr === 'phone' ? 'email' : 'phone'));
     setValue('username', '', { shouldValidate: true, shouldDirty: true });
     trigger('username');
+  };
+
+  const handleSocialAuth = async (providerName: string) => {
+    setLocalError(null);
+    try {
+      if (providerName === 'Google') {
+        const { idToken, sessionId } = await getGoogleIdToken();
+        googleSignIn(
+          { idToken, sessionId },
+          {
+            onSuccess: () => {
+              setIsRedirecting(true);
+              const target = getSafeRedirectTarget(redirectTarget);
+              setTimeout(() => router.replace(target), 300);
+            },
+            onError: (err) => {
+              setLocalError(err.message || 'Google sign-in failed');
+              setSnackbar({ open: true, severity: 'error', message: err.message || 'Google sign-in failed' });
+            },
+          }
+        );
+      } else if (providerName === 'Apple') {
+        const { identityToken, firstName, lastName } = await getAppleIdentityToken();
+        appleSignIn(
+          { identityToken, firstName, lastName },
+          {
+            onSuccess: () => {
+              setIsRedirecting(true);
+              const target = getSafeRedirectTarget(redirectTarget);
+              setTimeout(() => router.replace(target), 300);
+            },
+            onError: (err) => {
+              setLocalError(err.message || 'Apple sign-in failed');
+              setSnackbar({ open: true, severity: 'error', message: err.message || 'Apple sign-in failed' });
+            },
+          }
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Social sign-in failed';
+      setLocalError(message);
+      setSnackbar({ open: true, severity: 'error', message });
+    }
   };
 
   return (
@@ -279,7 +326,11 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
             </Button>
           </Box>
 
-          <SocialAuthButtons label="Or sign up with" />
+          <SocialAuthButtons
+            label="Or sign up with"
+            disabled={isLoginSubmitting || isRedirecting || isSocialPending}
+            onProviderClick={handleSocialAuth}
+          />
         </Box>
 
         <style jsx global>{`
