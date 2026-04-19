@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import { Share } from '@mui/icons-material';
-import { IconButton, Box, Typography, Skeleton, useMediaQuery, useTheme } from '@mui/material';
-import { useQuoteOfTheDay } from '@/features/quotes/api/hooks';
+import { Refresh, Share } from '@mui/icons-material';
+import { IconButton, Box, Typography, Skeleton, useMediaQuery, useTheme, Tooltip } from '@mui/material';
+import { useQuoteOfTheDay, useRefreshQuote } from '@/features/quotes/api/hooks';
 
 interface BannerProps {
   className?: string;
@@ -16,6 +16,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const { data: quote, isLoading } = useQuoteOfTheDay();
+  const { mutate: refreshQuote, isPending: isRefreshing } = useRefreshQuote();
 
   const quoteText = quote?.text ?? FALLBACK_QUOTE;
 
@@ -26,6 +27,10 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
       navigator.clipboard.writeText(quoteText);
     }
   }, [quoteText]);
+
+  const handleRefresh = useCallback(() => {
+    refreshQuote();
+  }, [refreshQuote]);
 
   return (
     <Box
@@ -52,7 +57,7 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
           zIndex: 10,
           px: { xs: 3, sm: 4, md: 5 },
           py: { xs: 3, sm: 3.5, md: 4 },
-          pr: { xs: 6, sm: 7 }, // space for share button
+          pr: { xs: 10, sm: 12 }, // space for the two action buttons
         }}
       >
         {isLoading ? (
@@ -86,31 +91,69 @@ const Banner: React.FC<BannerProps> = ({ className }) => {
         )}
       </Box>
 
-      {/* Share button */}
+      {/* Action buttons — refresh + share */}
       <Box
         sx={{
           position: 'absolute',
-          right: { xs: 8, sm: 10, md: 2 },
+          right: { xs: 8, sm: 10, md: 12 },
           top: { xs: 8, sm: 10, md: '50%' },
           transform: { xs: 'none', md: 'translateY(-50%)' },
           zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
         }}
       >
-        <IconButton
-          onClick={handleShare}
-          disabled={isLoading}
-          sx={{
-            bgcolor: 'rgba(255,255,255,0.2)',
-            '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
-            color: 'white',
-            backdropFilter: 'blur(4px)',
-            p: isMobile ? 1 : 0.75,
-          }}
-          size={isMobile ? 'medium' : 'small'}
-          aria-label="Share quote"
-        >
-          <Share fontSize="small" />
-        </IconButton>
+        {/* Refresh button */}
+        <Tooltip title="Get a new quote" placement="left">
+          <span>
+            <IconButton
+              onClick={handleRefresh}
+              disabled={isLoading || isRefreshing}
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                color: 'white',
+                backdropFilter: 'blur(4px)',
+                p: isMobile ? 1 : 0.75,
+                // Spin animation while refreshing
+                '& svg': {
+                  transition: 'transform 0.4s ease',
+                  animation: isRefreshing ? 'spin 0.8s linear infinite' : 'none',
+                },
+                '@keyframes spin': {
+                  from: { transform: 'rotate(0deg)' },
+                  to: { transform: 'rotate(360deg)' },
+                },
+              }}
+              size={isMobile ? 'medium' : 'small'}
+              aria-label="Refresh quote"
+            >
+              <Refresh fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+
+        {/* Share button */}
+        <Tooltip title="Share quote" placement="left">
+          <span>
+            <IconButton
+              onClick={handleShare}
+              disabled={isLoading}
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.2)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
+                color: 'white',
+                backdropFilter: 'blur(4px)',
+                p: isMobile ? 1 : 0.75,
+              }}
+              size={isMobile ? 'medium' : 'small'}
+              aria-label="Share quote"
+            >
+              <Share fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
       </Box>
     </Box>
   );

@@ -126,5 +126,6 @@ export const API_ENDPOINTS = {
   // Quotes endpoint
   QUOTES: {
     TODAY: '/api/v1/quotes/today',
+    REFRESH: '/api/v1/quotes/today/refresh',
   },
 } as const;
