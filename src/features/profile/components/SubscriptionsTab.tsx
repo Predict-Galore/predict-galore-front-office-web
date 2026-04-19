@@ -47,13 +47,12 @@ const SubscriptionsTab: React.FC = () => {
     [safePlans, selectedPlanId]
   );
 
-  const formatAmount = (amount?: number, currency?: string) => {
+  const formatAmount = (amount?: number) => {
     if (typeof amount !== 'number') return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD',
+    return `₦${new Intl.NumberFormat('en-NG', {
       minimumFractionDigits: 2,
-    }).format(amount);
+      maximumFractionDigits: 2,
+    }).format(amount)}`;
   };
 
   const renderTableSkeleton = () => (
@@ -122,7 +121,7 @@ const SubscriptionsTab: React.FC = () => {
               >
                 <TableCell>{plan.name}</TableCell>
                 <TableCell>{plan.planCode}</TableCell>
-                <TableCell>{formatAmount(plan.amount, plan.currency)}</TableCell>
+                <TableCell>{formatAmount(plan.amount)}</TableCell>
                 <TableCell>{plan.durationDays}</TableCell>
                 <TableCell>{String(plan.autoRenewDefault)}</TableCell>
                 <TableCell>
@@ -231,7 +230,7 @@ const SubscriptionsTab: React.FC = () => {
           <Stack spacing={1.25}>
             <InfoRow label="Plan ID" value={String(plan.id)} />
             <InfoRow label="Plan Code" value={plan.planCode} />
-            <InfoRow label="Amount" value={formatAmount(plan.amount, plan.currency)} />
+            <InfoRow label="Amount" value={formatAmount(plan.amount)} />
             <InfoRow label="Duration Days" value={String(plan.durationDays)} />
             <InfoRow label="Auto Renew Default" value={String(plan.autoRenewDefault)} />
             <InfoRow label="Status" value={plan.isActie ? 'Active' : 'Inactive'} />

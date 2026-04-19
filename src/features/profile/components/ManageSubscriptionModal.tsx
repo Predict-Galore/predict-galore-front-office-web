@@ -199,7 +199,7 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({
                       {isActive && <CheckCircle sx={{ fontSize: 20, color: 'success.main' }} />}
                     </Stack>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'grey.900' }}>
-                      ${formattedAmount}
+                      ₦{formattedAmount}
                     </Typography>
                   </Box>
                   <Button
