@@ -9,6 +9,7 @@ import { ProfileTransformer } from '../lib/transformers';
 import type {
   ProfileUser,
   Subscription,
+  UserSubscription,
   SubscriptionPlan,
   Transaction,
   Following,
@@ -119,17 +120,43 @@ export class ProfileService {
   }
 
   /**
-   * Get current subscription
+   * Get the current user's active subscription
+   * GET /api/v1/subscriptions/users/{userId}/current
    */
-  static async getCurrentSubscription(): Promise<Subscription> {
-    logger.info('Get current subscription request');
+  static async getCurrentSubscription(userId: string): Promise<UserSubscription | null> {
+    logger.info('Get current subscription request', { userId });
 
     try {
-      const response = await api.get<Subscription>(API_ENDPOINTS.PROFILE.SUBSCRIPTIONS);
+      const response = await api.get<unknown>(API_ENDPOINTS.PROFILE.CURRENT_SUBSCRIPTION(userId));
 
-      return ProfileTransformer.transformSubscription(response);
+      // Handle envelope: { success, data: {...} } or the object directly
+      const raw = this.isRecord(response) && 'data' in response
+        ? response.data
+        : response;
+
+      if (!raw || !this.isRecord(raw)) return null;
+
+      return {
+        id: Number(raw.id ?? 0),
+        userId: String(raw.userId ?? userId),
+        planId: Number(raw.planId ?? 0),
+        planCode: String(raw.planCode ?? ''),
+        planName: String(raw.planName ?? raw.name ?? ''),
+        amount: Number(raw.amount ?? 0),
+        durationDays: Number(raw.durationDays ?? 0),
+        startDate: String(raw.startDate ?? raw.createdAt ?? ''),
+        endDate: String(raw.endDate ?? raw.expiresAt ?? ''),
+        isActive: Boolean(raw.isActive ?? raw.isActie ?? false),
+        autoRenew: Boolean(raw.autoRenew ?? raw.autoRenewDefault ?? false),
+        status: String(raw.status ?? ''),
+      };
     } catch (error) {
-      logger.error('Failed to fetch subscription', { error });
+      if (error instanceof ApiError && (error.status === 404 || error.status === 204)) {
+        // No active subscription — not an error
+        logger.debug('No active subscription found for user', { userId });
+        return null;
+      }
+      logger.error('Failed to fetch current subscription', { error, userId });
       throw error;
     }
   }

@@ -20,6 +20,25 @@ export interface Subscription {
   currency: string;
 }
 
+/**
+ * The user's current subscription returned by
+ * GET /api/v1/subscriptions/users/{userId}/current
+ */
+export interface UserSubscription {
+  id: number;
+  userId: string;
+  planId: number;
+  planCode: string;
+  planName: string;
+  amount: number;
+  durationDays: number;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  autoRenew: boolean;
+  status: string;
+}
+
 export interface SubscriptionPlan {
   id: number;
   name: string;

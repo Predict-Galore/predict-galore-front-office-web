@@ -6,6 +6,7 @@
 import type {
   ProfileUser,
   Subscription,
+  UserSubscription,
   SubscriptionPlan,
   Transaction,
   Following,
@@ -15,6 +16,7 @@ import type {
 export type {
   ProfileUser,
   Subscription,
+  UserSubscription,
   SubscriptionPlan,
   Transaction,
   Following,
