@@ -116,6 +116,7 @@ export class ProfileService {
   /**
    * Get the current user's active subscription
    * GET /api/v1/subscriptions/me/current
+   * Response: { success, data: { current: {...}, history: {...} } }
    */
   static async getCurrentSubscription(): Promise<UserSubscription | null> {
     logger.info('Get current subscription request');
@@ -123,26 +124,22 @@ export class ProfileService {
     try {
       const response = await api.get<unknown>(API_ENDPOINTS.PROFILE.CURRENT_SUBSCRIPTION);
 
-      // Handle envelope: { success, data: {...} } or the object directly
-      const raw = this.isRecord(response) && 'data' in response
-        ? response.data
-        : response;
+      // Unwrap: response.data.current
+      const envelope = this.isRecord(response) ? response : null;
+      const data = envelope && this.isRecord(envelope.data) ? envelope.data : null;
+      const current = data && this.isRecord(data.current) ? data.current : null;
 
-      if (!raw || !this.isRecord(raw)) return null;
+      if (!current) return null;
 
       return {
-        id: Number(raw.id ?? 0),
-        userId: String(raw.userId ?? ''),
-        planId: Number(raw.planId ?? 0),
-        planCode: String(raw.planCode ?? ''),
-        planName: String(raw.planName ?? raw.name ?? ''),
-        amount: Number(raw.amount ?? 0),
-        durationDays: Number(raw.durationDays ?? 0),
-        startDate: String(raw.startDate ?? raw.createdAt ?? ''),
-        endDate: String(raw.endDate ?? raw.expiresAt ?? ''),
-        isActive: Boolean(raw.isActive ?? raw.isActie ?? false),
-        autoRenew: Boolean(raw.autoRenew ?? raw.autoRenewDefault ?? false),
-        status: String(raw.status ?? ''),
+        planName: String(current.planName ?? ''),
+        planCode: String(current.planCode ?? ''),
+        amount: Number(current.amount ?? 0),
+        isActive: Boolean(current.isActive ?? false),
+        autoRenew: Boolean(current.autoRenew ?? false),
+        startDateUtc: String(current.startDateUtc ?? ''),
+        nextRenewalUtc: String(current.nextRenewalUtc ?? ''),
+        isPremium: Boolean(current.isPremium ?? false),
       };
     } catch (error) {
       if (error instanceof ApiError && (error.status === 404 || error.status === 204)) {

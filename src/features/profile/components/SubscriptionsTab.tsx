@@ -135,31 +135,23 @@ const SubscriptionCard: React.FC<{ subscription: UserSubscription }> = ({ subscr
             }
           />
           <InfoRow
-            label="Duration"
-            value={
-              <Typography variant="body2" fontWeight={700}>
-                {subscription.durationDays} days
-              </Typography>
-            }
-          />
-          <InfoRow
             label="Start Date"
             value={
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <CalendarToday sx={{ fontSize: 14, color: 'text.secondary' }} />
                 <Typography variant="body2" fontWeight={700}>
-                  {formatDate(subscription.startDate)}
+                  {formatDate(subscription.startDateUtc)}
                 </Typography>
               </Stack>
             }
           />
           <InfoRow
-            label="End Date"
+            label="Next Renewal"
             value={
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <CalendarToday sx={{ fontSize: 14, color: 'text.secondary' }} />
                 <Typography variant="body2" fontWeight={700}>
-                  {formatDate(subscription.endDate)}
+                  {formatDate(subscription.nextRenewalUtc)}
                 </Typography>
               </Stack>
             }
@@ -171,6 +163,18 @@ const SubscriptionCard: React.FC<{ subscription: UserSubscription }> = ({ subscr
                 label={subscription.autoRenew ? 'Yes' : 'No'}
                 size="small"
                 color={subscription.autoRenew ? 'success' : 'default'}
+                variant="outlined"
+                sx={{ fontWeight: 600 }}
+              />
+            }
+          />
+          <InfoRow
+            label="Premium"
+            value={
+              <Chip
+                label={subscription.isPremium ? 'Yes' : 'No'}
+                size="small"
+                color={subscription.isPremium ? 'warning' : 'default'}
                 variant="outlined"
                 sx={{ fontWeight: 600 }}
               />
