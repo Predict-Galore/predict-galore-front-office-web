@@ -249,7 +249,7 @@ const PlansModal: React.FC<PlansModalProps> = ({ open, onClose }) => {
 
         {/* Plans list */}
         {!isLoading && !isError && safePlans.length > 0 && (
-          <Stack spacing={2} sx={{ mt: 1 }}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
             {safePlans.map((plan) => (
               <Paper
                 key={plan.id}
