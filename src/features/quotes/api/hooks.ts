@@ -1,6 +1,7 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, API_ENDPOINTS } from '@/shared/api';
 
 interface Quote {
@@ -15,39 +16,47 @@ interface QuoteResponse {
   data: Quote | null;
 }
 
+// How often to auto-refresh the quote (5 minutes)
+const QUOTE_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
 /**
  * Fetch today's quote of the day.
  * GET /api/v1/quotes/today
+ *
+ * Also automatically calls POST /api/v1/quotes/today/refresh every 5 minutes
+ * to rotate the quote dynamically without any user interaction.
  */
 export function useQuoteOfTheDay() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ['quotes', 'today'],
     queryFn: async () => {
       const res = await api.get<QuoteResponse>(API_ENDPOINTS.QUOTES.TODAY);
       return res?.data ?? null;
     },
-    staleTime: 60 * 60 * 1000, // 1 hour — quote only changes daily
+    staleTime: 60 * 60 * 1000,
     gcTime: 2 * 60 * 60 * 1000,
     retry: 1,
   });
-}
 
-/**
- * Refresh today's quote.
- * POST /api/v1/quotes/today/refresh
- * On success the cached quote is replaced with the new one.
- */
-export function useRefreshQuote() {
-  const queryClient = useQueryClient();
+  // Auto-refresh: POST the refresh endpoint on an interval, then update the cache
+  useEffect(() => {
+    const refresh = async () => {
+      try {
+        const res = await api.post<QuoteResponse>(API_ENDPOINTS.QUOTES.REFRESH);
+        const newQuote = res?.data ?? null;
+        if (newQuote) {
+          queryClient.setQueryData(['quotes', 'today'], newQuote);
+        }
+      } catch {
+        // Silently ignore — the existing quote stays visible
+      }
+    };
 
-  return useMutation({
-    mutationFn: async () => {
-      const res = await api.post<QuoteResponse>(API_ENDPOINTS.QUOTES.REFRESH);
-      return res?.data ?? null;
-    },
-    onSuccess: (newQuote) => {
-      // Update the cache so the banner re-renders immediately with the new quote
-      queryClient.setQueryData(['quotes', 'today'], newQuote);
-    },
-  });
+    const intervalId = setInterval(refresh, QUOTE_REFRESH_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [queryClient]);
+
+  return query;
 }
