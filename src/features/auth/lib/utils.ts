@@ -11,13 +11,18 @@ import type { PasswordStrength } from '../model/types';
 export function setAuthCookie(token: string, maxAgeDays = 7): void {
   if (typeof document === 'undefined') return;
   const maxAge = maxAgeDays * 24 * 60 * 60;
-  document.cookie = `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  // Add Secure flag on HTTPS (production/Vercel) so the cookie is not dropped
+  const isSecure = window.location.protocol === 'https:';
+  const secureFlag = isSecure ? '; Secure' : '';
+  document.cookie = `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax${secureFlag}`;
 }
 
 /** Clear auth cookie on logout */
 export function clearAuthCookie(): void {
   if (typeof document === 'undefined') return;
-  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0`;
+  const isSecure = window.location.protocol === 'https:';
+  const secureFlag = isSecure ? '; Secure' : '';
+  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax${secureFlag}`;
 }
 
 /**

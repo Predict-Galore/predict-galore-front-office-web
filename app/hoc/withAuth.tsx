@@ -1,14 +1,19 @@
 // app/hoc/withAuth.tsx
 'use client';
 
-import { useEffect, ComponentType } from 'react';
+import { useEffect, useRef, ComponentType } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CircularProgress, Box, Typography } from '@mui/material';
 import { useAuth } from '@/features/auth/api/hooks';
 
 /**
- * Simplified HOC to protect pages that require authentication
- * Only checks for authentication, components should use hooks for user data
+ * HOC that protects pages requiring authentication.
+ *
+ * Redirect logic is intentionally deferred by one tick (via a mounted ref)
+ * so that AuthInitializer has time to set isLoading = true before we check
+ * the auth state. Without this guard the component would redirect on the
+ * very first render when the store is still in its default
+ * { isAuthenticated: false, isLoading: false } state.
  */
 interface WithAuthOptions {
   requiredRole?: string | string[];
@@ -26,13 +31,20 @@ const withAuth = <P extends object>(
   const AuthComponent = (props: P) => {
     const router = useRouter();
     const pathname = usePathname();
+    const { user, isAuthenticated, isLoading } = useAuth();
 
-    // Use the auth hook to get auth state
-    const { user, isAuthenticated, isLoading, error } = useAuth();
-
-    // Redirect effects
+    // True after the first render cycle — prevents premature redirects while
+    // AuthInitializer is still setting isLoading = true.
+    const isMounted = useRef(false);
     useEffect(() => {
-      // Skip for auth pages
+      isMounted.current = true;
+    }, []);
+
+    // Redirect to login when we are certain the user is not authenticated
+    // (mounted + not loading + not authenticated).
+    useEffect(() => {
+      if (!isMounted.current) return;
+
       const isAuthPage = [
         '/login',
         '/register',
@@ -43,35 +55,29 @@ const withAuth = <P extends object>(
 
       if (isAuthPage) return;
 
-      // Redirect if not authenticated
-      if (!isAuthenticated && !isLoading && !error) {
+      if (!isAuthenticated && !isLoading) {
         const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-        const loginUrl = `${redirectTo}?returnUrl=${returnUrl}`;
-        router.replace(loginUrl);
+        router.replace(`${redirectTo}?returnUrl=${returnUrl}`);
       }
-    }, [isAuthenticated, isLoading, error, pathname, router]);
+    }, [isAuthenticated, isLoading, pathname, router]);
 
-    // Check role-based access
+    // Role-based access check
     useEffect(() => {
-      if (!isAuthenticated || isLoading || !user) return;
+      if (!isAuthenticated || isLoading || !user || !requiredRole) return;
 
-      if (requiredRole) {
-        const userRole = user.role;
-        const hasRole = Array.isArray(requiredRole)
-          ? requiredRole.includes(userRole)
-          : userRole === requiredRole;
+      const userRole = user.role;
+      const hasRole = Array.isArray(requiredRole)
+        ? requiredRole.includes(userRole)
+        : userRole === requiredRole;
 
-        if (!hasRole) {
-          router.replace('/unauthorized');
-        }
+      if (!hasRole) {
+        router.replace('/unauthorized');
       }
     }, [user, isAuthenticated, isLoading, router]);
 
-    // Show loading state
+    // Show spinner while auth state is being resolved
     if (isLoading && showLoading) {
-      if (FallbackComponent) {
-        return <FallbackComponent />;
-      }
+      if (FallbackComponent) return <FallbackComponent />;
 
       return (
         <Box
@@ -92,16 +98,14 @@ const withAuth = <P extends object>(
       );
     }
 
-    // Don't render anything if not authenticated (redirect will happen)
+    // Render nothing while the redirect is in flight
     if (!isAuthenticated) {
       return FallbackComponent ? <FallbackComponent /> : null;
     }
 
-    // Pass through props without auth data
     return <WrappedComponent {...props} />;
   };
 
-  // Add display name
   AuthComponent.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
 
   return AuthComponent;
