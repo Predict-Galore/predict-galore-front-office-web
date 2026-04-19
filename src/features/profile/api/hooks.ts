@@ -6,7 +6,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ProfileService } from './service';
 import type { UpdateProfileRequest, ChangePasswordRequest, FollowTeamRequest } from './types';
-import type { NotificationSettings } from '../model/types';
 
 // Get profile hook
 export function useProfile(options?: { enabled?: boolean }) {
@@ -156,29 +155,6 @@ export function useChangePassword() {
 export function useToggleTwoFactorAuth() {
   return useMutation({
     mutationFn: (enable: boolean) => ProfileService.toggleTwoFactorAuth(enable),
-  });
-}
-
-// Get notification settings hook
-export function useNotificationSettings() {
-  return useQuery({
-    queryKey: ['profile', 'notification-settings'],
-    queryFn: () => ProfileService.getNotificationSettings(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: false,
-  });
-}
-
-// Update notification settings hook
-export function useUpdateNotificationSettings() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (settings: Partial<NotificationSettings>) =>
-      ProfileService.updateNotificationSettings(settings),
-    onSuccess: (updatedSettings) => {
-      queryClient.setQueryData(['profile', 'notification-settings'], updatedSettings);
-    },
   });
 }
 

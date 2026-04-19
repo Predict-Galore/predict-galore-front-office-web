@@ -13,7 +13,6 @@ import type {
   SubscriptionPlan,
   Transaction,
   Following,
-  NotificationSettings,
   UpdateProfileRequest,
   ChangePasswordRequest,
   FollowTeamRequest,
@@ -26,11 +25,6 @@ const logger = createLogger('ProfileService');
  * Handles all profile-related API calls
  */
 export class ProfileService {
-  private static readonly defaultNotificationSettings: NotificationSettings = {
-    predictionInsights: { inApp: true, push: false },
-    matchUpdates: { inApp: true, push: false },
-    newsAlerts: { inApp: true, push: false },
-  };
 
   private static isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
@@ -294,44 +288,6 @@ export class ProfileService {
     logger.info('Toggle two-factor auth request', { enable });
 
     await api.post(API_ENDPOINTS.PROFILE.TOGGLE_2FA, { enable });
-  }
-
-  /**
-   * Get notification settings
-   */
-  static async getNotificationSettings(): Promise<NotificationSettings> {
-    logger.info('Get notification settings request');
-
-    try {
-      const response = await api.get<NotificationSettings>(
-        API_ENDPOINTS.PROFILE.NOTIFICATION_SETTINGS
-      );
-
-      return ProfileTransformer.transformNotificationSettings(response);
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 404) {
-        logger.debug('Notification settings endpoint not available. Using defaults.');
-        return this.defaultNotificationSettings;
-      }
-      logger.error('Failed to fetch notification settings', { error });
-      throw error;
-    }
-  }
-
-  /**
-   * Update notification settings
-   */
-  static async updateNotificationSettings(
-    settings: Partial<NotificationSettings>
-  ): Promise<NotificationSettings> {
-    logger.info('Update notification settings request');
-
-    const response = await api.put<NotificationSettings>(
-      API_ENDPOINTS.PROFILE.NOTIFICATION_SETTINGS,
-      settings
-    );
-
-    return ProfileTransformer.transformNotificationSettings(response);
   }
 
   /**

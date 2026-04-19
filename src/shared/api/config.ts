@@ -96,7 +96,6 @@ export const API_ENDPOINTS = {
     CANCEL_SUBSCRIPTION: '/api/v1/subscriptions/cancel',
     UPDATE_SETTINGS: '/api/v1/user/settings',
     DELETE_ACCOUNT: '/api/v1/user/delete',
-    NOTIFICATION_SETTINGS: '/api/v1/profile/notification-settings',
   },
 
   // Contact endpoints

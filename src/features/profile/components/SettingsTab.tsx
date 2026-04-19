@@ -30,7 +30,6 @@ import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   useChangePassword,
   useToggleTwoFactorAuth,
-  useNotificationSettings,
 } from '@/features/profile';
 import { Button } from '@/shared/components/ui';
 
@@ -63,7 +62,8 @@ interface NotificationState {
  * ```
  */
 const SettingsTab: React.FC = () => {
-  const { data: notificationSettings } = useNotificationSettings();
+  // Notification settings are managed locally (no backend endpoint available)
+  const notificationSettings = null;
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePassword();
   const { mutate: toggle2FA } = useToggleTwoFactorAuth();
 
