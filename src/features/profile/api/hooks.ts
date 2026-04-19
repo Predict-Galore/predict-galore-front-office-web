@@ -5,6 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ProfileService } from './service';
+import { useAuthStore } from '@/features/auth/model/store';
 import type { UpdateProfileRequest, ChangePasswordRequest, FollowTeamRequest } from './types';
 
 // Get profile hook
@@ -96,12 +97,15 @@ export function useFollowings() {
   });
 }
 
-// Get all teams hook
+// Get all teams hook — only runs when the user is authenticated
 export function useAllTeams() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return useQuery({
     queryKey: ['profile', 'all-teams'],
     queryFn: () => ProfileService.getAllTeams(),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: isAuthenticated,
   });
 }
 
