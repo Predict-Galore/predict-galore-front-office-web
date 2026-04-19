@@ -35,5 +35,6 @@ export type {
   GetDetailedMatchRequest,
   BackendFixture,
   BackendLiveScoresResponse,
+  BackendMatchDetailResponse,
   LiveScoresResponse,
 } from './types';

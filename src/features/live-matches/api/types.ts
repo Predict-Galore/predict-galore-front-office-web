@@ -58,6 +58,17 @@ export interface BackendLiveScoresResponse {
   data: BackendFixture[];
 }
 
+/**
+ * Response shape for GET /api/v1/livescores/match/{providerFixtureId}
+ * The backend may return the fixture directly or wrapped in a data envelope.
+ */
+export interface BackendMatchDetailResponse {
+  success?: boolean;
+  message?: string;
+  errors?: string | null;
+  data?: BackendFixture;
+}
+
 export interface LiveScoresResponse {
   sections: LiveSection[];
   liveViewers: number;

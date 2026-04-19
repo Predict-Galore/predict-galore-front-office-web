@@ -11,6 +11,7 @@ import type { Match, DetailedLiveMatch } from '../model/types';
 import type {
   GetLiveScoresRequest,
   BackendLiveScoresResponse,
+  BackendMatchDetailResponse,
   BackendFixture,
   LiveScoresResponse,
 } from './types';
@@ -141,41 +142,43 @@ export class LiveMatchesService {
   }
 
   /**
-   * Get detailed match by fixture id.
-   * Uses the live scores list (GET /api/v1/livescores) and finds the fixture by providerFixtureId.
+   * Get full match detail by providerFixtureId.
+   * Calls GET /api/v1/livescores/match/{providerFixtureId}
+   *
+   * The match.id on the frontend IS the providerFixtureId (set by the transformer).
    */
-  static async getDetailedMatch(matchId: string): Promise<DetailedLiveMatch | null> {
-    const validation = validateMatchId(matchId);
+  static async getDetailedMatch(providerFixtureId: string): Promise<DetailedLiveMatch | null> {
+    const validation = validateMatchId(providerFixtureId);
     if (!validation.isValid) {
       throw new Error(validation.error);
     }
 
-    const fixtureId = parseInt(matchId, 10);
-    if (Number.isNaN(fixtureId)) {
-      throw new Error('Invalid match id');
-    }
-
-    logger.info('Fetching detailed match from live scores', { matchId, fixtureId });
+    logger.info('Fetching match detail', { providerFixtureId });
 
     try {
-      const response = await api.get<BackendLiveScoresResponse>(API_ENDPOINTS.LIVE.SCORES);
+      const response = await api.get<BackendMatchDetailResponse | BackendFixture>(
+        API_ENDPOINTS.LIVE.MATCH_DETAIL(providerFixtureId)
+      );
 
-      const fixtures: BackendFixture[] = Array.isArray(response)
-        ? response
-        : ((response as BackendLiveScoresResponse)?.data ?? []);
+      // Unwrap envelope if present: { success, data: BackendFixture }
+      let fixture: BackendFixture | undefined;
 
-      const fixture = fixtures.find((f) => f.providerFixtureId === fixtureId);
+      if (response && typeof response === 'object' && 'data' in response && response.data) {
+        fixture = (response as BackendMatchDetailResponse).data;
+      } else if (response && 'providerFixtureId' in response) {
+        fixture = response as BackendFixture;
+      }
 
       if (!fixture) {
-        logger.debug('Fixture not found in live scores', { matchId });
+        logger.debug('No fixture data in match detail response', { providerFixtureId });
         return null;
       }
 
-      const detailed = LiveMatchesTransformer.fixtureToDetailedLiveMatch(fixture, matchId);
-      logger.info('Detailed match fetched successfully', { matchId });
+      const detailed = LiveMatchesTransformer.fixtureToDetailedLiveMatch(fixture, providerFixtureId);
+      logger.info('Match detail fetched successfully', { providerFixtureId });
       return detailed;
     } catch (error) {
-      logger.error('Failed to fetch detailed match', { error, matchId });
+      logger.error('Failed to fetch match detail', { error, providerFixtureId });
       throw error;
     }
   }

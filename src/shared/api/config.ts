@@ -46,7 +46,8 @@ export const API_ENDPOINTS = {
   // Live scores endpoints
   LIVE: {
     SCORES: '/api/v1/livescores',
-    DETAILED_MATCH: (matchId: string) => `/api/v1/live/match/${matchId}`,
+    /** GET /api/v1/livescores/match/{providerFixtureId} — full match detail */
+    MATCH_DETAIL: (providerFixtureId: number | string) => `/api/v1/livescores/match/${providerFixtureId}`,
     FIXTURE: (fixtureId: number) => `/api/v1/livescores/fixture/${fixtureId}`,
     LEAGUE: (leagueId: number) => `/api/v1/livescores/league/${leagueId}`,
   },
