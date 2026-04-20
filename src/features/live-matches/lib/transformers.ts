@@ -281,8 +281,6 @@ export class LiveMatchesTransformer {
       awayTopScorer: emptyPlayer,
     };
 
-    const commentary: LiveMatchCommentary[] = [];
-
     return {
       id: matchId,
       matchId,

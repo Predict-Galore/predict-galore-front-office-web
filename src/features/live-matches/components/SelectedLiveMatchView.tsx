@@ -1,46 +1,43 @@
 /**
- * Selected Live Match View Component
- * Displays detailed information about a selected live match
+ * SelectedLiveMatchView
  *
- * This component shows:
- * - Match header with teams, score, and status
- * - Goal scorers for both teams
- * - Match details (date, time, venue, competition)
- * - Predicted outcome
- * - Player of the match
- * - Match statistics comparison
+ * Renders the detail view for a selected live match.
+ * Only displays data that is actually returned by the backend:
+ *
+ *   GET /api/v1/livescores/match/{providerFixtureId}
+ *   {
+ *     providerFixtureId, league,
+ *     homeTeam, awayTeam, homeTeamLogo, awayTeamLogo,
+ *     homeScore, awayScore, status, elapsed, kickoffUtc,
+ *     events: { goals[], homeYellowCards, awayYellowCards, homeRedCards, awayRedCards }
+ *   }
  */
 
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
-  Box,
-  Typography,
   Avatar,
-  IconButton,
+  Box,
   Chip,
-  Stack,
-  Paper,
   Divider,
-  Button,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
 } from '@mui/material';
 import {
   ArrowBack,
-  Share,
   CalendarTodayOutlined,
   AccessTimeOutlined,
-  LocationOnOutlined,
-  StadiumOutlined,
+  EmojiEvents,
   SportsSoccer,
-  PlayCircleOutline,
-  AssignmentOutlined,
-  BarChartOutlined,
+  Square,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import { Match, DetailedLiveMatch } from '../model/types';
+import type { Match, DetailedLiveMatch } from '../model/types';
 
-// ==================== TYPES ====================
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface SelectedLiveMatchViewProps {
   match: Match;
@@ -48,208 +45,53 @@ interface SelectedLiveMatchViewProps {
   onBack: () => void;
 }
 
-// ==================== HELPER COMPONENTS ====================
+// ─── Status label helper ──────────────────────────────────────────────────────
 
-/**
- * Section Icon Component
- * Green circular icon container for section headers
- */
-interface SectionIconProps {
-  children: React.ReactNode;
+function statusLabel(status: string, elapsed: number): string {
+  switch (status) {
+    case '1H': return `${elapsed}'`;
+    case '2H': return `${elapsed}'`;
+    case 'HT': return 'Half Time';
+    case 'ET': return `ET ${elapsed}'`;
+    case 'FT': return 'Full Time';
+    case 'POSTPONED': return 'Postponed';
+    case 'CANCELLED': return 'Cancelled';
+    default: return status;
+  }
 }
 
-const SectionIcon: React.FC<SectionIconProps> = ({ children }) => (
-  <Box
-    sx={{
-      width: 32,
-      height: 32,
-      borderRadius: '50%',
-      bgcolor: 'success.50',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    {children}
-  </Box>
+// ─── Card icon ────────────────────────────────────────────────────────────────
+
+const YellowCard: React.FC = () => (
+  <Square sx={{ fontSize: 14, color: '#f5c518', borderRadius: '2px' }} />
 );
 
-/**
- * Section Header Component
- * Reusable header for content sections
- */
-interface SectionHeaderProps {
-  title: string;
-  icon: React.ReactNode;
-}
-
-const SectionHeader: React.FC<SectionHeaderProps> = ({ title, icon }) => (
-  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-    <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
-      {title}
-    </Typography>
-    <SectionIcon>{icon}</SectionIcon>
-  </Stack>
+const RedCard: React.FC = () => (
+  <Square sx={{ fontSize: 14, color: 'error.main', borderRadius: '2px' }} />
 );
 
-/**
- * Info Row Component
- * Displays icon and text information
- */
-interface InfoRowProps {
-  icon: React.ReactNode;
-  text: string;
-}
-
-const InfoRow: React.FC<InfoRowProps> = ({ icon, text }) => (
-  <Stack direction="row" spacing={2} alignItems="center">
-    <Box sx={{ color: 'text.disabled', display: 'flex' }}>{icon}</Box>
-    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-      {text}
-    </Typography>
-  </Stack>
-);
-
-/**
- * Stat Row Component
- * Displays a statistic comparison between home and away teams
- */
-interface StatRowProps {
-  label: string;
-  homeValue: string | number;
-  awayValue: string | number;
-}
-
-const StatRow: React.FC<StatRowProps> = ({ label, homeValue, awayValue }) => (
-  <Box
-    sx={{
-      display: 'grid',
-      gridTemplateColumns: '1fr auto 1fr',
-      alignItems: 'center',
-      py: 1.5,
-    }}
-  >
-    <Typography
-      variant="body2"
-      sx={{
-        fontWeight: 500,
-        color: 'text.primary',
-        textAlign: 'left',
-        fontSize: '0.875rem',
-      }}
-    >
-      {homeValue}
-    </Typography>
-    <Typography
-      variant="body2"
-      sx={{
-        fontWeight: 500,
-        color: 'text.secondary',
-        textAlign: 'center',
-        fontSize: '0.8125rem',
-        px: 2,
-      }}
-    >
-      {label}
-    </Typography>
-    <Typography
-      variant="body2"
-      sx={{
-        fontWeight: 500,
-        color: 'text.primary',
-        textAlign: 'right',
-        fontSize: '0.875rem',
-      }}
-    >
-      {awayValue}
-    </Typography>
-  </Box>
-);
-
-// ==================== MAIN COMPONENT ====================
+// ─── Main component ───────────────────────────────────────────────────────────
 
 const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
   match,
   detailedLiveMatch,
   onBack,
 }) => {
-  // ==================== COMPUTED VALUES ====================
+  const { events } = detailedLiveMatch;
 
-  /**
-   * Format date and time for display
-   */
-  const dateTime = useMemo(() => {
-    const date = dayjs(match.dateTime);
-    return {
-      date: date.format('dddd, DD MMMM YYYY'),
-      time: date.format('HH:mm [EST]'),
-    };
-  }, [match.dateTime]);
+  // Separate goals by team
+  const homeGoals = events.filter((e) => e.type === 'goal' && e.team === 'home');
+  const awayGoals = events.filter((e) => e.type === 'goal' && e.team === 'away');
 
-  /**
-   * Match statistics for comparison
-   */
-  const matchStats = useMemo(
-    () => [
-      {
-        label: 'Shots',
-        home: detailedLiveMatch.stats.homeTotalShots,
-        away: detailedLiveMatch.stats.awayTotalShots,
-      },
-      {
-        label: 'Shots on target',
-        home: detailedLiveMatch.stats.homeShotsOnTarget,
-        away: detailedLiveMatch.stats.awayShotsOnTarget,
-      },
-      {
-        label: 'Possession',
-        home: detailedLiveMatch.stats.homePossession,
-        away: detailedLiveMatch.stats.awayPossession,
-      },
-      {
-        label: 'Passes',
-        home: detailedLiveMatch.stats.homeTeam.goalsPerGame,
-        away: detailedLiveMatch.stats.awayTeam.goalsPerGame,
-      },
-      {
-        label: 'Pass accuracy',
-        home: `${detailedLiveMatch.stats.homeTeam.winPercentage}%`,
-        away: `${detailedLiveMatch.stats.awayTeam.winPercentage}%`,
-      },
-      {
-        label: 'Fouls',
-        home: `${detailedLiveMatch.stats.homeFouls}%`,
-        away: `${detailedLiveMatch.stats.awayFouls}%`,
-      },
-      {
-        label: 'Yellow cards',
-        home: detailedLiveMatch.stats.homeYellowCards,
-        away: detailedLiveMatch.stats.awayYellowCards,
-      },
-      {
-        label: 'Red cards',
-        home: detailedLiveMatch.stats.homeRedCards,
-        away: detailedLiveMatch.stats.awayRedCards,
-      },
-      {
-        label: 'Offsides',
-        home: detailedLiveMatch.stats.homeOffsides,
-        away: detailedLiveMatch.stats.awayOffsides,
-      },
-      {
-        label: 'Corners',
-        home: detailedLiveMatch.stats.homeCorners,
-        away: detailedLiveMatch.stats.awayCorners,
-      },
-    ],
-    [detailedLiveMatch.stats]
-  );
+  // Card counts come from stats (mapped from backend events object)
+  const { homeYellowCards, awayYellowCards, homeRedCards, awayRedCards } =
+    detailedLiveMatch.stats;
 
-  // ==================== RENDER ====================
+  const kickoff = dayjs(match.dateTime);
 
   return (
     <Box>
-      {/* Match Header (Dark Green Gradient) */}
+      {/* ── Header (dark green gradient) ── */}
       <Paper
         elevation={0}
         sx={{
@@ -258,119 +100,144 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           overflow: 'hidden',
         }}
       >
-        {/* Top Action Bar */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ px: 2, pt: 2, pb: 1 }}
-        >
+        {/* Back button */}
+        <Box sx={{ px: 2, pt: 2 }}>
           <IconButton onClick={onBack} aria-label="Go back" sx={{ color: 'white' }}>
             <ArrowBack />
           </IconButton>
+        </Box>
 
-          <Stack direction="row" spacing={0.5}>
-            <IconButton aria-label="Share match" sx={{ color: 'white' }}>
-              <Share sx={{ fontSize: 20 }} />
-            </IconButton>
+        {/* League name */}
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            color: 'rgba(255,255,255,0.7)',
+            fontWeight: 600,
+            letterSpacing: 0.5,
+            mb: 2,
+            px: 2,
+          }}
+        >
+          {match.competition}
+        </Typography>
+
+        {/* Teams + Score */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          spacing={2}
+          sx={{ px: 3, pb: 1 }}
+        >
+          {/* Home team */}
+          <Stack alignItems="center" spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+            <Avatar
+              src={match.homeTeam.logoUrl}
+              alt={match.homeTeam.name}
+              sx={{ width: 60, height: 60, bgcolor: 'white', p: 0.5 }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                letterSpacing: 0.3,
+              }}
+            >
+              {match.homeTeam.name}
+            </Typography>
+          </Stack>
+
+          {/* Score + status */}
+          <Stack alignItems="center" spacing={0.75}>
+            <Typography
+              sx={{
+                color: 'white',
+                fontSize: { xs: '2.75rem', sm: '3.25rem' },
+                fontWeight: 900,
+                lineHeight: 1,
+                letterSpacing: 4,
+              }}
+            >
+              {match.result}
+            </Typography>
+            <Chip
+              label={statusLabel(match.status, detailedLiveMatch.currentMinute)}
+              size="small"
+              sx={{
+                bgcolor: match.status === 'FT' ? 'rgba(255,255,255,0.15)' : 'success.main',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: '0.7rem',
+                height: 24,
+                px: 1,
+              }}
+            />
+          </Stack>
+
+          {/* Away team */}
+          <Stack alignItems="center" spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+            <Avatar
+              src={match.awayTeam.logoUrl}
+              alt={match.awayTeam.name}
+              sx={{ width: 60, height: 60, bgcolor: 'white', p: 0.5 }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                letterSpacing: 0.3,
+              }}
+            >
+              {match.awayTeam.name}
+            </Typography>
           </Stack>
         </Stack>
 
-        {/* Teams and Score */}
-        <Box sx={{ px: 2, pb: 4 }}>
+        {/* Goal scorers under the score */}
+        {(homeGoals.length > 0 || awayGoals.length > 0) && (
           <Stack
             direction="row"
-            spacing={{ xs: 3, sm: 5 }}
-            alignItems="flex-start"
-            justifyContent="center"
+            justifyContent="space-between"
+            sx={{ px: 4, pb: 3, pt: 1 }}
           >
-            {/* Home Team */}
-            <Stack alignItems="center" spacing={1} sx={{ flex: 1, minWidth: 0 }}>
-              <Avatar
-                src={match.homeTeam.logoUrl}
-                alt={match.homeTeam.name}
-                sx={{
-                  width: 64,
-                  height: 64,
-                  bgcolor: 'white',
-                  p: 0.5,
-                }}
-              />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'white',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  textAlign: 'center',
-                  fontSize: '0.75rem',
-                  letterSpacing: 0.5,
-                }}
-              >
-                {match.homeTeam.shortName || match.homeTeam.name}
-              </Typography>
+            {/* Home goals */}
+            <Stack spacing={0.25} sx={{ flex: 1 }}>
+              {homeGoals.map((g) => (
+                <Stack key={g.id} direction="row" alignItems="center" spacing={0.5}>
+                  <SportsSoccer sx={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }} />
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
+                    {g.playerName ? `${g.playerName} ${g.minute}'` : `${g.minute}'`}
+                  </Typography>
+                </Stack>
+              ))}
             </Stack>
 
-            {/* Score and Status */}
-            <Stack alignItems="center" spacing={1} sx={{ pt: 0.5 }}>
-              <Typography
-                sx={{
-                  color: 'white',
-                  fontSize: { xs: '3rem', sm: '3.5rem' },
-                  fontWeight: 900,
-                  lineHeight: 1,
-                  letterSpacing: 3,
-                }}
-              >
-                {match.result}
-              </Typography>
-              <Chip
-                label={match.status}
-                sx={{
-                  paddingX: 4,
-                  bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontSize: '0.75rem',
-                  textTransform: 'uppercase',
-                  height: 28,
-                }}
-              />
-            </Stack>
-
-            {/* Away Team */}
-            <Stack alignItems="center" spacing={1} sx={{ flex: 1, minWidth: 0 }}>
-              <Avatar
-                src={match.awayTeam.logoUrl}
-                alt={match.awayTeam.name}
-                sx={{
-                  width: 64,
-                  height: 64,
-                  bgcolor: 'white',
-                  p: 0.5,
-                }}
-              />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'white',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  textAlign: 'center',
-                  fontSize: '0.75rem',
-                  letterSpacing: 0.5,
-                }}
-              >
-                {match.awayTeam.shortName || match.awayTeam.name}
-              </Typography>
+            {/* Away goals */}
+            <Stack spacing={0.25} alignItems="flex-end" sx={{ flex: 1 }}>
+              {awayGoals.map((g) => (
+                <Stack key={g.id} direction="row" alignItems="center" spacing={0.5}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
+                    {g.playerName ? `${g.playerName} ${g.minute}'` : `${g.minute}'`}
+                  </Typography>
+                  <SportsSoccer sx={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }} />
+                </Stack>
+              ))}
             </Stack>
           </Stack>
+        )}
 
-          {/* Goal Scorers */}
-        </Box>
+        {!homeGoals.length && !awayGoals.length && <Box sx={{ pb: 3 }} />}
       </Paper>
 
-      {/* Content Sections (White Background) */}
+      {/* ── Body ── */}
       <Paper
         elevation={0}
         sx={{
@@ -378,180 +245,159 @@ const SelectedLiveMatchView: React.FC<SelectedLiveMatchViewProps> = ({
           border: '1px solid',
           borderTop: 'none',
           borderColor: 'grey.200',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         }}
       >
-        {/* Match Details Section */}
+        {/* Match info */}
         <Box sx={{ px: 3, py: 3 }}>
-          <SectionHeader
-            title="Match Details"
-            icon={<SportsSoccer sx={{ fontSize: 16, color: 'success.main' }} />}
-          />
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+            <EmojiEvents sx={{ fontSize: 18, color: 'success.main' }} />
+            <Typography variant="subtitle2" fontWeight={700}>
+              Match Info
+            </Typography>
+          </Stack>
 
-          <Stack spacing={2}>
-            <InfoRow icon={<CalendarTodayOutlined sx={{ fontSize: 18 }} />} text={dateTime.date} />
-            <InfoRow icon={<AccessTimeOutlined sx={{ fontSize: 18 }} />} text={dateTime.time} />
-            <InfoRow
-              icon={<LocationOnOutlined sx={{ fontSize: 18 }} />}
-              text={match.competition || 'N/A'}
-            />
-            <InfoRow
-              icon={<StadiumOutlined sx={{ fontSize: 18 }} />}
-              text={match.stadium || 'TBD'}
-            />
+          <Stack spacing={1.5}>
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <CalendarTodayOutlined sx={{ fontSize: 16, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary">
+                {kickoff.format('dddd, DD MMMM YYYY')}
+              </Typography>
+            </Stack>
+
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <AccessTimeOutlined sx={{ fontSize: 16, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary">
+                {kickoff.format('HH:mm')} UTC
+              </Typography>
+            </Stack>
           </Stack>
         </Box>
 
         <Divider sx={{ mx: 3 }} />
 
-        {/* Predicted Outcome Section */}
-        {match.predictedScore && (
-          <>
-            <Box sx={{ px: 3, py: 3 }}>
-              <SectionHeader
-                title="Predicted outcome"
-                icon={<PlayCircleOutline sx={{ fontSize: 16, color: 'success.main' }} />}
-              />
-
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar
-                  src={match.homeTeam.logoUrl}
-                  alt={match.homeTeam.name}
-                  sx={{ width: 32, height: 32 }}
-                />
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                    {match.homeTeam.shortName || match.homeTeam.name} wins
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontSize: '0.8125rem' }}
-                  >
-                    {match.predictedScore}
-                  </Typography>
-                </Box>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    textTransform: 'none',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  View all predictions
-                </Button>
-              </Stack>
-            </Box>
-
-            <Divider sx={{ mx: 3 }} />
-          </>
-        )}
-
-        {/* Player of the Match Section */}
-        {detailedLiveMatch.stats.homeTopScorer && (
-          <>
-            <Box sx={{ px: 3, py: 3 }}>
-              <SectionHeader
-                title="Player of the match"
-                icon={<AssignmentOutlined sx={{ fontSize: 16, color: 'success.main' }} />}
-              />
-
-              <Stack direction="row" spacing={2} alignItems="center">
-                {/* Player Avatar with Team Badge */}
-                <Box sx={{ position: 'relative' }}>
-                  <Avatar
-                    src={(detailedLiveMatch.stats.homeTopScorer as { imageUrl?: string })?.imageUrl}
-                    alt={detailedLiveMatch.stats.homeTopScorer.name}
-                    sx={{ width: 48, height: 48, bgcolor: 'grey.200' }}
-                  >
-                    {detailedLiveMatch.stats.homeTopScorer.name?.[0]?.toUpperCase() ?? '?'}
-                  </Avatar>
-                  <Avatar
-                    src={match.homeTeam.logoUrl}
-                    alt={match.homeTeam.name}
-                    sx={{
-                      width: 18,
-                      height: 18,
-                      position: 'absolute',
-                      bottom: -2,
-                      right: -2,
-                      border: '2px solid white',
-                      bgcolor: 'grey.100',
-                    }}
-                  />
-                </Box>
-
-                {/* Player Info */}
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body1" sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-                    {detailedLiveMatch.stats.homeTopScorer.name}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontSize: '0.8125rem' }}
-                  >
-                    {detailedLiveMatch.stats.homeTopScorer.position}
-                  </Typography>
-                </Box>
-
-                {/* Rating Badge */}
-                <Chip
-                  label={detailedLiveMatch.stats.homeTopScorer.rating}
-                  sx={{
-                    bgcolor: 'grey.100',
-                    fontWeight: 700,
-                    fontSize: '0.9375rem',
-                  }}
-                />
-              </Stack>
-            </Box>
-
-            <Divider sx={{ mx: 3 }} />
-          </>
-        )}
-
-        {/* Match Stats Section */}
+        {/* Cards summary */}
         <Box sx={{ px: 3, py: 3 }}>
-          <SectionHeader
-            title="Match stats"
-            icon={<BarChartOutlined sx={{ fontSize: 16, color: 'success.main' }} />}
-          />
-
-          {/* Team Logos */}
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mb: 3, px: 0.5 }}
-          >
-            <Avatar
-              src={match.homeTeam.logoUrl}
-              alt={match.homeTeam.name}
-              sx={{ width: 36, height: 36 }}
-            />
-            <Avatar
-              src={match.awayTeam.logoUrl}
-              alt={match.awayTeam.name}
-              sx={{ width: 36, height: 36 }}
-            />
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+            <Square sx={{ fontSize: 18, color: '#f5c518' }} />
+            <Typography variant="subtitle2" fontWeight={700}>
+              Cards
+            </Typography>
           </Stack>
 
-          {/* Stats Rows */}
-          <Stack spacing={0.5}>
-            {matchStats.map((stat) => (
-              <StatRow
-                key={stat.label}
-                label={stat.label}
-                homeValue={stat.home}
-                awayValue={stat.away}
-              />
-            ))}
+          {/* Header row */}
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+              {match.homeTeam.name}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+              {match.awayTeam.name}
+            </Typography>
+          </Stack>
+
+          {/* Yellow cards */}
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 1 }}>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              {Array.from({ length: homeYellowCards }).map((_, i) => (
+                <YellowCard key={i} />
+              ))}
+              <Typography variant="body2" fontWeight={700} sx={{ ml: 0.5 }}>
+                {homeYellowCards}
+              </Typography>
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
+              Yellow
+            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Typography variant="body2" fontWeight={700} sx={{ mr: 0.5 }}>
+                {awayYellowCards}
+              </Typography>
+              {Array.from({ length: awayYellowCards }).map((_, i) => (
+                <YellowCard key={i} />
+              ))}
+            </Stack>
+          </Stack>
+
+          {/* Red cards */}
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 1 }}>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              {Array.from({ length: homeRedCards }).map((_, i) => (
+                <RedCard key={i} />
+              ))}
+              <Typography variant="body2" fontWeight={700} sx={{ ml: 0.5 }}>
+                {homeRedCards}
+              </Typography>
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
+              Red
+            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Typography variant="body2" fontWeight={700} sx={{ mr: 0.5 }}>
+                {awayRedCards}
+              </Typography>
+              {Array.from({ length: awayRedCards }).map((_, i) => (
+                <RedCard key={i} />
+              ))}
+            </Stack>
           </Stack>
         </Box>
+
+        {/* Goal events timeline — only shown when there are goals */}
+        {events.filter((e) => e.type === 'goal').length > 0 && (
+          <>
+            <Divider sx={{ mx: 3 }} />
+
+            <Box sx={{ px: 3, py: 3 }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                <SportsSoccer sx={{ fontSize: 18, color: 'success.main' }} />
+                <Typography variant="subtitle2" fontWeight={700}>
+                  Goals
+                </Typography>
+              </Stack>
+
+              <Stack spacing={1.25}>
+                {events
+                  .filter((e) => e.type === 'goal')
+                  .sort((a, b) => a.minute - b.minute)
+                  .map((goal) => {
+                    const isHome = goal.team === 'home';
+                    return (
+                      <Stack
+                        key={goal.id}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent={isHome ? 'flex-start' : 'flex-end'}
+                        spacing={1}
+                      >
+                        {isHome && (
+                          <Avatar
+                            src={match.homeTeam.logoUrl}
+                            alt={match.homeTeam.name}
+                            sx={{ width: 22, height: 22 }}
+                          />
+                        )}
+                        <SportsSoccer sx={{ fontSize: 14, color: 'success.main' }} />
+                        <Typography variant="body2" fontWeight={600}>
+                          {goal.playerName || (isHome ? match.homeTeam.name : match.awayTeam.name)}
+                        </Typography>
+                        <Chip
+                          label={`${goal.minute}'`}
+                          size="small"
+                          sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700 }}
+                        />
+                        {!isHome && (
+                          <Avatar
+                            src={match.awayTeam.logoUrl}
+                            alt={match.awayTeam.name}
+                            sx={{ width: 22, height: 22 }}
+                          />
+                        )}
+                      </Stack>
+                    );
+                  })}
+              </Stack>
+            </Box>
+          </>
+        )}
       </Paper>
     </Box>
   );
