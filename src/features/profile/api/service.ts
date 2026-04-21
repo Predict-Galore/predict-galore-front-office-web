@@ -8,7 +8,6 @@ import { ApiError } from '@/shared/lib/errors';
 import { ProfileTransformer } from '../lib/transformers';
 import type {
   ProfileUser,
-  Subscription,
   UserSubscription,
   SubscriptionPlan,
   Transaction,
