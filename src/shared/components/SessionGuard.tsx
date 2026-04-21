@@ -77,7 +77,7 @@ export default function SessionGuard({ children }: { children: React.ReactNode }
       clearTimeout(timer);
       setUnauthorizedHandler(() => {});
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // empty deps: intentional — registers the handler once on mount
 
   return <>{children}</>;
 }

@@ -106,7 +106,7 @@ const SubscriptionCard: React.FC<{ subscription: UserSubscription }> = ({ subscr
             </Typography>
           </Stack>
           <Chip
-            label={subscription.isActive ? 'Active' : subscription.status || 'Inactive'}
+            label={subscription.isActive ? 'Active' : 'Inactive'}
             color={statusColor}
             size="small"
             icon={subscription.isActive ? <CheckCircle sx={{ fontSize: '14px !important' }} /> : undefined}
@@ -366,7 +366,7 @@ const SubscriptionsTab: React.FC = () => {
             No active subscription
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 360, mx: 'auto' }}>
-            You don't have an active subscription yet. Subscribe to unlock premium predictions and features.
+            You don&apos;t have an active subscription yet. Subscribe to unlock premium predictions and features.
           </Typography>
           <Button
             variant="contained"

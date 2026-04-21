@@ -62,8 +62,7 @@ interface NotificationState {
  * ```
  */
 const SettingsTab: React.FC = () => {
-  // Notification settings are managed locally (no backend endpoint available)
-  const notificationSettings = null;
+  // Notification settings are managed locally — no backend endpoint exists for this
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePassword();
   const { mutate: toggle2FA } = useToggleTwoFactorAuth();
 
@@ -88,11 +87,9 @@ const SettingsTab: React.FC = () => {
   const [matchUpdatesOverride, setMatchUpdatesOverride] = useState<NotificationState | null>(null);
   const [newsAlertsOverride, setNewsAlertsOverride] = useState<NotificationState | null>(null);
 
-  const predictionInsights =
-    predictionInsightsOverride ?? notificationSettings?.predictionInsights ?? defaultNotifyState;
-  const matchUpdates =
-    matchUpdatesOverride ?? notificationSettings?.matchUpdates ?? defaultNotifyState;
-  const newsAlerts = newsAlertsOverride ?? notificationSettings?.newsAlerts ?? defaultNotifyState;
+  const predictionInsights = predictionInsightsOverride ?? defaultNotifyState;
+  const matchUpdates = matchUpdatesOverride ?? defaultNotifyState;
+  const newsAlerts = newsAlertsOverride ?? defaultNotifyState;
 
   /**
    * Calculates password strength based on various criteria

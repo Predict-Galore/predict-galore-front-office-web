@@ -12,7 +12,6 @@ import type {
   DetailedLiveMatch,
   MatchEvent,
   LiveMatchStats,
-  LiveMatchCommentary,
   TeamStats,
   PlayerStats,
 } from '../model/types';
@@ -287,7 +286,7 @@ export class LiveMatchesTransformer {
       currentMinute: fixture.elapsed ?? 0,
       half,
       events,
-      commentary,
+      commentary: [],
       stats,
       lastUpdated: new Date().toISOString(),
     };
